@@ -2,7 +2,9 @@ export const URL_TYPE = 'https://';
 
 export const API_URL = 'api/v1/';
 
-export const HELP_URL = 'https://www.chatwoot.com/help-center';
+export const HELP_URL = 'https://ajuda.zapicrm.com.br/ajuda';
+
+export const WEBHOOK_URL = 'https://webhook.zapicrm.com.br/webhook/';
 
 export const GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
 

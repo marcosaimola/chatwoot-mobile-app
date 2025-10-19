@@ -13,8 +13,8 @@
     "SETTINGS": "Settings"
   },
   "CONFIGURE_URL": {
-    "ENTER_URL": "Installation URL",
-    "DESCRIPTION": "If you are using a self-hosted Chatwoot installation, input your server URL. Otherwise, use app.chatwoot.com.",
+    "ENTER_URL": "Account URL",
+    "DESCRIPTION": "Preencha com a mesma URL que você utiliza para acessar a versão web do app",
     "URL_ERROR": "Enter a valid URL",
     "URL_REQUIRED": "URL is required",
     "CONNECT": "Connect",
@@ -292,8 +292,7 @@
     "CHANGE_LANGUAGE": "Change Language",
     "NOTIFICATIONS": "Notifications",
     "NOTIFICATION_PREFERENCES": "Notification Preferences",
-    "READ_DOCS": "Read Docs",
-    "CHAT_WITH_US": "Chat with us",
+    "HELP_CENTER": "Help Center",
     "LOGOUT": "Logout",
     "SUBMIT": "Submit",
     "SET_LANGUAGE": "Set Language",
@@ -477,5 +476,54 @@
     "EXECUTION_SUCCESS": "Macro executed successfully",
     "EXECUTION_ERROR": "Macro execution failed",
     "NO_MACROS": "No macros found"
+  },
+  "KANBAN": {
+    "TITLE": "Funnel Item",
+    "NO_ITEM": "No funnel item linked to this conversation",
+    "ADD_ITEM": "Add Item",
+    "EDIT_ITEM": "Edit Item",
+    "ADD_ITEM_TITLE": "Add Funnel Item",
+    "EDIT_ITEM_TITLE": "Edit Funnel Item",
+    "FORM": {
+      "TITLE": "Title",
+      "TITLE_PLACEHOLDER": "Enter item title",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter description",
+      "FUNNEL": "Funnel",
+      "FUNNEL_PLACEHOLDER": "Select a funnel",
+      "STAGE": "Stage",
+      "STAGE_PLACEHOLDER": "Select a stage",
+      "VALUE": "Value (R$)",
+      "VALUE_PLACEHOLDER": "0",
+      "CANCEL": "Cancel",
+      "SAVE": "Save",
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "SAVING": "Saving..."
+    },
+    "DISPLAY": {
+      "EDIT": "Edit",
+      "REMOVE": "Remove",
+      "FUNNEL_NOT_DEFINED": "Funnel not defined",
+      "STAGE_NOT_DEFINED": "Stage not defined"
+    },
+    "MESSAGES": {
+      "REQUIRED_FIELDS": "Title, Funnel and Stage are required",
+      "CONTACT_NOT_FOUND": "Contact data not found",
+      "ITEM_CREATED": "Item created successfully!",
+      "ITEM_UPDATED": "Item updated successfully!",
+      "ITEM_DELETED": "Item deleted successfully!",
+      "ITEM_DELETE_ERROR": "Error deleting item",
+      "ITEM_SAVE_ERROR": "Error saving item",
+      "NO_FUNNELS_ADD": "No funnels available to add item",
+      "NO_FUNNELS_EDIT": "No funnels available to edit item",
+      "LOADING": "Loading funnel data..."
+    },
+    "CONFIRMATION": {
+      "DELETE_TITLE": "Confirm deletion",
+      "DELETE_MESSAGE": "Are you sure you want to remove this funnel item?",
+      "CANCEL": "Cancel",
+      "REMOVE": "Remove"
+    }
   }
 }

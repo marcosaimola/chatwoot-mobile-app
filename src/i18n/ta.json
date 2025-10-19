@@ -13,7 +13,7 @@
     "SETTINGS": "அமைப்புகள்"
   },
   "CONFIGURE_URL": {
-    "ENTER_URL": "Installation URL",
+    "ENTER_URL": "Account URL",
     "DESCRIPTION": "If you are using a self-hosted Chatwoot installation, input your server URL. Otherwise, use app.chatwoot.com.",
     "URL_ERROR": "சரியான URL ஐ உள்ளிடவும்",
     "URL_REQUIRED": "URL is required",

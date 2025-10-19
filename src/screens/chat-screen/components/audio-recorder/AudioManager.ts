@@ -4,6 +4,7 @@
  */
 
 import AudioRecorderPlayer, { PlayBackType } from 'react-native-audio-recorder-player';
+import { Platform } from 'react-native';
 
 export type Callback = (args: { status: AudioStatus; data?: PlayBackType }) => void;
 
@@ -36,6 +37,16 @@ export const startPlayer = async (path: string, callback: Callback) => {
 
   if (audioRecorderPlayer === undefined) {
     audioRecorderPlayer = new AudioRecorderPlayer();
+    
+    // Configure audio session for iOS to prevent screen lock during playback
+    if (Platform.OS === 'ios') {
+      await audioRecorderPlayer.setSubscriptionDuration(0.1);
+    }
+    
+    // Configure audio session for Android to prevent screen lock during playback
+    if (Platform.OS === 'android') {
+      await audioRecorderPlayer.setSubscriptionDuration(0.1);
+    }
   }
 
   const shouldBeResumed = currentPath === path && currentPosition > 0;

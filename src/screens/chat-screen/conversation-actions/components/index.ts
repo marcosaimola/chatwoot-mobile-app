@@ -3,3 +3,7 @@ export * from './ConversationSettingsPanel';
 export * from './ConversationLabelActions';
 export * from './AddParticipantList';
 export * from './UpdateParticipant';
+export * from './KanbanItemCard';
+export * from './KanbanItemDisplay';
+export * from './KanbanItemForm';
+export * from './Dropdown';

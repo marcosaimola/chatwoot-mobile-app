@@ -34,7 +34,7 @@ const ActionBottomSheet = () => {
       case 'Assign':
         return ['50%'];
       case 'Status':
-        return [250];
+        return [350]; // Aumentado de 250 para 350 para acomodar o botão
       case 'Label':
         return [368];
       case 'Priority':

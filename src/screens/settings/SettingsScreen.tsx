@@ -122,8 +122,6 @@ const SettingsScreen = () => {
 
   const isChatwootCloud = useAppSelector(selectIsChatwootCloud);
 
-  const chatwootInstance = isChatwootCloud ? `${appName} cloud` : `${appName} self-hosted`;
-
   const accounts = useSelector(selectAccounts) || [];
 
   const activeAccountName = accounts.length
@@ -254,19 +252,11 @@ const SettingsScreen = () => {
   const supportList: GenericListType[] = [
     {
       hasChevron: true,
-      title: i18n.t('SETTINGS.READ_DOCS'),
+      title: i18n.t('SETTINGS.HELP_CENTER'),
       icon: <SwitchIcon />,
       subtitle: '',
       subtitleType: 'light',
       onPressListItem: openURL,
-    },
-    {
-      hasChevron: true,
-      title: i18n.t('SETTINGS.CHAT_WITH_US'),
-      icon: <ChatwootIcon />,
-      subtitle: '',
-      subtitleType: 'light',
-      onPressListItem: () => toggleWidget(true),
     },
   ];
 
@@ -319,7 +309,7 @@ const SettingsScreen = () => {
           style={tailwind.style('p-4 items-center')}
           onLongPress={() => debugActionsSheetRef.current?.present()}>
           <Text style={tailwind.style('text-sm text-gray-700 ')}>
-            {`${chatwootInstance} ${appVersionDetails}`}
+            {appVersionDetails}
           </Text>
         </Pressable>
       </Animated.ScrollView>

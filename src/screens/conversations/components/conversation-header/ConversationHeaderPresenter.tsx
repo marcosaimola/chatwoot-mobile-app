@@ -151,6 +151,7 @@ export const ConversationHeaderPresenter = ({
 }: ConversationHeaderPresenterProps) => {
   const { handlers, animatedStyle } = useScaleAnimation();
 
+
   return (
     <Animated.View
       style={[tailwind.style('flex flex-row justify-between items-center px-4 pt-2 pb-[12px]')]}>

@@ -4,12 +4,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     name: 'Chatwoot',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'chatwoot-mobile',
-    version: '4.3.0',
+    version: '4.4.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: false,
     scheme: 'chatwootapp',
+    entryPoint: './App.tsx',
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
@@ -18,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.chatwoot.app',
+      bundleIdentifier: process.env.EXPO_PUBLIC_IOS_BUNDLE_ID || 'br.com.zapicrm',
       infoPlist: {
         NSCameraUsageDescription:
           'This app requires access to the camera to upload images and videos.',
@@ -27,20 +28,24 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         NSMicrophoneUsageDescription: 'This app requires access to the microphone to record audio.',
         NSAppleMusicUsageDescription:
           'This app does not use Apple Music, but a system API may require this permission.',
-        UIBackgroundModes: ['fetch', 'remote-notification'],
+        UIBackgroundModes: ['fetch', 'remote-notification', 'audio'],
         ITSAppUsesNonExemptEncryption: false,
       },
       // Please use the relative path to the google-services.json file
-      googleServicesFile: process.env.EXPO_PUBLIC_IOS_GOOGLE_SERVICES_FILE,
+      googleServicesFile: './GoogleService-Info.plist',
       entitlements: { 'aps-environment': 'production' },
-      associatedDomains: ['applinks:app.chatwoot.com'],
+      associatedDomains: ['applinks:atendimento.zapicrm.com.br'],
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#ffffff' },
-      package: 'com.chatwoot.app',
-      permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
+      package: process.env.EXPO_PUBLIC_ANDROID_PACKAGE || 'br.com.zapicrm',
+      permissions: [
+        'android.permission.CAMERA', 
+        'android.permission.RECORD_AUDIO',
+        'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'
+      ],
       // Please use the relative path to the google-services.json file
-      googleServicesFile: process.env.EXPO_PUBLIC_ANDROID_GOOGLE_SERVICES_FILE,
+      // googleServicesFile: process.env.EXPO_PUBLIC_ANDROID_GOOGLE_SERVICES_FILE,
       intentFilters: [
         {
           action: 'VIEW',
@@ -48,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           data: [
             {
               scheme: 'https',
-              host: 'app.chatwoot.com',
+              host: 'atendimento.zapicrm.com.br',
               pathPrefix: '/app/accounts/',
               pathPattern: '/*/conversations/*',
             },

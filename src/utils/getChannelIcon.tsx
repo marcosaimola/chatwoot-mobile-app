@@ -74,5 +74,5 @@ export const getChannelIcon = (channelType: Channel, medium: string, additionalT
     return <XFilledIcon />;
   }
 
-  return <ChatwootIcon />;
+  return <WebsiteFilledIcon />;
 };

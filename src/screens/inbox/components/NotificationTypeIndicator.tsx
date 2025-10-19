@@ -22,15 +22,15 @@ export const getNotificationTypeIcon = (type: NotificationType) => {
     case 'conversation_mention':
       return <NotificationMentionIcon />;
     case 'assigned_conversation_new_message':
-      return <NotificationNewMessageIcon />;
+      return <NotificationAssignedIcon />;
     case 'participating_conversation_new_message':
-      return <NotificationNewMessageIcon />;
+      return <NotificationAssignedIcon />;
     case 'conversation_creation':
-      return <NotificationNewMessageIcon />;
+      return <NotificationAssignedIcon />;
     case 'sla_missed_first_response':
       return <NotificationSLAIcon />;
     default:
-      return <NotificationNewMessageIcon />;
+      return <NotificationAssignedIcon />;
   }
 };
 

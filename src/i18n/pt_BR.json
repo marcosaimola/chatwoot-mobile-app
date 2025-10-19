@@ -13,8 +13,8 @@
     "SETTINGS": "Configurações"
   },
   "CONFIGURE_URL": {
-    "ENTER_URL": "URL de instalação",
-    "DESCRIPTION": "Se você estiver usando uma instalação auto-hospedada do Chatwoot, insira o URL do servidor. Caso contrário, use app.chatwoot.com.",
+    "ENTER_URL": "Account URL",
+    "DESCRIPTION": "Preencha com a mesma URL que você utiliza para acessar a versão web do app",
     "URL_ERROR": "Insira uma URL válida",
     "URL_REQUIRED": "URL é obrigatório",
     "CONNECT": "Conectar",
@@ -269,8 +269,7 @@
     "CHANGE_LANGUAGE": "Alterar Idioma",
     "NOTIFICATIONS": "Notificações",
     "NOTIFICATION_PREFERENCES": "Preferências de Notificação",
-    "READ_DOCS": "Ler documentação",
-    "CHAT_WITH_US": "Fale conosco no chat",
+    "HELP_CENTER": "Central de Ajuda",
     "LOGOUT": "Sair",
     "SUBMIT": "Enviar",
     "SET_LANGUAGE": "Configurar Idioma",
@@ -454,5 +453,54 @@
     "EXECUTION_SUCCESS": "Macro executada com sucesso",
     "EXECUTION_ERROR": "Falha ao executar macro",
     "NO_MACROS": "Nenhuma macro encontrada"
+  },
+  "KANBAN": {
+    "TITLE": "Item de Funil",
+    "NO_ITEM": "Nenhum item de funil vinculado a esta conversa",
+    "ADD_ITEM": "Adicionar Item",
+    "EDIT_ITEM": "Editar Item",
+    "ADD_ITEM_TITLE": "Adicionar Item de Funil",
+    "EDIT_ITEM_TITLE": "Editar Item de Funil",
+    "FORM": {
+      "TITLE": "Título",
+      "TITLE_PLACEHOLDER": "Digite o título do item",
+      "DESCRIPTION": "Descrição",
+      "DESCRIPTION_PLACEHOLDER": "Digite a descrição",
+      "FUNNEL": "Funil",
+      "FUNNEL_PLACEHOLDER": "Selecione um funil",
+      "STAGE": "Estágio",
+      "STAGE_PLACEHOLDER": "Selecione um estágio",
+      "VALUE": "Valor (R$)",
+      "VALUE_PLACEHOLDER": "0",
+      "CANCEL": "Cancelar",
+      "SAVE": "Salvar",
+      "CREATE": "Criar",
+      "UPDATE": "Atualizar",
+      "SAVING": "Salvando..."
+    },
+    "DISPLAY": {
+      "EDIT": "Editar",
+      "REMOVE": "Remover",
+      "FUNNEL_NOT_DEFINED": "Funil não definido",
+      "STAGE_NOT_DEFINED": "Estágio não definido"
+    },
+    "MESSAGES": {
+      "REQUIRED_FIELDS": "Título, Funil e Estágio são obrigatórios",
+      "CONTACT_NOT_FOUND": "Dados do contato não encontrados",
+      "ITEM_CREATED": "Item criado com sucesso!",
+      "ITEM_UPDATED": "Item atualizado com sucesso!",
+      "ITEM_DELETED": "Item deletado com sucesso!",
+      "ITEM_DELETE_ERROR": "Erro ao deletar item",
+      "ITEM_SAVE_ERROR": "Erro ao salvar item",
+      "NO_FUNNELS_ADD": "Nenhum funil disponível para adicionar item",
+      "NO_FUNNELS_EDIT": "Nenhum funil disponível para editar item",
+      "LOADING": "Carregando dados do funil..."
+    },
+    "CONFIRMATION": {
+      "DELETE_TITLE": "Confirmar exclusão",
+      "DELETE_MESSAGE": "Tem certeza que deseja remover este item de funil?",
+      "CANCEL": "Cancelar",
+      "REMOVE": "Remover"
+    }
   }
 }

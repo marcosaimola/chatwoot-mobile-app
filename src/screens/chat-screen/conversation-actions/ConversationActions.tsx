@@ -28,6 +28,7 @@ import { selectAllTeams } from '@/store/team/teamSelectors';
 import { selectInstallationUrl } from '@/store/settings/settingsSelectors';
 import { ConversationMetaInformation } from './components/ConversationMetaInformation';
 import { selectConversationParticipantsByConversationId } from '@/store/conversation-participant/conversationParticipantSelectors';
+import { KanbanItemCard } from './components/KanbanItemCard';
 
 const SCREEN_WIDTH = Dimensions.get('screen').width;
 
@@ -120,6 +121,7 @@ export const ConversationActions = () => {
     updateParticipantSheetRef.current?.present();
   };
 
+
   return (
     <Animated.View style={tailwind.style('', `w-[${SCREEN_WIDTH}px]`)}>
       <ScrollView
@@ -142,6 +144,9 @@ export const ConversationActions = () => {
         </Animated.View>
         <Animated.View style={tailwind.style('pt-10')}>
           <ConversationLabelActions labels={currentLabels} />
+        </Animated.View>
+        <Animated.View style={tailwind.style('pt-10')}>
+          <KanbanItemCard conversationId={conversationId} />
         </Animated.View>
         <Animated.View style={tailwind.style('pt-10')}>
           <AddParticipantList

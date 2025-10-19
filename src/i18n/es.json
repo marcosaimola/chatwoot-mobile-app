@@ -14,7 +14,7 @@
   },
   "CONFIGURE_URL": {
     "ENTER_URL": "URL de instalación",
-    "DESCRIPTION": "Si estás usando una instalación de Chatwoot autoalojada, introduce la URL de tu servidor. De lo contrario, usa app.chatwoot.com.",
+    "DESCRIPTION": "Preencha com a mesma URL que você utiliza para acessar a versão web do app",
     "URL_ERROR": "Introduzca una URL válida",
     "URL_REQUIRED": "La URL es requerida",
     "CONNECT": "Conectar",
@@ -269,8 +269,7 @@
     "CHANGE_LANGUAGE": "Cambiar idioma",
     "NOTIFICATIONS": "Notificaciones",
     "NOTIFICATION_PREFERENCES": "Preferencias de Notificación",
-    "READ_DOCS": "Leer documentación",
-    "CHAT_WITH_US": "Chatea con nosotros",
+    "HELP_CENTER": "Centro de Ayuda",
     "LOGOUT": "Cerrar sesión",
     "SUBMIT": "Enviar",
     "SET_LANGUAGE": "Definir idioma",
