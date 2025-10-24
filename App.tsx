@@ -11,13 +11,14 @@ import './reanimatedConfig';
 
 const isStorybookEnabled = Constants.expoConfig?.extra?.eas?.storybookEnabled;
 
-if (!__DEV__) {
-  Sentry.init({
-    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    tracesSampleRate: 1.0,
-    attachScreenshot: true,
-  });
-}
+// Temporarily disabled Sentry initialization to fix TestFlight crashes
+// if (!__DEV__) {
+//   Sentry.init({
+//     dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+//     tracesSampleRate: 1.0,
+//     attachScreenshot: true,
+//   });
+// }
 
 if (__DEV__) {
   // eslint-disable-next-line
@@ -30,10 +31,11 @@ export default (() => {
     return require('./.storybook').default;
   }
 
-  if (!__DEV__) {
-    return Sentry.wrap(App);
-  }
+  // Temporarily disabled Sentry wrapping to fix TestFlight crashes
+  // if (!__DEV__) {
+  //   return Sentry.wrap(App);
+  // }
 
-  console.log('Loading Development App');
+  console.log('Loading App');
   return App;
 })();

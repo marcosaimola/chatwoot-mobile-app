@@ -2,15 +2,14 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   return {
-    name: 'Chatwoot',
+    name: 'ZapiCRM',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'chatwoot-mobile',
-    version: '4.4.0',
+    version: '4.4.1',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: false,
     scheme: 'chatwootapp',
-    entryPoint: './App.tsx',
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
@@ -35,6 +34,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       googleServicesFile: './GoogleService-Info.plist',
       entitlements: { 'aps-environment': 'production' },
       associatedDomains: ['applinks:atendimento.zapicrm.com.br'],
+      // Fix dSYM warning
+      buildConfiguration: 'Release',
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#ffffff' },
@@ -45,7 +46,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'
       ],
       // Please use the relative path to the google-services.json file
-      // googleServicesFile: process.env.EXPO_PUBLIC_ANDROID_GOOGLE_SERVICES_FILE,
+      googleServicesFile: './google-services.json',
       intentFilters: [
         {
           action: 'VIEW',
@@ -81,14 +82,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins: [
       'expo-font',
       ['react-native-permissions', { iosPermissions: ['Camera', 'PhotoLibrary', 'MediaLibrary'] }],
-      [
-        '@sentry/react-native/expo',
-        {
-          url: 'https://sentry.io/',
-          project: process.env.EXPO_PUBLIC_SENTRY_PROJECT_NAME,
-          organization: process.env.EXPO_PUBLIC_SENTRY_ORG_NAME,
-        },
-      ],
+      // Temporarily disabled Sentry to fix TestFlight crash
+      // [
+      //   '@sentry/react-native/expo',
+      //   {
+      //     url: 'https://sentry.io/',
+      //     project: process.env.EXPO_PUBLIC_SENTRY_PROJECT_NAME,
+      //     organization: process.env.EXPO_PUBLIC_SENTRY_ORG_NAME,
+      //   },
+      // ],
       '@react-native-firebase/app',
       '@react-native-firebase/messaging',
       [
@@ -104,7 +106,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           ios: { useFrameworks: 'static' },
         },
       ],
-      './with-ffmpeg-pod.js',
+      // Temporarily disabled FFmpeg due to download issues
+      // './with-ffmpeg-pod.js',
     ],
     androidNavigationBar: { backgroundColor: '#ffffff' },
   };

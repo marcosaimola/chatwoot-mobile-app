@@ -59,26 +59,44 @@ export const startPlayer = async (path: string, callback: Callback) => {
     return;
   }
 
-  await audioRecorderPlayer.startPlayer(currentPath);
-  currentCallback({
-    status: AudioStatus.STARTED,
-  });
-  audioRecorderPlayer.addPlayBackListener(async e => {
-    if (e.currentPosition === e.duration) {
+  try {
+    // Try to play the audio file
+    await audioRecorderPlayer.startPlayer(currentPath);
+    currentCallback({
+      status: AudioStatus.STARTED,
+    });
+    audioRecorderPlayer.addPlayBackListener(async e => {
+      if (e.currentPosition === e.duration) {
+        currentCallback({
+          status: AudioStatus.STOPPED,
+          data: e,
+        });
+        await stopPlayer();
+      } else {
+        currentPosition = e.currentPosition;
+        currentCallback({
+          status: AudioStatus.PLAYING,
+          data: e,
+        });
+      }
+      return;
+    });
+  } catch (error) {
+    console.log('Audio playback error:', error);
+    // If playback fails, try to play with Expo AV as fallback
+    try {
+      const { playAudioWithExpoAV } = await import('@/utils/audioConverter.ios');
+      await playAudioWithExpoAV(currentPath);
+      currentCallback({
+        status: AudioStatus.STARTED,
+      });
+    } catch (expoError) {
+      console.log('Expo AV playback error:', expoError);
       currentCallback({
         status: AudioStatus.STOPPED,
-        data: e,
-      });
-      await stopPlayer();
-    } else {
-      currentPosition = e.currentPosition;
-      currentCallback({
-        status: AudioStatus.PLAYING,
-        data: e,
       });
     }
-    return;
-  });
+  }
 };
 
 export const pausePlayer = async () => {

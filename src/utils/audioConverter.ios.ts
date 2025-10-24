@@ -1,48 +1,30 @@
 import RNFS from 'react-native-fs';
-import { FFmpegKit } from 'ffmpeg-kit-react-native';
+import { Audio } from 'expo-av';
 import * as Sentry from '@sentry/react-native';
 
 export const convertOggToWav = async (oggUrl: string): Promise<string | Error> => {
-  const tempOggPath = `${RNFS.CachesDirectoryPath}/temp.ogg`;
-  const fileName = `converted_${Date.now()}.wav`;
-  const outputPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-
   try {
-    // Download the OGG file and wait for completion
-    const downloadResult = await RNFS.downloadFile({ fromUrl: oggUrl, toFile: tempOggPath })
-      .promise;
-
-    // Verify download was successful
-    if (downloadResult.statusCode !== 200) {
-      Sentry.captureException(
-        new Error(`Download failed with status ${downloadResult.statusCode}`),
-      );
+    // For iOS, download the file and return the local path
+    // This ensures the audio player can access the file
+    const fileName = `audio_${Date.now()}.ogg`;
+    const localPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+    
+    const downloadResult = await RNFS.downloadFile({
+      fromUrl: oggUrl,
+      toFile: localPath,
+    }).promise;
+    
+    if (downloadResult.statusCode === 200) {
+      // Verify the file exists
+      const fileExists = await RNFS.exists(localPath);
+      if (fileExists) {
+        return localPath;
+      } else {
+        throw new Error('Downloaded file not found');
+      }
+    } else {
       throw new Error(`Download failed with status ${downloadResult.statusCode}`);
     }
-
-    // Verify file exists before conversion
-    const fileExists = await RNFS.exists(tempOggPath);
-    if (!fileExists) {
-      throw new Error('Downloaded file not found');
-    }
-
-    // Convert OGG to WAV using ffmpeg
-    await FFmpegKit.execute(
-      `-i "${tempOggPath}" -vn -y -ar 44100 -ac 2 -c:a pcm_s16le "${outputPath}"`,
-    );
-
-    // Clean up the temporary OGG file
-    if (await RNFS.exists(tempOggPath)) {
-      await RNFS.unlink(tempOggPath);
-    }
-
-    // Verify output file exists
-    const outputExists = await RNFS.exists(outputPath);
-    if (!outputExists) {
-      throw new Error('Conversion failed - output file not found');
-    }
-
-    return `file://${outputPath}`;
   } catch (error) {
     Sentry.captureException(error);
     return error as Error;
@@ -51,19 +33,38 @@ export const convertOggToWav = async (oggUrl: string): Promise<string | Error> =
 
 export const convertAacToWav = async (inputPath: string): Promise<string> => {
   try {
-    const fileName = `converted_${Date.now()}.wav`;
-    const outputPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+    // For iOS, return the original path as-is
+    // iOS can play AAC files natively
+    return inputPath;
+  } catch (error) {
+    Sentry.captureException(error);
+    throw error;
+  }
+};
 
-    await FFmpegKit.execute(
-      `-i "${inputPath}" -vn -y -ar 44100 -ac 2 -c:a pcm_s16le "${outputPath}"`,
+// New function to play audio using Expo AV
+export const playAudioWithExpoAV = async (audioPath: string): Promise<void> => {
+  try {
+    // Configure audio session for background playback
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    });
+
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: audioPath.startsWith('file://') ? audioPath : `file://${audioPath}` },
+      { shouldPlay: true }
     );
-
-    const outputExists = await RNFS.exists(outputPath);
-    if (!outputExists) {
-      throw new Error('Conversion failed - output file not found');
-    }
-
-    return outputPath; // 👈 Return without file:// prefix
+    
+    // Clean up after playback
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) {
+        sound.unloadAsync();
+      }
+    });
   } catch (error) {
     Sentry.captureException(error);
     throw error;
