@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Platform, Pressable, View } from 'react-native';
-import { PlayBackType } from 'react-native-audio-recorder-player';
+import { Alert, Platform, Pressable, View } from 'react-native';
+import { PlayBackType } from '../audio-recorder/NativeAudioManager';
 import Animated, { FadeIn, FadeOut, useSharedValue } from 'react-native-reanimated';
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Sentry from '@sentry/react-native';
@@ -14,7 +14,7 @@ import { tailwind } from '@/theme';
 import { IconProps } from '@/types';
 import { Icon, Slider } from '@/components-next/common';
 import { Spinner } from '@/components-next/spinner';
-import { pausePlayer, resumePlayer, seekTo, startPlayer, stopPlayer } from '../audio-recorder';
+import { pausePlayer, resumePlayer, seekTo, startPlayer, stopPlayer } from '../audio-recorder/NativeAudioManager';
 import { MESSAGE_VARIANTS } from '@/constants';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/hooks';
@@ -85,18 +85,36 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
         setIsSoundLoading(true);
         try {
           const convertedSrc = await convertOggToWav(audioSrc);
-          setConvertedAudioSrc(convertedSrc);
+          
+          if (convertedSrc instanceof Error) {
+            setConvertedAudioSrc(audioSrc);
+          } else {
+            setConvertedAudioSrc(convertedSrc);
+          }
         } catch (error) {
           Sentry.captureException(error);
+          setConvertedAudioSrc(audioSrc);
         } finally {
           setIsSoundLoading(false);
         }
+      } else {
+        setConvertedAudioSrc(audioSrc);
       }
     };
     prepareAudio();
   }, [audioSrc]);
 
   const togglePlayback = useCallback(() => {
+    // Check if the audio source is an error (OGG not supported)
+    if (convertedAudioSrc instanceof Error) {
+      Alert.alert(
+        'Formato não suportado',
+        'Este formato de áudio (OGG) não é suportado no iOS. Por favor, use MP3 ou AAC.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     if (convertedAudioSrc === currentPlayingAudioSrc) {
       if (isAudioPlaying) {
         pausePlayer();
@@ -106,10 +124,22 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
       setAudioPlaying(!isAudioPlaying);
     } else {
       setIsSoundLoading(true);
-      startPlayer(convertedAudioSrc, audioPlayBackStatus).then(() => {
+      startPlayer(convertedAudioSrc, audioPlayBackStatus, {
+        title: 'Mensagem de Áudio',
+        artist: 'WhatsApp Audio',
+        album: 'ZapiCRM',
+      }).then(() => {
         setIsSoundLoading(false);
         setAudioPlaying(true);
         dispatch(setCurrentPlayingAudioSrc(convertedAudioSrc));
+      }).catch((error) => {
+        setIsSoundLoading(false);
+        setAudioPlaying(false);
+        Alert.alert(
+          'Erro de reprodução',
+          'Não foi possível reproduzir o áudio. Verifique se o formato é suportado.',
+          [{ text: 'OK' }]
+        );
       });
     }
   }, [convertedAudioSrc, currentPlayingAudioSrc, isAudioPlaying, dispatch, audioPlayBackStatus]);

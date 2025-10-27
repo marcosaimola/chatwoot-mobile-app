@@ -34,6 +34,7 @@ export type ImageMetadata = {
   accountId: number;
   extension: string | null;
   dataUrl: string;
+  dataUrlConverted?: string; // MP3 version for audio files
   thumbUrl: string;
   fallbackTitle: string;
   coordinatesLat: number;
