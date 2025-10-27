@@ -23,6 +23,7 @@ import { AuthStack, ConversationStack, SettingsStack, InboxStack } from '../stac
 import ChatScreen from '@/screens/chat-screen/ChatScreen';
 import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen';
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
+import AiAgentsScreen from '@/screens/ai-agents/AiAgentsScreen';
 
 import { selectInstallationUrl } from '@/store/settings/settingsSelectors';
 import { BottomTabBar } from './BottomTabBar';
@@ -45,6 +46,7 @@ export type TabParamList = {
   Conversations: undefined;
   Inbox: undefined;
   Settings: undefined;
+  AiAgents: undefined;
   Login: undefined;
   ConfigInstallationURL: undefined;
   ForgotPassword: undefined;
@@ -164,6 +166,11 @@ const Tabs = () => {
           component={ConversationStack}
         />
       )}
+      <Tab.Screen 
+        name="AiAgents" 
+        options={{ headerShown: false }} 
+        component={AiAgentsScreen} 
+      />
       <Tab.Screen name="Settings" options={{ headerShown: false }} component={SettingsStack} />
     </Tab.Navigator>
   );

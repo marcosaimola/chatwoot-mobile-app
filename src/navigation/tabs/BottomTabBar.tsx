@@ -12,6 +12,8 @@ import { RouteProp } from '@react-navigation/native';
 import { selectCurrentState } from '@/store/conversation/conversationHeaderSlice';
 
 import {
+  AiAgentsIconFilled,
+  AiAgentsIconOutline,
   ConversationIconFilled,
   ConversationIconOutline,
   InboxIconFilled,
@@ -41,6 +43,8 @@ const TabBarIcons = ({ focused, route }: TabBarIconsProps) => {
       return focused ? <ConversationIconFilled /> : <ConversationIconOutline />;
     case 'Inbox':
       return focused ? <InboxIconFilled /> : <InboxIconOutline />;
+    case 'AiAgents':
+      return focused ? <AiAgentsIconFilled /> : <AiAgentsIconOutline />;
     case 'Settings':
       return focused ? <SettingsIconFilled /> : <SettingsIconOutline />;
   }
