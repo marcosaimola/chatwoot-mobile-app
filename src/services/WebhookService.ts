@@ -90,6 +90,10 @@ class WebhookService {
     return this.api.put<T>(endpoint, data, config);
   }
 
+  public async patch<T, D = unknown>(endpoint: string, data?: D, config?: AxiosRequestConfig) {
+    return this.api.patch<T>(endpoint, data, config);
+  }
+
   public async delete<T>(endpoint: string, config?: AxiosRequestConfig) {
     return this.api.delete<T>(endpoint, config);
   }
