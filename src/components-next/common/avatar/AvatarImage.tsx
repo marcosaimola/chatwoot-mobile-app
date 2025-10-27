@@ -7,7 +7,7 @@ import { cx } from '@/utils';
 import { AvatarProps } from './Avatar';
 
 interface AvatarImageProps extends Pick<AvatarProps, 'imageProps' | 'src' | 'squared' | 'size'> {
-  handleFallback: () => void;
+handleFallback: () => void;
 }
 
 export const AvatarImage: React.FC<AvatarImageProps> = ({
@@ -39,6 +39,11 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({
         avatarTheme.borderRadius.size[size],
         tailwind.style(cx(avatarTheme.image, !squared ? avatarTheme.circular : '')),
       ]}
+      // Optimize cache and performance
+      cachePolicy="memory-disk"
+      recyclingKey={typeof src === 'object' && 'uri' in src ? src.uri : undefined}
+      placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+      transition={200}
       // Seems to be tricky to set the right type here, but as we are not
       // doing anything with the error data, we can ignore the TS here
       // @ts-expect-error Image onError expects ImageErrorEventData but we only need the callback

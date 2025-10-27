@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ImageProps,
   ImageSourcePropType,
@@ -111,6 +111,13 @@ export const Avatar: React.FC<Partial<AvatarProps>> = props => {
 
   const [imageAvailable, setImageAvailable] = useState(isSourceAvailable);
   const loadFallback = () => setImageAvailable(false);
+  
+  // Reset image availability when src changes
+  useEffect(() => {
+    if (src) {
+      setImageAvailable(true);
+    }
+  }, [src]);
 
   return (
     <View

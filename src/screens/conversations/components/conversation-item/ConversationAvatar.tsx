@@ -21,11 +21,24 @@ const checkIfPropsAreSame = (prev: ConversationAvatarProps, next: ConversationAv
 
 export const ConversationAvatar = memo((props: ConversationAvatarProps) => {
   const { src, name, status } = props;
+  
+  // Optimize image props for better performance
+  const optimizedImageProps = {
+    cachePolicy: 'memory-disk' as const,
+    recyclingKey: typeof src === 'object' && 'uri' in src ? src.uri : undefined,
+    placeholder: { blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' },
+    transition: 200,
+  };
+  
   return (
     <AnimatedNativeView
       style={tailwind.style('')}
       layout={LinearTransition.springify().damping(28).stiffness(200)}>
-      <Avatar size="4xl" {...{ src, name, status: status as AvatarStatusType }} />
+      <Avatar 
+        size="4xl" 
+        {...{ src, name, status: status as AvatarStatusType }} 
+        imageProps={optimizedImageProps}
+      />
     </AnimatedNativeView>
   );
 }, checkIfPropsAreSame);
