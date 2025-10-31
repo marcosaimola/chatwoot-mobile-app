@@ -53,7 +53,8 @@ Apps precisam suportar dispositivos com tamanho de página de memória de 16KB.
 
 1. **NDK Atualizado** (`android/build.gradle`):
    ```gradle
-   ndkVersion = "27.1.12297006"  // Antes: 26.1.10909125
+   ndkVersion = "28.0.12674087"  // Antes: 26.1.10909125
+   // NDK r28+ compila com alinhamento de 16KB por padrão
    ```
 
 2. **Gradle Properties** (`android/gradle.properties`):
@@ -180,10 +181,11 @@ A biblioteca `react-native-edge-to-edge` apenas habilita o modo edge-to-edge no 
 
 ### 16KB Page Size
 
-A atualização do NDK para versão 27+ é essencial pois:
-- NDK r27 usa alinhamento de 16KB por padrão
-- Todas as bibliotecas `.so` serão recompiladas com o novo alinhamento
+A atualização do NDK para versão r28+ é essencial pois:
+- NDK r28+ usa alinhamento de 16KB por padrão automaticamente
+- Todas as bibliotecas `.so` são recompiladas com o novo alinhamento
 - Garante compatibilidade com futuros dispositivos Android
+- Configuração `android.bundle.enableUncompressedNativeLibs=false` garante alinhamento ZIP correto
 
 ### Compatibilidade com Versões Anteriores
 

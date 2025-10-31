@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -14,7 +14,7 @@ import i18n from '@/i18n';
 import { AssigneeOptions } from '@/types';
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/store/auth/authSelectors';
-import { getUserPermissions } from '@/utils/permissionUtils';
+import { getUserPermissions, getCurrentAccount } from '@/utils/permissionUtils';
 
 type AssigneeTypeCellProps = {
   value: string;
@@ -58,27 +58,52 @@ const AssigneeTypeCell = (props: AssigneeTypeCellProps) => {
 };
 
 export const AssigneeTypeFilters = () => {
+  const dispatch = useAppDispatch();
   const user = useSelector(selectUser);
+  const filters = useAppSelector(selectFilters);
   const { account_id: activeAccountId } = user || { account_id: null };
 
   const userPermissions = user ? getUserPermissions(user, activeAccountId) : [];
+  const currentAccount = user ? getCurrentAccount(user, activeAccountId) : undefined;
 
-  // If userPermissions contains any values conversation_manage_permission,administrator, agent then keep all the assignee types
-  // If conversation_manage is not available and conversation_unassigned_manage only is available, then return only unassigned and mine
-  // If conversation_manage is not available and conversation_participating_manage only is available, then return only all and mine
+  // Check if user is administrator
+  const isAdmin =
+    userPermissions.includes('administrator') ||
+    currentAccount?.role === 'administrator';
+
   let assigneeTypes = assigneeTypeList;
 
-  if (
-    userPermissions.includes('conversation_manage') ||
-    userPermissions.includes('agent') ||
-    userPermissions.includes('administrator')
-  ) {
-    // Keep all the assignee types
-  } else if (userPermissions.includes('conversation_unassigned_manage')) {
-    assigneeTypes = assigneeTypeList.filter(type => type !== 'all');
+  if (isAdmin) {
+    // Administrators can see all assignee types
+    assigneeTypes = assigneeTypeList;
   } else {
-    assigneeTypes = assigneeTypeList.filter(type => type !== 'unassigned');
+    // For non-admin users, check the new permission flags
+    const canViewAll = currentAccount?.can_view_all_conversations ?? true; // Default to true for backward compatibility
+    const canViewUnassigned = currentAccount?.can_view_unassigned_conversations ?? true; // Default to true for backward compatibility
+
+    // Filter based on the new permission flags
+    assigneeTypes = assigneeTypeList.filter(type => {
+      if (type === 'all' && !canViewAll) {
+        return false;
+      }
+      if (type === 'unassigned' && !canViewUnassigned) {
+        return false;
+      }
+      return true;
+    });
   }
+
+  // Auto-correct filter if current selection is not available
+  useEffect(() => {
+    const currentAssigneeType = filters.assignee_type;
+    const isCurrentFilterAvailable = assigneeTypes.includes(currentAssigneeType as AssigneeTypes);
+    
+    if (!isCurrentFilterAvailable) {
+      // If the current filter is not available, reset to 'me'
+      dispatch(setFilters({ key: 'assignee_type', value: 'me' }));
+    }
+  }, [assigneeTypes, filters.assignee_type, dispatch]);
+
   return (
     <Animated.View>
       <BottomSheetHeader headerText={i18n.t('CONVERSATION.FILTERS.ASSIGNEE_TYPE.TITLE')} />

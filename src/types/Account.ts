@@ -10,4 +10,6 @@ export interface Account {
   permissions: string[];
   role: string;
   status: string;
+  can_view_unassigned_conversations?: boolean;
+  can_view_all_conversations?: boolean;
 }

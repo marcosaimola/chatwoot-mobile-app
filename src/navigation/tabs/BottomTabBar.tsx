@@ -9,6 +9,7 @@ import Animated, {
 import { BlurView, BlurViewProps } from '@react-native-community/blur';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { selectCurrentState } from '@/store/conversation/conversationHeaderSlice';
 
 import {
@@ -125,6 +126,7 @@ const TabItem = (props: any) => {
 
 export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const tabBarHeight = useTabBarHeight();
+  const insets = useSafeAreaInsets();
 
   // Memoize press handlers using useCallback
   const createPressHandler = React.useCallback(
@@ -158,39 +160,52 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
   );
 
   return (
-    <TabBarBackground
-      blurAmount={25}
-      blurType="light"
-      style={Platform.select({
-        ios: [
-          tailwind.style(
-            'flex flex-row absolute w-full bottom-0 pl-[72px] pr-[71px] pt-[11px] pb-8 bg-[#00000009]',
-            `h-[${tabBarHeight}px]`,
-          ),
-        ],
-        android: [
-          tailwind.style(
-            'flex flex-row absolute w-full bottom-0 pl-[72px] pr-[71px] py-[11px] bg-white',
-            `h-[${tabBarHeight}px]`,
-          ),
-        ],
-      })}>
-      <Animated.View style={tailwind.style('absolute inset-0 h-[1px] bg-blackA-A3')} />
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+    <Animated.View
+      style={[
+        tailwind.style('absolute w-full'),
+        Platform.select({
+          ios: { bottom: 0 },
+          android: { 
+            bottom: 0,
+            backgroundColor: 'white',
+            paddingBottom: insets.bottom,
+          },
+        }),
+      ]}>
+      <TabBarBackground
+        blurAmount={25}
+        blurType="light"
+        style={Platform.select({
+          ios: [
+            tailwind.style(
+              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-8 bg-[#00000009]',
+              `h-[${tabBarHeight}px]`,
+            ),
+          ],
+          android: [
+            tailwind.style(
+              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-[11px] bg-white',
+              `h-[${tabBarHeight}px]`,
+            ),
+          ],
+        })}>
+        <Animated.View style={tailwind.style('absolute inset-0 h-[1px] bg-blackA-A3')} />
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
 
-        return (
-          <TabItem
-            key={route.key}
-            options={options}
-            onPress={createPressHandler(route, isFocused)}
-            onLongPress={createLongPressHandler(route)}
-            route={route}
-            isFocused={isFocused}
-          />
-        );
-      })}
-    </TabBarBackground>
+          return (
+            <TabItem
+              key={route.key}
+              options={options}
+              onPress={createPressHandler(route, isFocused)}
+              onLongPress={createLongPressHandler(route)}
+              route={route}
+              isFocused={isFocused}
+            />
+          );
+        })}
+      </TabBarBackground>
+    </Animated.View>
   );
 };
