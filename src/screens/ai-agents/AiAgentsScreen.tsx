@@ -8,6 +8,7 @@ import { tailwind } from '@/theme';
 import { fetchAiAgents, updateAgentStatus, type AiAgent } from '@/services/aiAgentsService';
 import { Icon } from '@/components-next/common';
 import { AiAgentsIcon } from '@/svg-icons/common';
+import i18n from '@/i18n';
 
 const AiAgentsScreen = () => {
   const [agents, setAgents] = useState<AiAgent[]>([]);
@@ -82,11 +83,21 @@ const AiAgentsScreen = () => {
 
   return (
     <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
-      <View style={tailwind.style('px-4 py-3 border-b border-gray-200')}>
-        <Text style={tailwind.style('text-xl font-inter-semibold-20 text-gray-900')}>
-          Agentes de IA
-        </Text>
-      </View>
+      <Animated.View style={[tailwind.style('border-b-[1px] border-b-blackA-A3')]}>
+        <Animated.View
+          style={[tailwind.style('flex flex-row justify-between items-center px-4 pt-2 pb-[12px]')]}>
+          <Animated.View style={tailwind.style('flex-1')} />
+          <Animated.View style={tailwind.style('flex-1')}>
+            <Animated.Text
+              style={tailwind.style(
+                'text-[17px] text-center leading-[17px] tracking-[0.32px] font-inter-medium-24 text-gray-950',
+              )}>
+              {i18n.t('AI_AGENTS.TITLE')}
+            </Animated.Text>
+          </Animated.View>
+          <Animated.View style={tailwind.style('flex-1')} />
+        </Animated.View>
+      </Animated.View>
 
       {loading ? (
         <View style={tailwind.style('flex-1 items-center justify-center')}>

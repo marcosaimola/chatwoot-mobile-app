@@ -8,10 +8,12 @@ import { EMAIL_REGEX } from '@/constants';
 import { KeyRoundIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { authActions } from '@/store/auth/authActions';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { resetAuth } from '@/store/auth/authSlice';
+import { selectResetPasswordLoading } from '@/store/auth/authSelectors';
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { ACCOUNT_EVENTS } from '@/constants/analyticsEvents';
+import { showToast } from '@/utils/toastUtils';
 import i18n from '@/i18n';
 
 type FormData = {
@@ -21,6 +23,7 @@ type FormData = {
 
 const ForgotPassword = () => {
   const dispatch = useAppDispatch();
+  const isResettingPassword = useAppSelector(selectResetPasswordLoading);
 
   useEffect(() => {
     dispatch(resetAuth());
@@ -34,8 +37,13 @@ const ForgotPassword = () => {
 
   const onSubmit = async (data: FormData) => {
     const { email } = data;
-    dispatch(authActions.resetPassword({ email }));
-    AnalyticsHelper.track(ACCOUNT_EVENTS.FORGOT_PASSWORD);
+    try {
+      await dispatch(authActions.resetPassword({ email })).unwrap();
+      showToast({ message: i18n.t('FORGOT_PASSWORD.API_SUCCESS') });
+      AnalyticsHelper.track(ACCOUNT_EVENTS.FORGOT_PASSWORD);
+    } catch {
+      // Error is already handled by authUtils and shown via toast
+    }
   };
 
   return (
@@ -102,8 +110,13 @@ const ForgotPassword = () => {
           />
 
           <Button
-            text={i18n.t('FORGOT_PASSWORD.RESET_HERE')}
+            text={
+              isResettingPassword
+                ? i18n.t('FORGOT_PASSWORD.RESET_HERE') + '...'
+                : i18n.t('FORGOT_PASSWORD.RESET_HERE')
+            }
             handlePress={handleSubmit(onSubmit)}
+            disabled={isResettingPassword}
           />
         </Animated.ScrollView>
       </View>

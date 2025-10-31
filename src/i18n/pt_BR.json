@@ -39,7 +39,8 @@
     "SETTINGS": "Configurações",
     "CHANGE_LANGUAGE": "Alterar idioma",
     "TERMS": "Termos & Condições",
-    "CHANGE_URL": "Alterar URL"
+    "CHANGE_URL": "Alterar URL",
+    "DISCLAIMER_TEXT": "ZapiCRM é exclusivo para clientes comerciais registrados. Para criar uma conta, visite "
   },
   "FORGOT_PASSWORD": {
     "EMAIL": "Por favor, digite seu e-mail",
@@ -274,6 +275,9 @@
     "SUBMIT": "Enviar",
     "SET_LANGUAGE": "Configurar Idioma",
     "DEBUG_ACTIONS": "Ações de Depuração"
+  },
+  "AI_AGENTS": {
+    "TITLE": "Agentes de IA"
   },
   "NOTIFICATION": {
     "HEADER_TITLE": "Notificações",

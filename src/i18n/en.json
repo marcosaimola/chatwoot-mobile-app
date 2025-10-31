@@ -43,7 +43,8 @@
     "SETTINGS": "Settings",
     "CHANGE_LANGUAGE": "Change language",
     "TERMS": "Terms & Conditions",
-    "CHANGE_URL": "Change URL"
+    "CHANGE_URL": "Change URL",
+    "DISCLAIMER_TEXT": "ZapiCRM is for registered business clients only. To create an account, please visit "
   },
   "FORGOT_PASSWORD": {
     "EMAIL": "Please enter your email",
@@ -297,6 +298,9 @@
     "SUBMIT": "Submit",
     "SET_LANGUAGE": "Set Language",
     "DEBUG_ACTIONS": "Debug Actions"
+  },
+  "AI_AGENTS": {
+    "TITLE": "AI Agents"
   },
   "NOTIFICATION": {
     "HEADER_TITLE": "Notifications",
