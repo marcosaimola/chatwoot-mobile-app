@@ -404,3 +404,5 @@ WHERE can_view_all_conversations IS NULL
 **Data**: 31/10/2025
 **Status**: Aguardando implementação no backend
 
+
+
