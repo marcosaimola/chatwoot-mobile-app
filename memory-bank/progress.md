@@ -40,15 +40,17 @@
 
 ### Build Status: ✅ WORKING
 - iOS build: ✅ Success
-- Android build: ✅ Success (already in production)
+- Android build: ✅ Success (16KB page size compatível)
 - TestFlight: ✅ Working
+- Google Play: ✅ Working (versão 5.2, versionCode 12)
 - Audio playback: ✅ Working
 - Background audio: ✅ Working
 
-### Version: 4.4.1
+### Version: 5.2 (versionCode 12)
 - **Bundle ID**: br.com.zapicrm
 - **App Name**: ZapiCRM
-- **Platform**: iOS (Android already in production)
+- **Platform**: iOS e Android
+- **React Native**: 0.77.0 (atualizado para suporte 16KB)
 
 ## Known Issues
 
@@ -59,10 +61,24 @@
 4. **OGG Audio Playback**: Resolved by backend MP3 conversion
 5. **Background Audio**: Resolved by Expo AV configuration
 6. **Bundle URL Errors**: Resolved by AppDelegate.mm fixes
+7. **Google Play 16KB Page Size Error (Dez/2024)**:
+   - Erro: "Seu app não é compatível com tamanhos de página de 16 KB de memória"
+   - Causa: React Native 0.76.9 não tinha suporte completo a 16KB
+   - Solução:
+     - Atualizar React Native 0.76.9 → 0.77.0
+     - NDK 27 → 29.0.14206865
+     - AGP → 8.5.1
+     - Remover x86/x86_64 (focar em ARM: armeabi-v7a, arm64-v8a)
+     - Criar Application.mk com APP_SUPPORT_FLEXIBLE_PAGE_SIZES
+     - Atualizar dependências: gesture-handler, screens, safe-area-context, svg, webview
+8. **Assinatura Android Incorreta**:
+   - Erro: "App Bundle assinado com chave incorreta"
+   - Solução: Configurar signingConfigs.release com upload-keystore.jks
 
 ### Current Issues: None Known
 - All major issues have been resolved
 - App is stable and functional
+- Android compatível com 16KB page size (Android 15+)
 
 ## Testing Status
 
@@ -86,7 +102,9 @@
 
 ### Android
 - **Development**: ✅ Working
-- **Production**: ✅ Already in production
+- **Production**: ✅ Working (versão 5.2, versionCode 12)
+- **16KB Page Size**: ✅ Compatível (React Native 0.77.0 + NDK r29)
+- **Keystore**: upload-keystore.jks configurado
 
 ## Success Metrics
 

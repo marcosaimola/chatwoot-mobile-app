@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { Asset } from 'react-native-image-picker';
 import Animated, {
   LinearTransition,
@@ -56,10 +56,14 @@ type AttachedMediaProps = {
   index: number;
 };
 
-type AttachedImageProps = AttachedMediaProps & { attachmentsLength: number };
+type AttachedImageProps = AttachedMediaProps & { 
+  attachmentsLength: number;
+  totalImagesCount?: number;
+  showBadge?: boolean;
+};
 
 const AttachedImage = (props: AttachedImageProps) => {
-  const { item, index, attachmentsLength } = props;
+  const { item, index, attachmentsLength, totalImagesCount, showBadge } = props;
   const dispatch = useAppDispatch();
 
   const { animatedStyle, handlers } = useScaleAnimation();
@@ -86,6 +90,16 @@ const AttachedImage = (props: AttachedImageProps) => {
             tailwind.style('border-[1px] rounded-lg border-[#0000000F] z-50'),
           ]}
         />
+        {showBadge && totalImagesCount && totalImagesCount > 1 && (
+          <Animated.View
+            style={tailwind.style(
+              'absolute bottom-2 right-2 bg-blackA-A11 rounded-full px-2 py-1 z-50',
+            )}>
+            <Text style={tailwind.style('text-whiteA-A12 text-xs font-inter-semibold-20')}>
+              +{totalImagesCount - 1}
+            </Text>
+          </Animated.View>
+        )}
         <Animated.View
           style={[
             tailwind.style(
@@ -238,14 +252,44 @@ const AttachedFile = (props: AttachedFileProps) => {
 export const AttachedMedia = () => {
   const attachments = useAppSelector(selectAttachments);
 
+  // Separate images from other attachments
+  const { images, otherAttachments } = useMemo(() => {
+    const imgs = attachments.filter(att => att.type?.includes('image'));
+    const others = attachments.filter(att => !att.type?.includes('image'));
+    return { images: imgs, otherAttachments: others };
+  }, [attachments]);
+
+  // For display: show only first image if multiple images exist, plus all other attachments
+  const displayAttachments = useMemo(() => {
+    const displayItems: Asset[] = [];
+    
+    // Add first image (if any images exist)
+    if (images.length > 0) {
+      displayItems.push(images[0]);
+    }
+    
+    // Add all non-image attachments
+    displayItems.push(...otherAttachments);
+    
+    return displayItems;
+  }, [images, otherAttachments]);
+
   const handleRenderItem = ({ item, index }: AttachedMediaProps) => {
     if (item.type?.includes('image')) {
-      return <AttachedImage {...{ item, index }} attachmentsLength={attachments.length} />;
+      const isFirstImage = images.length > 0 && item.uri === images[0].uri;
+      return (
+        <AttachedImage
+          {...{ item, index }}
+          attachmentsLength={displayAttachments.length}
+          totalImagesCount={images.length}
+          showBadge={isFirstImage && images.length > 1}
+        />
+      );
     }
     if (item.type?.includes('video')) {
-      return <AttachedVideo {...{ item, index }} attachmentsLength={attachments.length} />;
+      return <AttachedVideo {...{ item, index }} attachmentsLength={displayAttachments.length} />;
     }
-    return <AttachedFile {...{ item, index }} attachmentsLength={attachments.length} />;
+    return <AttachedFile {...{ item, index }} attachmentsLength={displayAttachments.length} />;
   };
 
   return attachments.length > 0 ? (
@@ -257,7 +301,7 @@ export const AttachedMedia = () => {
         style={tailwind.style('px-4 pr-12')}
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={attachments}
+        data={displayAttachments}
         renderItem={handleRenderItem}
         // @ts-expect-error - FlatList keyExtractor expects string but Asset.uri is string
         keyExtractor={(item: Asset) => item.uri}

@@ -89,6 +89,7 @@ export interface SendMessagePayload {
     thumbnail?: string;
   };
   file?: File;
+  files?: File[];
   contentAttributes?: {
     inReplyTo: number;
   };

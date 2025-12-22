@@ -242,19 +242,21 @@ const BottomSheetContent = () => {
     }
 
     if (attachedFiles && attachedFiles.length) {
-      // messagePayload.files = [];
-      // TODO: Implement this
-      // attachedFiles.forEach(attachment => {
-      //   if (globalConfig.directUploadsEnabled) {
-      //     messagePayload.files.push(attachment.blobSignedId);
-      //   } else {
-      //     messagePayload.files.push(attachment.resource.file);
-      //   }
-      // });
-      // TODO: Add support for multiple files later
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      messagePayload.file = attachedFiles[0];
+      // Separate images from other files
+      const images = attachedFiles.filter(att => att.type?.includes('image'));
+      const nonImages = attachedFiles.filter(att => !att.type?.includes('image'));
+      
+      // Images go to files[] (up to 10)
+      if (images.length > 0) {
+        messagePayload.files = images;
+      }
+      
+      // Non-images go to file (only 1, take the first one)
+      if (nonImages.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        messagePayload.file = nonImages[0];
+      }
     }
 
     // TODO: Implement this
@@ -277,16 +279,11 @@ const BottomSheetContent = () => {
     confirmOnSendReply(audioFile);
   };
 
-  const confirmOnSendReply = (audioFile: File | null) => {
+  const confirmOnSendReply = async (audioFile: File | null) => {
     hapticSelection?.();
     if (textInputRef && 'current' in textInputRef && textInputRef.current) {
       (textInputRef.current as TextInput).clear();
     }
-
-    // const isOnWhatsApp =
-    //   isATwilioWhatsAppChannel(inbox) ||
-    //   isAWhatsAppCloudChannel(inbox) ||
-    //   is360DialogWhatsAppChannel(inbox?.channelType);
 
     AnalyticsHelper.track(CONVERSATION_EVENTS.SENT_MESSAGE);
 
@@ -302,18 +299,54 @@ const BottomSheetContent = () => {
       Alert.alert(undefinedVariablesMessage);
     } else {
       const messagePayload = getMessagePayload(messageContent, audioFile);
-      sendMessage(messagePayload);
+      await sendMessage(messagePayload);
     }
-    // TODO: Implement this once we have add the support for multiple attachments
-    // https://github.com/chatwoot/chatwoot/pull/6125
-    // https://github.com/chatwoot/chatwoot/pull/6428
-    // if (isOnWhatsApp && !isPrivate) {
-    // sendMessageAsMultipleMessages(messageContent);
-    // }
   };
 
-  const sendMessage = (messagePayload: SendMessagePayload) => {
-    dispatch(conversationActions.sendMessage(messagePayload));
+  const sendMessage = async (messagePayload: SendMessagePayload) => {
+    // Check if we have multiple images - if so, send one message per image
+    const hasMultipleImages = messagePayload.files && messagePayload.files.length > 1;
+    
+    if (hasMultipleImages && messagePayload.files) {
+      // Send multiple messages, one for each image
+      // First message includes the text (if any), subsequent messages are image-only
+      const images = messagePayload.files;
+      
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i];
+        const isFirstImage = i === 0;
+        
+        const singleImagePayload: SendMessagePayload = {
+          ...messagePayload,
+          files: undefined, // Remove files array
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error - Asset type is compatible with File type in this context
+          file: image, // Use single file
+          message: isFirstImage ? messagePayload.message : '', // Only first image gets the text
+        };
+        
+        await dispatch(conversationActions.sendMessage(singleImagePayload));
+        
+        // Small delay between messages to avoid rate limiting
+        if (i < images.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+    } else if (messagePayload.files && messagePayload.files.length === 1) {
+      // Single image - convert to file format
+      const singleImagePayload: SendMessagePayload = {
+        ...messagePayload,
+        files: undefined,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error - Asset type is compatible with File type in this context
+        file: messagePayload.files[0],
+      };
+      await dispatch(conversationActions.sendMessage(singleImagePayload));
+    } else {
+      // Single file or no files - send normally
+      await dispatch(conversationActions.sendMessage(messagePayload));
+    }
+    
     dispatch(resetSentMessage());
     setSelectedCannedResponse(null);
     dispatch(setMessageContent(''));

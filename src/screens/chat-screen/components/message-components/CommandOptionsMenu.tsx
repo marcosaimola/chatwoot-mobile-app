@@ -20,7 +20,7 @@ import { findFileSize } from '@/utils/fileUtils';
 export const handleOpenPhotosLibrary = async dispatch => {
   const pickedAssets = await launchImageLibrary({
     quality: 1,
-    selectionLimit: 4,
+    selectionLimit: 10,
     mediaType: 'mixed',
     presentationStyle: 'formSheet',
   });
@@ -47,7 +47,11 @@ export const handleOpenPhotosLibrary = async dispatch => {
     );
   } else {
     if (pickedAssets.assets && pickedAssets.assets?.length > 0) {
-      validateFileAndSetAttachments(dispatch, pickedAssets.assets[0]);
+      // Filter only images for multiple selection
+      const images = pickedAssets.assets.filter(asset => asset.type?.includes('image'));
+      if (images.length > 0) {
+        validateFileAndSetAttachments(dispatch, images);
+      }
     }
   }
 };
@@ -166,12 +170,32 @@ const ADD_MENU_OPTIONS = [
   },
 ];
 
-export const validateFileAndSetAttachments = async (dispatch, attachment) => {
-  const { fileSize } = attachment;
-  if (findFileSize(fileSize) <= MAXIMUM_FILE_UPLOAD_SIZE) {
-    dispatch(updateAttachments([attachment]));
-  } else {
+export const validateFileAndSetAttachments = async (
+  dispatch: ReturnType<typeof useAppDispatch>,
+  attachments: Asset | Asset[],
+) => {
+  const attachmentsArray = Array.isArray(attachments) ? attachments : [attachments];
+  
+  // Validate file sizes
+  const validAttachments: Asset[] = [];
+  let hasInvalidSize = false;
+
+  for (const attachment of attachmentsArray) {
+    const { fileSize } = attachment;
+    if (findFileSize(fileSize) <= MAXIMUM_FILE_UPLOAD_SIZE) {
+      validAttachments.push(attachment);
+    } else {
+      hasInvalidSize = true;
+    }
+  }
+
+  if (hasInvalidSize) {
     showToast({ message: i18n.t('CONVERSATION.FILE_SIZE_LIMIT') });
+  }
+
+  // The reducer will handle limit validation (10 images, 1 non-image)
+  if (validAttachments.length > 0) {
+    dispatch(updateAttachments(validAttachments));
   }
 };
 

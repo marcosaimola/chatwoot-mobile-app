@@ -90,11 +90,12 @@ export const conversationActions = {
           },
         });
         const payload = buildCreatePayload(pendingMessage);
-        const { file } = sendMessagePayload;
+        const { file, files } = sendMessagePayload;
+        const hasFiles = file || (files && files.length > 0);
         const contentType =
-          Platform.OS === 'ios' && file
-            ? file.type
-            : Platform.OS === 'android' && file
+          Platform.OS === 'ios' && hasFiles
+            ? (file?.type || files?.[0]?.type || 'multipart/form-data')
+            : Platform.OS === 'android' && hasFiles
               ? 'multipart/form-data'
               : 'application/json';
 

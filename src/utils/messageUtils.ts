@@ -15,8 +15,10 @@ export const createPendingMessage = (data: SendMessagePayload): PendingMessage =
   const timestamp = Math.floor(new Date().getTime() / 1000);
   const tempMessageId = getUuid();
 
-  const { message, file } = data;
-  const tempAttachments = [{ id: tempMessageId }];
+  const { message, file, files } = data;
+  // Create temp attachments for both file and files
+  const hasFiles = (file || (files && files.length > 0));
+  const tempAttachments = hasFiles ? [{ id: tempMessageId }] : null;
   const pendingMessage = {
     ...data,
     content: message || null,
@@ -25,7 +27,7 @@ export const createPendingMessage = (data: SendMessagePayload): PendingMessage =
     status: MESSAGE_STATUS.PROGRESS,
     createdAt: timestamp,
     messageType: MESSAGE_TYPES.OUTGOING,
-    attachments: file ? tempAttachments : null,
+    attachments: tempAttachments,
   };
 
   return pendingMessage;
@@ -36,6 +38,7 @@ export const buildCreatePayload = (data: PendingMessage): MessageBuilderPayload 
   const {
     message,
     file,
+    files,
     private: isPrivate,
     echoId,
     ccEmails,
@@ -44,18 +47,40 @@ export const buildCreatePayload = (data: PendingMessage): MessageBuilderPayload 
     templateParams,
     toEmails,
   } = data;
-  if (file) {
+  
+  // Check if we have any files (single file or multiple files)
+  const hasFiles = file || (files && files.length > 0);
+  
+  if (hasFiles) {
     payload = new FormData();
     if (message) {
       payload.append('content', message);
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    payload.append('attachments[]', {
-      uri: file.uri,
-      name: file.fileName,
-      type: file.type,
-    });
+    
+    // Add multiple files (images) if present
+    if (files && files.length > 0) {
+      files.forEach(fileItem => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        payload.append('attachments[]', {
+          uri: fileItem.uri,
+          name: fileItem.fileName,
+          type: fileItem.type,
+        });
+      });
+    }
+    
+    // Add single file (non-image) if present
+    if (file) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      payload.append('attachments[]', {
+        uri: file.uri,
+        name: file.fileName,
+        type: file.type,
+      });
+    }
+    
     payload.append('private', isPrivate.toString());
     payload.append('echo_id', echoId);
     payload.append('cc_emails', ccEmails || '');
