@@ -56,6 +56,11 @@
       "TITLE": "Conversas",
       "CLEAR_FILTER": "Limpar"
     },
+    "SEARCH": {
+      "PLACEHOLDER": "Buscar conversas...",
+      "CANCEL": "Cancelar",
+      "NO_RESULTS": "Nenhum resultado encontrado"
+    },
     "FILTERS": {
       "AGENT": {
         "SEARCH_AGENT": "Pesquisar agentes"
@@ -268,6 +273,13 @@
     "SUPPORT": "Suporte",
     "SWITCH_ACCOUNT": "Alterar conta",
     "CHANGE_LANGUAGE": "Alterar Idioma",
+    "CHANGE_THEME": "Aparência",
+    "SET_THEME": "Configurar Aparência",
+    "THEME_OPTIONS": {
+      "SYSTEM": "Sistema",
+      "LIGHT": "Claro",
+      "DARK": "Escuro"
+    },
     "NOTIFICATIONS": "Notificações",
     "NOTIFICATION_PREFERENCES": "Preferências de Notificação",
     "HELP_CENTER": "Central de Ajuda",
@@ -277,7 +289,9 @@
     "DEBUG_ACTIONS": "Ações de Depuração"
   },
   "AI_AGENTS": {
-    "TITLE": "Agentes de IA"
+    "TITLE": "Agentes de IA",
+    "SECTION_TITLE": "Agentes disponíveis",
+    "EMPTY": "Nenhum agente de IA disponível"
   },
   "NOTIFICATION": {
     "HEADER_TITLE": "Notificações",

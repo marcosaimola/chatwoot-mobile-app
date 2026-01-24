@@ -5,7 +5,102 @@ import { findPendingMessageIndex } from '@/utils/conversationUtils';
 
 import { MESSAGE_TYPES } from '@/constants';
 import { Message } from '@/types/Message';
-import { PendingMessage } from './conversationTypes';
+import { PendingMessage, SearchConversationsAPIResponse } from './conversationTypes';
+import { Contact } from '@/types/Contact';
+import { Agent } from '@/types/Agent';
+
+/**
+ * Transform a search result conversation from the API into a full Conversation object
+ * for the store. Only adds to store if conversation doesn't already exist.
+ */
+function transformSearchResultToConversation(
+  searchResult: SearchConversationsAPIResponse['payload']['conversations'][0],
+): Conversation {
+  const { id, account_id, created_at, message, contact, inbox, agent } = searchResult;
+
+  // Transform contact to sender (Contact type)
+  const sender: Contact = {
+    id: contact.id,
+    name: contact.name,
+    email: contact.email,
+    phoneNumber: contact.phone_number,
+    identifier: contact.identifier,
+    thumbnail: null,
+    type: 'contact',
+    createdAt: created_at,
+    lastActivityAt: created_at,
+    additionalAttributes: {},
+    customAttributes: {},
+  };
+
+  // Transform agent to assignee (Agent type)
+  const assignee: Agent | null = agent
+    ? {
+        id: agent.id,
+        name: agent.name,
+        availableName: agent.available_name,
+        email: agent.email,
+        thumbnail: null,
+      }
+    : null;
+
+  // Transform message to Message type
+  const transformedMessage: Message = {
+    id: message.id,
+    content: message.content,
+    inboxId: message.inbox_id,
+    conversationId: message.conversation_id,
+    messageType: message.message_type,
+    contentType: message.content_type as Message['contentType'],
+    status: message.status as Message['status'],
+    createdAt: message.created_at,
+    private: message.private,
+    sourceId: null,
+    attachments: [],
+    echoId: null,
+    lastNonActivityMessage: null,
+    senderId: 0,
+  };
+
+  // Build the full Conversation object
+  const conversation: Conversation = {
+    id,
+    accountId: account_id,
+    createdAt: created_at,
+    lastActivityAt: created_at,
+    timestamp: created_at,
+    inboxId: inbox.id,
+    status: 'open',
+    priority: null,
+    labels: [],
+    unreadCount: 0,
+    muted: false,
+    canReply: true,
+    snoozedUntil: null,
+    uuid: '',
+    waitingSince: 0,
+    firstReplyCreatedAt: 0,
+    agentLastSeenAt: 0,
+    assigneeLastSeenAt: 0,
+    contactLastSeenAt: 0,
+    customAttributes: {},
+    additionalAttributes: {},
+    slaPolicyId: null,
+    appliedSla: null,
+    slaEvents: [],
+    messages: [transformedMessage],
+    lastNonActivityMessage: transformedMessage,
+    meta: {
+      sender,
+      assignee: assignee as Agent,
+      team: null,
+      hmacVerified: null,
+      channel: inbox.channel_type,
+    },
+  };
+
+  return conversation;
+}
 
 export interface ConversationState {
   meta: {
@@ -199,6 +294,28 @@ const conversationSlice = createSlice({
         }
         conversation.unreadCount = unreadCount;
         conversation.agentLastSeenAt = agentLastSeenAt;
+      })
+      .addCase(conversationActions.searchConversations.fulfilled, (state, { payload }) => {
+        const searchResults = payload?.payload?.conversations;
+        if (!searchResults || searchResults.length === 0) {
+          return;
+        }
+
+        // Transform search results and add only new conversations to the store
+        const conversationsToAdd: Conversation[] = [];
+        const existingIds = conversationAdapter.getSelectors().selectIds(state);
+
+        for (const searchResult of searchResults) {
+          // Only add if conversation doesn't already exist in store
+          if (!existingIds.includes(searchResult.id)) {
+            const conversation = transformSearchResultToConversation(searchResult);
+            conversationsToAdd.push(conversation);
+          }
+        }
+
+        if (conversationsToAdd.length > 0) {
+          conversationAdapter.upsertMany(state, conversationsToAdd);
+        }
       });
   },
 });

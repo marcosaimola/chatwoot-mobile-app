@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 import { Icon } from '@/components-next';
 import { CaretRight, TeamIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Team } from '@/types';
 import i18n from '@/i18n';
 
@@ -13,31 +14,32 @@ type TeamPanelProps = {
 };
 
 const TeamPanel = ({ team, onPress }: TeamPanelProps) => {
+  const { colors, isDark } = useThemeContext();
   const teamName = team ? team.name : i18n.t('CONVERSATION.ACTIONS.TEAM.EMPTY');
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [tailwind.style(pressed ? 'bg-gray-100' : '', 'rounded-t-[13px]')]}>
+      style={({ pressed }) => [tailwind.style(pressed ? (isDark ? 'bg-gray-800' : 'bg-gray-100') : '')]}>
       <Animated.View style={tailwind.style('flex-row items-center justify-between pl-3')}>
-        <Icon icon={<TeamIcon />} />
+        <Icon icon={<TeamIcon stroke={isDark ? '#9CA3AF' : undefined} />} />
         <Animated.View
           style={tailwind.style(
-            'flex-1 flex-row items-center justify-between py-[11px] ml-[10px] border-b-[1px] border-b-blackA-A3',
+            `flex-1 flex-row items-center justify-between py-[11px] ml-[10px] border-b-[1px] ${colors.borderPrimary}`,
           )}>
           <Animated.Text
             style={tailwind.style(
-              'text-base font-inter-420-20 leading-[22.4px] tracking-[0.16px] text-gray-950 capitalize',
+              `text-base font-inter-420-20 leading-[22.4px] tracking-[0.16px] capitalize ${colors.textPrimary}`,
             )}>
             {teamName}
           </Animated.Text>
           <Animated.View style={tailwind.style('flex-row items-center pr-3')}>
             <Animated.Text
               style={tailwind.style(
-                'text-base font-inter-normal-20 leading-[22px] tracking-[0.16px] text-gray-900',
+                `text-base font-inter-normal-20 leading-[22px] tracking-[0.16px] ${colors.textSecondary}`,
               )}>
               {i18n.t('CONVERSATION.ACTIONS.TEAM.ASSIGN')}
             </Animated.Text>
-            <Icon icon={<CaretRight />} size={20} />
+            <Icon icon={<CaretRight stroke={isDark ? '#9CA3AF' : undefined} />} size={20} />
           </Animated.View>
         </Animated.View>
       </Animated.View>

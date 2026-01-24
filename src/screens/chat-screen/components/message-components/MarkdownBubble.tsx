@@ -4,6 +4,7 @@ import Markdown, { MarkdownIt } from 'react-native-markdown-display';
 import { openURL } from '@/utils/urlUtils';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { MESSAGE_VARIANTS } from '@/constants';
 
 type MarkdownBubbleProps = {
@@ -11,17 +12,20 @@ type MarkdownBubbleProps = {
   variant: string;
 };
 
-const variantTextMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'text-gray-950',
+const getVariantTextMap = (isDark: boolean) => ({
+  [MESSAGE_VARIANTS.AGENT]: isDark ? 'text-gray-200' : 'text-gray-950',
   [MESSAGE_VARIANTS.USER]: 'text-white',
-  [MESSAGE_VARIANTS.BOT]: 'text-gray-950',
-  [MESSAGE_VARIANTS.TEMPLATE]: 'text-gray-950',
+  [MESSAGE_VARIANTS.BOT]: isDark ? 'text-gray-200' : 'text-gray-950',
+  [MESSAGE_VARIANTS.TEMPLATE]: isDark ? 'text-gray-200' : 'text-gray-950',
   [MESSAGE_VARIANTS.ERROR]: 'text-white',
-  [MESSAGE_VARIANTS.PRIVATE]: 'text-amber-950 font-inter-medium-24',
-};
+  [MESSAGE_VARIANTS.PRIVATE]: isDark ? 'text-amber-200 font-inter-medium-24' : 'text-amber-950 font-inter-medium-24',
+});
 
 export const MarkdownBubble = (props: MarkdownBubbleProps) => {
   const { messageContent, variant } = props;
+  const { isDark } = useThemeContext();
+  const variantTextMap = getVariantTextMap(isDark);
+
   const handleURL = (url: string) => {
     openURL({ URL: url });
     return true;

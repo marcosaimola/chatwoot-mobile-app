@@ -39,10 +39,13 @@ import {
 } from '@/context';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Conversation } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import {
   selectBottomSheetState,
+  selectSearchTerm,
+  selectApiSearchConversationIds,
   setBottomSheetState,
 } from '@/store/conversation/conversationHeaderSlice';
 import { resetActionState } from '@/store/conversation/conversationActionSlice';
@@ -50,7 +53,7 @@ import { conversationActions } from '@/store/conversation/conversationActions';
 import {
   selectConversationsLoading,
   selectIsAllConversationsFetched,
-  getFilteredConversations,
+  getSearchFilteredConversations,
 } from '@/store/conversation/conversationSelectors';
 import { selectFilters, FilterState } from '@/store/conversation/conversationFilterSlice';
 import { ConversationPayload } from '@/store/conversation/conversationTypes';
@@ -77,6 +80,7 @@ type FlashListRenderItemType = {
 const ConversationList = () => {
   const { dismissAll } = useBottomSheetModal();
   const dispatch = useAppDispatch();
+  const { colors, isDark } = useThemeContext();
   const [appState, setAppState] = useState(AppState.currentState);
 
   // This is used to prevent the infinite scrolling before the list is ready
@@ -86,6 +90,8 @@ const ConversationList = () => {
   // This is used for pagination
   const [pageNumber, setPageNumber] = useState(1);
   const userId = useAppSelector(selectUserId);
+  const searchTerm = useAppSelector(selectSearchTerm) || '';
+  const apiSearchConversationIds = useAppSelector(selectApiSearchConversationIds) || [];
 
   // This is used to store the index of the item that is currently selected
   const { openedRowIndex } = useConversationListStateContext();
@@ -232,7 +238,7 @@ const ConversationList = () => {
   });
 
   const allConversations = useAppSelector(state =>
-    getFilteredConversations(state, filters, userId),
+    getSearchFilteredConversations(state, filters, userId, searchTerm, apiSearchConversationIds),
   );
 
   const shouldShowEmptyLoader = isConversationsLoading && allConversations.length === 0;
@@ -240,7 +246,7 @@ const ConversationList = () => {
   return shouldShowEmptyLoader ? (
     <Animated.View
       style={tailwind.style('flex-1 items-center justify-center', `pb-[${TAB_BAR_HEIGHT}px]`)}>
-      <ActivityIndicator />
+      <ActivityIndicator color={isDark ? '#FFFFFF' : undefined} />
     </Animated.View>
   ) : allConversations.length === 0 ? (
     <Animated.ScrollView
@@ -250,7 +256,7 @@ const ConversationList = () => {
         `pb-[${TAB_BAR_HEIGHT}px]`,
       )}>
       <EmptyStateIcon />
-      <Animated.Text style={tailwind.style('pt-6 text-md  tracking-[0.32px] text-gray-800')}>
+      <Animated.Text style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
         {i18n.t('CONVERSATION.EMPTY')}
       </Animated.Text>
     </Animated.ScrollView>
@@ -309,12 +315,14 @@ const ConversationScreen = () => {
     }
   }, [currentBottomSheet]);
 
+  const { colors } = useThemeContext();
+
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
+    <SafeAreaView edges={['top']} style={tailwind.style(`flex-1 ${colors.bgPrimary}`)}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={tailwind.color(colors.statusBarBg)}
+        barStyle={colors.statusBarStyle}
       />
       <ConversationListStateProvider>
         <ConversationHeader />

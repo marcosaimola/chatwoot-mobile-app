@@ -25,6 +25,9 @@ import type {
   SendMessageAPIResponse,
   SendMessagePayload,
   TogglePriorityPayload,
+  SearchPayload,
+  SearchContactsAPIResponse,
+  SearchConversationsAPIResponse,
 } from './conversationTypes';
 import { AxiosError } from 'axios';
 import { MESSAGE_STATUS } from '@/constants';
@@ -253,6 +256,34 @@ export const conversationActions = {
     'conversations/togglePriority',
     async (payload, { rejectWithValue }) => {
       return await ConversationService.togglePriority(payload);
+    },
+  ),
+  searchContacts: createAsyncThunk<SearchContactsAPIResponse, SearchPayload>(
+    'conversations/searchContacts',
+    async (payload, { rejectWithValue }) => {
+      try {
+        return await ConversationService.searchContacts(payload);
+      } catch (error) {
+        const { response } = error as AxiosError<ApiErrorResponse>;
+        if (!response) {
+          throw error;
+        }
+        return rejectWithValue(response.data);
+      }
+    },
+  ),
+  searchConversations: createAsyncThunk<SearchConversationsAPIResponse, SearchPayload>(
+    'conversations/searchConversations',
+    async (payload, { rejectWithValue }) => {
+      try {
+        return await ConversationService.searchConversations(payload);
+      } catch (error) {
+        const { response } = error as AxiosError<ApiErrorResponse>;
+        if (!response) {
+          throw error;
+        }
+        return rejectWithValue(response.data);
+      }
     },
   ),
 };

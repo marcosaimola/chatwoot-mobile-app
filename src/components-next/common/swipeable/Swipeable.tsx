@@ -19,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { useHaptic } from '@/utils';
 import { AnimatedNativeView } from '@/components-next/native-components';
 
@@ -126,6 +127,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
     rightElementBgColor = 'bg-green-800',
   } = props;
 
+  const { isDark } = useThemeContext();
   const hapticWarning = useHaptic('success');
   const hapticSelection = useHaptic();
 
@@ -133,7 +135,8 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const isGestureActive = useSharedValue(false);
 
   const maxTranslation = WIDTH * 0.6;
-  const tappedBgStyle = tailwind.color('bg-gray-200') as string;
+  const defaultBgStyle = isDark ? '#030712' : '#FFFFFF'; // gray-950 or white
+  const tappedBgStyle = tailwind.color(isDark ? 'bg-gray-800' : 'bg-gray-200') as string;
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
 
@@ -203,7 +206,8 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
     .onFinalize(() => (isTapped.value = withSpring(0, { damping: 25, stiffness: 120 })));
 
   const tapGesture = Gesture.Tap()
-    .onBegin(() => (isTapped.value = withSpring(1, { damping: 25, stiffness: 120 })))
+    .maxDuration(250)
+    .onStart(() => (isTapped.value = withSpring(1, { damping: 25, stiffness: 120 })))
     .onEnd(() => runOnJS(handlePress)())
     .onFinalize(() => (isTapped.value = withSpring(0, { damping: 25, stiffness: 120 })));
 
@@ -426,7 +430,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
 
   const tappedCellStyle = useAnimatedStyle(() => {
     return {
-      backgroundColor: interpolateColor(isTapped.value, [0, 1], ['white', tappedBgStyle]),
+      backgroundColor: interpolateColor(isTapped.value, [0, 1], [defaultBgStyle, tappedBgStyle]),
     };
   });
 

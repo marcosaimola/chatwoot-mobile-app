@@ -14,6 +14,7 @@ import {
 } from './components';
 import { TAB_BAR_HEIGHT } from '@/constants';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { ConversationStatus } from '@/types';
 import { useChatWindowContext } from '@/context';
 import { useAppDispatch, useAppSelector } from '@/hooks';
@@ -36,6 +37,7 @@ export type ConversationActionType = 'mute' | 'status' | 'unmute';
 
 export const ConversationActions = () => {
   const dispatch = useAppDispatch();
+  const { isDark } = useThemeContext();
   const animationConfigs = useBottomSheetSpringConfigs({
     mass: 1,
     stiffness: 420,
@@ -164,7 +166,8 @@ export const ConversationActions = () => {
       <BottomSheetModal
         ref={updateParticipantSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
         animationConfigs={animationConfigs}

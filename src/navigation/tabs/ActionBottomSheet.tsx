@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { BottomSheetModal, useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
-import tailwind from 'twrnc';
+import { tailwind } from '@/theme';
 import { BottomSheetBackdrop } from '@/components-next';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import {
@@ -8,7 +8,7 @@ import {
   selectCurrentActionState,
 } from '@/store/conversation/conversationActionSlice';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import {
   UpdateAssignee,
   UpdateStatus,
@@ -20,6 +20,7 @@ import {
 const ActionBottomSheet = () => {
   const dispatch = useAppDispatch();
   const currentActionState = useAppSelector(selectCurrentActionState);
+  const { isDark } = useThemeContext();
 
   const animationConfigs = useBottomSheetSpringConfigs({
     mass: 1,
@@ -54,7 +55,8 @@ const ActionBottomSheet = () => {
     <BottomSheetModal
       ref={actionsModalSheetRef}
       backdropComponent={BottomSheetBackdrop}
-      handleIndicatorStyle={tailwind.style('overflow-hidden w-8 h-1 rounded-[11px]')}
+      backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
+      handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
       handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
       style={tailwind.style('rounded-[26px] overflow-hidden')}
       animationConfigs={animationConfigs}

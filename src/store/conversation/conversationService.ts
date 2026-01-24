@@ -29,6 +29,9 @@ import type {
   MarkMessageReadOrUnreadResponse,
   ToggleConversationStatusAPIResponse,
   TogglePriorityPayload,
+  SearchPayload,
+  SearchContactsAPIResponse,
+  SearchConversationsAPIResponse,
 } from './conversationTypes';
 
 import {
@@ -211,5 +214,29 @@ export class ConversationService {
   static async togglePriority(payload: TogglePriorityPayload): Promise<void> {
     const { conversationId, priority } = payload;
     await apiService.post(`conversations/${conversationId}/toggle_priority`, { priority });
+  }
+
+  static async searchContacts(payload: SearchPayload): Promise<SearchContactsAPIResponse> {
+    const { query, page = 1 } = payload;
+    const response = await apiService.get<SearchContactsAPIResponse>('search/contacts', {
+      params: {
+        q: query,
+        page,
+      },
+    });
+    return response.data;
+  }
+
+  static async searchConversations(
+    payload: SearchPayload,
+  ): Promise<SearchConversationsAPIResponse> {
+    const { query, page = 1 } = payload;
+    const response = await apiService.get<SearchConversationsAPIResponse>('search/conversations', {
+      params: {
+        q: query,
+        page,
+      },
+    });
+    return response.data;
   }
 }

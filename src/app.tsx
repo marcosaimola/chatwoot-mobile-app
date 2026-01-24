@@ -4,6 +4,7 @@ import { Alert, BackHandler, Platform } from 'react-native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store';
 import { AppNavigator } from '@/navigation';
+import { ThemeProvider } from '@/context';
 import * as EdgeToEdge from 'react-native-edge-to-edge';
 
 import i18n from '@/i18n';
@@ -48,7 +49,9 @@ const Chatwoot = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <AppNavigator />
+        <ThemeProvider>
+          <AppNavigator />
+        </ThemeProvider>
       </PersistGate>
     </Provider>
   );

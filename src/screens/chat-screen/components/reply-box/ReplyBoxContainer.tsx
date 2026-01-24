@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useChatWindowContext, useRefsContext } from '@/context';
+import { useChatWindowContext, useRefsContext, useThemeContext } from '@/context';
 import {
   useHaptic,
   isAWhatsAppChannel,
@@ -81,6 +81,7 @@ const AnimatedKeyboardStickyView = Animated.createAnimatedComponent(KeyboardStic
 const BottomSheetContent = () => {
   const hapticSelection = useHaptic();
   const dispatch = useAppDispatch();
+  const { colors } = useThemeContext();
   const { bottom } = useSafeAreaInsets();
   const { messageListRef } = useRefsContext();
 
@@ -411,7 +412,7 @@ const BottomSheetContent = () => {
   const shouldShowCannedResponses = messageContent?.charAt(0) === '/';
 
   return (
-    <AnimatedKeyboardStickyView style={[tailwind.style('bg-white'), animatedInputWrapperStyle]}>
+    <AnimatedKeyboardStickyView style={[tailwind.style(colors.bgPrimary), animatedInputWrapperStyle]}>
       {!canReply && inbox && conversation && (
         <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(10)}>
           <ReplyWarning inbox={inbox} conversation={conversation} />
@@ -424,7 +425,7 @@ const BottomSheetContent = () => {
       <Animated.View
         layout={LinearTransition.springify().damping(38).stiffness(240)}
         style={tailwind.style(
-          `pb-2 border-t-[1px] border-t-blackA-A3 ${shouldShowReplyHeader ? 'pt-0' : 'pt-2'}`,
+          `pb-2 border-t-[1px] ${colors.borderPrimary} ${shouldShowReplyHeader ? 'pt-0' : 'pt-2'}`,
         )}>
         {quoteMessage && (
           <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(10)}>

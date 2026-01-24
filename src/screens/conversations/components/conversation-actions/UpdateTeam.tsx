@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { Team } from '@/types';
 import { Avatar, Icon, SearchBar } from '@/components-next';
@@ -28,6 +28,7 @@ type TeamCellProps = {
 const TeamCell = (props: TeamCellProps) => {
   const { value, lastItem, teamId } = props;
   const dispatch = useAppDispatch();
+  const { colors, isDark } = useThemeContext();
 
   const { actionsModalSheetRef } = useRefsContext();
   const selectedConversation = useAppSelector(selectSelectedConversation);
@@ -52,18 +53,18 @@ const TeamCell = (props: TeamCellProps) => {
       <Avatar name={value.name ?? ''} size="md" />
       <Animated.View
         style={tailwind.style(
-          'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !lastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          `flex-1 ml-3 flex-row justify-between py-[11px] pr-3`,
+          !lastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={[
             tailwind.style(
-              'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+              `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
             ),
           ]}>
           {value.name}
         </Animated.Text>
-        {teamId === value.id ? <Icon icon={<TickIcon />} size={20} /> : null}
+        {teamId === value.id ? <Icon icon={<TickIcon stroke={isDark ? '#10B981' : undefined} />} size={20} /> : null}
       </Animated.View>
     </Pressable>
   );
@@ -71,11 +72,12 @@ const TeamCell = (props: TeamCellProps) => {
 
 const TeamStack = ({ teams, teamId }: { teams: Team[]; teamId: string | undefined }) => {
   const isFetching = useAppSelector(selectLoading);
+  const { isDark } = useThemeContext();
 
   return (
     <BottomSheetScrollView showsVerticalScrollIndicator={false} style={tailwind.style('my-1 pl-3')}>
       {isFetching ? (
-        <ActivityIndicator />
+        <ActivityIndicator color={isDark ? '#FFFFFF' : undefined} />
       ) : (
         teams.map((value, index) => {
           return (
@@ -90,6 +92,7 @@ const TeamStack = ({ teams, teamId }: { teams: Team[]; teamId: string | undefine
 export const UpdateTeam = () => {
   const { actionsModalSheetRef } = useRefsContext();
   const [searchTerm, setSearchTerm] = useState('');
+  const { isDark } = useThemeContext();
 
   const selectedConversation = useAppSelector(selectSelectedConversation);
 
@@ -109,7 +112,7 @@ export const UpdateTeam = () => {
   };
 
   return (
-    <React.Fragment>
+    <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <SearchBar
         isInsideBottomSheet
         onFocus={handleFocus}
@@ -118,6 +121,6 @@ export const UpdateTeam = () => {
         placeholder={i18n.t('CONVERSATION.SEARCH_TEAM')}
       />
       <TeamStack teams={teams} teamId={teamId} />
-    </React.Fragment>
+    </Animated.View>
   );
 };

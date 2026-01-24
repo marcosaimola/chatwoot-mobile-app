@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { ConversationPriority, PriorityOptions } from '@/types';
 import { getPriorityIcon, useHaptic } from '@/utils';
@@ -38,21 +38,23 @@ const PriorityList = [
 
 const PriorityCell = (props: PriorityCellProps) => {
   const { value, isLastItem, onPress, selectedPriority } = props;
+  const { colors, isDark } = useThemeContext();
+
   return (
     <Pressable onPress={() => onPress()} style={tailwind.style('flex flex-row items-center')}>
       <Animated.View>{/* <Icon icon={value.icon} size={24} /> */}</Animated.View>
       <Animated.View
         style={tailwind.style(
-          'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !isLastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          `flex-1 ml-3 flex-row justify-between py-[11px] pr-3`,
+          !isLastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={tailwind.style(
-            'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize',
+            `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ${colors.textPrimary}`,
           )}>
           {i18n.t(`CONVERSATION.PRIORITY.OPTIONS.${PriorityOptions[value.id].toUpperCase()}`)}
         </Animated.Text>
-        {selectedPriority === value.id ? <Icon icon={<TickIcon />} size={20} /> : null}
+        {selectedPriority === value.id ? <Icon icon={<TickIcon stroke={isDark ? '#10B981' : undefined} />} size={20} /> : null}
       </Animated.View>
     </Pressable>
   );
@@ -60,6 +62,7 @@ const PriorityCell = (props: PriorityCellProps) => {
 
 export const UpdatePriority = () => {
   const { actionsModalSheetRef } = useRefsContext();
+  const { isDark } = useThemeContext();
 
   const dispatch = useAppDispatch();
   const selectedConversation = useAppSelector(selectSelectedConversation);
@@ -83,7 +86,7 @@ export const UpdatePriority = () => {
   };
 
   return (
-    <BottomSheetView>
+    <BottomSheetView style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <BottomSheetHeader headerText={i18n.t('CONVERSATION.CHANGE_PRIORITY')} />
       <Animated.View style={tailwind.style('py-1 pl-3')}>
         {PriorityList.map((value, index) => (

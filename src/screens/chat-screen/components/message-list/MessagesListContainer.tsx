@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/hooks';
-import { useChatWindowContext } from '@/context';
+import { useChatWindowContext, useThemeContext } from '@/context';
 import { AppState, Platform } from 'react-native';
 import { KeyboardGestureArea } from 'react-native-keyboard-controller';
 import { flatMap } from 'lodash';
@@ -16,7 +16,7 @@ import { selectAttachments } from '@/store/conversation/sendMessageSlice';
 import { Animated } from 'react-native';
 import { getGroupedMessages, isAnEmailChannel } from '@/utils';
 import { MessagesList } from './MessagesList';
-import tailwind from 'twrnc';
+import { tailwind } from '@/theme';
 import { conversationParticipantActions } from '@/store/conversation-participant/conversationParticipantActions';
 import { MESSAGE_TYPES, SCREENS } from '@/constants';
 import { Message } from '@/types';
@@ -72,6 +72,7 @@ const PlatformSpecificKeyboardWrapperComponent =
 export const MessagesListContainer = () => {
   const [appState, setAppState] = useState(AppState.currentState);
   const { conversationId } = useChatWindowContext();
+  const { colors } = useThemeContext();
   const dispatch = useAppDispatch();
   const [isFlashListReady, setFlashListReady] = React.useState(false);
 
@@ -170,7 +171,7 @@ export const MessagesListContainer = () => {
 
   return (
     <PlatformSpecificKeyboardWrapperComponent
-      style={tailwind.style('flex-1 bg-white')}
+      style={tailwind.style(`flex-1 ${colors.bgPrimary}`)}
       interpolator="linear">
       <MessagesList
         messages={messagesWithGrouping}

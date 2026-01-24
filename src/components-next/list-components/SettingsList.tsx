@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 
 import { CaretRight } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { GenericListType } from '@/types';
 import { Icon } from '@/components-next/common/icon';
 
@@ -16,10 +17,16 @@ type ListItemProps = {
   listItem: GenericListType;
   index: number;
   isLastItem: boolean;
+  isDark: boolean;
+  colors: {
+    textPrimary: string;
+    textSecondary: string;
+    borderPrimary: string;
+  };
 };
 
 const ListItem = (props: ListItemProps) => {
-  const { listItem, index, isLastItem } = props;
+  const { listItem, index, isLastItem, isDark, colors } = props;
 
   return (
     <Pressable
@@ -27,7 +34,7 @@ const ListItem = (props: ListItemProps) => {
       key={index}
       style={({ pressed }) => [
         tailwind.style(
-          pressed ? 'bg-gray-100' : '',
+          pressed ? (isDark ? 'bg-gray-800' : 'bg-gray-100') : '',
           index === 0 ? 'rounded-t-[13px]' : '',
           isLastItem ? 'rounded-b-[13px]' : '',
         ),
@@ -42,12 +49,12 @@ const ListItem = (props: ListItemProps) => {
           style={tailwind.style(
             'flex-1 flex-row items-center justify-between py-[11px]',
             listItem.icon ? 'ml-3' : '',
-            !isLastItem ? 'border-b-[1px] border-b-blackA-A3' : '',
+            !isLastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
           )}>
           <Animated.View>
             <Animated.Text
               style={tailwind.style(
-                'text-base font-inter-420-20 leading-[22px] tracking-[0.16px] text-gray-950',
+                `text-base font-inter-420-20 leading-[22px] tracking-[0.16px] ${colors.textPrimary}`,
               )}>
               {listItem.title}
             </Animated.Text>
@@ -56,7 +63,7 @@ const ListItem = (props: ListItemProps) => {
             <Animated.Text
               style={tailwind.style(
                 'text-base font-inter-normal-20 leading-[22px] tracking-[0.16px]',
-                listItem.subtitleType === 'light' ? 'text-gray-900' : 'text-gray-950',
+                listItem.subtitleType === 'light' ? colors.textSecondary : colors.textPrimary,
               )}>
               {listItem.subtitle}
             </Animated.Text>
@@ -70,6 +77,7 @@ const ListItem = (props: ListItemProps) => {
 
 export const SettingsList = (props: GenericListProps) => {
   const { list, sectionTitle } = props;
+  const { colors, isDark } = useThemeContext();
 
   return (
     <Animated.View>
@@ -77,19 +85,19 @@ export const SettingsList = (props: GenericListProps) => {
         <Animated.View style={tailwind.style('pl-4 pb-3')}>
           <Animated.Text
             style={tailwind.style(
-              'text-sm font-inter-medium-24 leading-[16px] tracking-[0.32px] text-gray-700',
+              `text-sm font-inter-medium-24 leading-[16px] tracking-[0.32px] ${colors.textSecondary}`,
             )}>
             {sectionTitle}
           </Animated.Text>
         </Animated.View>
       ) : null}
-      <Animated.View style={[tailwind.style('rounded-[13px] mx-4 bg-white'), styles.listShadow]}>
+      <Animated.View style={[tailwind.style(`rounded-[13px] mx-4 ${colors.bgCard}`), isDark ? styles.listShadowDark : styles.listShadow]}>
         {list.map(
           (listItem, index) =>
             !listItem.disabled && (
               <ListItem
                 key={index}
-                {...{ listItem, index }}
+                {...{ listItem, index, isDark, colors }}
                 isLastItem={index === list.length - 1}
               />
             ),
@@ -112,5 +120,19 @@ const styles = StyleSheet.create({
         elevation: 4,
         backgroundColor: 'white',
       },
-    }) || {}, // Add fallback empty object
+    }) || {},
+  listShadowDark:
+    Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 0.15 },
+        shadowRadius: 2,
+        shadowOpacity: 0.5,
+        elevation: 2,
+      },
+      android: {
+        elevation: 4,
+        backgroundColor: '#1a1a1a',
+      },
+    }) || {},
 });

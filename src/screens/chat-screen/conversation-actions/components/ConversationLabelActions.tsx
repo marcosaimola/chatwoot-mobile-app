@@ -3,7 +3,7 @@ import { Platform, Pressable, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
-import { useChatWindowContext, useRefsContext } from '@/context';
+import { useChatWindowContext, useRefsContext, useThemeContext } from '@/context';
 import { LabelTag } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { Label } from '@/types';
@@ -50,6 +50,7 @@ export const ConversationLabelActions = (props: LabelSectionProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { conversationId } = useChatWindowContext();
   const dispatch = useAppDispatch();
+  const { colors, isDark } = useThemeContext();
 
   const [selectedLabels, setSelectedLabels] = useState(labels);
 
@@ -105,7 +106,7 @@ export const ConversationLabelActions = (props: LabelSectionProps) => {
       <Animated.View style={tailwind.style('pl-4')}>
         <Animated.Text
           style={tailwind.style(
-            'text-sm font-inter-medium-24 leading-[16px] tracking-[0.32px] text-gray-700',
+            `text-sm font-inter-medium-24 leading-[16px] tracking-[0.32px] ${colors.textSecondary}`,
           )}>
           Labels
         </Animated.Text>
@@ -117,16 +118,16 @@ export const ConversationLabelActions = (props: LabelSectionProps) => {
         <Pressable
           onPress={handleAddLabelPress}
           style={({ pressed }) => [
-            styles.labelShadow,
+            isDark ? styles.labelShadowDark : styles.labelShadow,
             tailwind.style(
-              'flex flex-row items-center bg-white px-3 py-[7px] rounded-lg mr-2 mt-3',
-              pressed ? 'bg-blue-100' : '',
+              `flex flex-row items-center px-3 py-[7px] rounded-lg mr-2 mt-3 ${isDark ? 'bg-gray-950' : 'bg-white'}`,
+              pressed ? (isDark ? 'bg-blue-900/30' : 'bg-blue-100') : '',
             ),
           ]}>
-          <Icon icon={<LabelTag />} size={16} />
+          <Icon icon={<LabelTag stroke={isDark ? '#60A5FA' : undefined} />} size={16} />
           <Animated.Text
             style={tailwind.style(
-              'text-md font-inter-medium-24 leading-[17px] tracking-[0.24px] pl-1.5 text-blue-800',
+              `text-md font-inter-medium-24 leading-[17px] tracking-[0.24px] pl-1.5 ${isDark ? 'text-blue-400' : 'text-blue-800'}`,
             )}>
             Add
           </Animated.Text>
@@ -135,7 +136,8 @@ export const ConversationLabelActions = (props: LabelSectionProps) => {
       <BottomSheetModal
         ref={addLabelSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
         enablePanDownToClose
@@ -143,23 +145,25 @@ export const ConversationLabelActions = (props: LabelSectionProps) => {
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
         onChange={handleChange}>
-        <SearchBar
-          isInsideBottomSheet
-          onSubmitEditing={handleOnSubmitEditing}
-          onChangeText={handleChangeText}
-          placeholder="Search labels"
-          returnKeyLabel="done"
-          returnKeyType="done"
-        />
-        <BottomSheetScrollView showsVerticalScrollIndicator={false}>
-          <LabelStack
-            filteredLabels={filteredLabels}
-            selectedLabels={selectedLabels}
-            isStandAloneComponent={allLabels.length > 3}
-            handleLabelPress={handleAddOrUpdateLabels}
+        <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
+          <SearchBar
+            isInsideBottomSheet
+            onSubmitEditing={handleOnSubmitEditing}
+            onChangeText={handleChangeText}
+            placeholder="Search labels"
+            returnKeyLabel="done"
+            returnKeyType="done"
           />
-          <Animated.View style={tailwind.style('items-start')}></Animated.View>
-        </BottomSheetScrollView>
+          <BottomSheetScrollView showsVerticalScrollIndicator={false}>
+            <LabelStack
+              filteredLabels={filteredLabels}
+              selectedLabels={selectedLabels}
+              isStandAloneComponent={allLabels.length > 3}
+              handleLabelPress={handleAddOrUpdateLabels}
+            />
+            <Animated.View style={tailwind.style('items-start')}></Animated.View>
+          </BottomSheetScrollView>
+        </Animated.View>
       </BottomSheetModal>
     </Animated.View>
   );
@@ -179,5 +183,19 @@ const styles = StyleSheet.create({
         elevation: 4,
         backgroundColor: 'white',
       },
-    }) || {}, // Add fallback empty object
+    }) || {},
+  labelShadowDark:
+    Platform.select({
+      ios: {
+        shadowColor: '#00000080',
+        shadowOffset: { width: 0, height: 0.15 },
+        shadowRadius: 2,
+        shadowOpacity: 0.5,
+        elevation: 2,
+      },
+      android: {
+        elevation: 4,
+        backgroundColor: '#030712',
+      },
+    }) || {},
 });

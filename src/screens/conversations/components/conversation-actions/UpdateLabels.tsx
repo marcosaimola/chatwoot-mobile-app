@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Animated from 'react-native-reanimated';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { SearchBar } from '@/components-next';
 import { useAppDispatch, useAppSelector } from '@/hooks';
@@ -44,6 +45,7 @@ export const UpdateLabels = () => {
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector(selectSelectedIds);
   const [searchTerm, setSearchTerm] = useState('');
+  const { isDark } = useThemeContext();
 
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
@@ -91,7 +93,7 @@ export const UpdateLabels = () => {
   }, []);
 
   return (
-    <React.Fragment>
+    <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <SearchBar
         isInsideBottomSheet
         onFocus={handleFocus}
@@ -104,6 +106,6 @@ export const UpdateLabels = () => {
         handleLabelPress={handleLabelPress}
         selectedLabels={selectedLabels}
       />
-    </React.Fragment>
+    </Animated.View>
   );
 };

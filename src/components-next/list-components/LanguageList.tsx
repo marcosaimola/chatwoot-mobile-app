@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import { LANGUAGES } from '@/constants';
 import { TickIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { useHaptic } from '@/utils';
 import { Icon } from '@/components-next/common';
 
@@ -30,6 +31,8 @@ const languagesList = Object.keys(LANGUAGES).map(languageCode => {
 const LanguageCell = (props: LanguageCellProps) => {
   const { item, index, currentLanguage, onChangeLanguage } = props;
   const hapticSelection = useHaptic();
+  const { colors } = useThemeContext();
+
   const handlePress = () => {
     hapticSelection?.();
     onChangeLanguage(item.key);
@@ -44,11 +47,11 @@ const LanguageCell = (props: LanguageCellProps) => {
         <Animated.View
           style={tailwind.style(
             'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-            !isLastItem && 'border-b-[1px] border-blackA-A3',
+            !isLastItem && `border-b-[1px] ${colors.borderPrimary}`,
           )}>
           <Animated.Text
             style={tailwind.style(
-              'text-base capitalize text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+              `text-base capitalize font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
             )}>
             {item.title}
           </Animated.Text>

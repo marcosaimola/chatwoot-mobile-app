@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { Agent } from '@/types';
 import { Avatar, Icon, SearchBar } from '@/components-next';
@@ -34,24 +34,25 @@ type AssigneeCellProps = {
 
 const AssigneeCell = (props: AssigneeCellProps) => {
   const { agent, lastItem, assigneeId } = props;
+  const { colors, isDark } = useThemeContext();
 
   return (
     <Pressable onPress={props.onPress} style={tailwind.style('flex flex-row items-center')}>
       <Avatar src={{ uri: agent.thumbnail || undefined }} name={agent.name ?? ''} size="md" />
       <Animated.View
         style={tailwind.style(
-          'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !lastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          `flex-1 ml-3 flex-row justify-between py-[11px] pr-3`,
+          !lastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={[
             tailwind.style(
-              'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+              `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
             ),
           ]}>
           {agent.name}
         </Animated.Text>
-        {assigneeId === agent.id ? <Icon icon={<TickIcon />} size={20} /> : null}
+        {assigneeId === agent.id ? <Icon icon={<TickIcon stroke={isDark ? '#10B981' : undefined} />} size={20} /> : null}
       </Animated.View>
     </Pressable>
   );
@@ -123,8 +124,10 @@ export const UpdateAssignee = () => {
 
   const selfAgent = agents.find(agent => agent.id === userId);
 
+  const { colors, isDark } = useThemeContext();
+
   return (
-    <React.Fragment>
+    <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <SearchBar
         isInsideBottomSheet
         onFocus={handleFocus}
@@ -137,7 +140,7 @@ export const UpdateAssignee = () => {
         showsVerticalScrollIndicator={false}
         style={tailwind.style('my-1 pl-3')}>
         {isFetching ? (
-          <ActivityIndicator />
+          <ActivityIndicator color={isDark ? '#FFFFFF' : undefined} />
         ) : (
           <>
             {!isSelfAssign && (
@@ -145,16 +148,16 @@ export const UpdateAssignee = () => {
                 style={tailwind.style('flex flex-row items-center')}
                 onPress={() => handleAssigneePress(selfAgent as Agent)}>
                 <Animated.View style={tailwind.style('p-0.5')}>
-                  <Icon icon={<SelfAssign />} size={24} />
+                  <Icon icon={<SelfAssign stroke={isDark ? '#60A5FA' : undefined} />} size={24} />
                 </Animated.View>
                 <Animated.View
                   style={tailwind.style(
-                    'flex-1 ml-3 flex-row justify-between py-[11px] pr-3 border-b-[1px] border-blackA-A3',
+                    `flex-1 ml-3 flex-row justify-between py-[11px] pr-3 border-b-[1px] ${colors.borderPrimary}`,
                   )}>
                   <Animated.Text
                     style={[
                       tailwind.style(
-                        'text-base text-blue-800 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+                        `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] ${isDark ? 'text-blue-400' : 'text-blue-800'}`,
                       ),
                     ]}>
                     {i18n.t('CONVERSATION.SELF_ASSIGN')}
@@ -175,6 +178,6 @@ export const UpdateAssignee = () => {
           </>
         )}
       </BottomSheetScrollView>
-    </React.Fragment>
+    </Animated.View>
   );
 };

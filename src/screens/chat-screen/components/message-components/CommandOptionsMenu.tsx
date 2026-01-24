@@ -7,7 +7,7 @@ import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch } from '@/hooks';
 import { updateAttachments } from '@/store/conversation/sendMessageSlice';
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { AttachFileIcon, CameraIcon, MacrosIcon, PhotosIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useHaptic, useScaleAnimation } from '@/utils';
@@ -147,24 +147,24 @@ const handleAttachFile = async dispatch => {
   }
 };
 
-const ADD_MENU_OPTIONS = [
+const getAddMenuOptions = (iconColor: string) => [
   {
-    icon: <PhotosIcon />,
+    icon: <PhotosIcon stroke={iconColor} />,
     title: 'Photos',
     handlePress: handleOpenPhotosLibrary,
   },
   {
-    icon: <CameraIcon />,
+    icon: <CameraIcon stroke={iconColor} />,
     title: 'Camera',
     handlePress: handleLaunchCamera,
   },
   {
-    icon: <AttachFileIcon />,
+    icon: <AttachFileIcon stroke={iconColor} />,
     title: 'Attach File',
     handlePress: handleAttachFile,
   },
   {
-    icon: <MacrosIcon />,
+    icon: <MacrosIcon stroke={iconColor} />,
     title: 'Macros',
     handlePress: () => {},
   },
@@ -199,15 +199,18 @@ export const validateFileAndSetAttachments = async (
   }
 };
 
+type MenuOptionType = ReturnType<typeof getAddMenuOptions>[0];
+
 type MenuOptionProps = {
   index: number;
-  menuOption: (typeof ADD_MENU_OPTIONS)[0];
+  menuOption: MenuOptionType;
 };
 
 const MenuOption = (props: MenuOptionProps) => {
   const { index, menuOption } = props;
   const dispatch = useAppDispatch();
   const { macrosListSheetRef } = useRefsContext();
+  const { colors } = useThemeContext();
 
   const { animatedStyle, handlers } = useScaleAnimation();
   const hapticSelection = useHaptic();
@@ -229,7 +232,7 @@ const MenuOption = (props: MenuOptionProps) => {
           </Animated.View>
           <Text
             style={tailwind.style(
-              'text-base font-inter-normal-20 leading-[18px] tracking-[0.24px] text-gray-950 pl-5',
+              `text-base font-inter-normal-20 leading-[18px] tracking-[0.24px] pl-5 ${colors.textPrimary}`,
             )}>
             {menuOption.title}
           </Text>
@@ -241,16 +244,21 @@ const MenuOption = (props: MenuOptionProps) => {
 
 export const CommandOptionsMenu = () => {
   const { bottom } = useSafeAreaInsets();
+  const { isDark } = useThemeContext();
   const isAndroid = Platform.OS === 'android';
   const containerHeight = isAndroid
     ? 210 + (bottom === 0 ? 16 : bottom)
     : 175 + (bottom === 0 ? 16 : bottom);
+
+  const iconColor = isDark ? '#9CA3AF' : 'black';
+  const menuOptions = getAddMenuOptions(iconColor);
+
   return (
     <Animated.View
       entering={SlideInDown.springify().damping(38).stiffness(240)}
       exiting={SlideOutDown.springify().damping(38).stiffness(240)}
       style={tailwind.style('mx-1 pt-2 items-start', `h-[${containerHeight}px]`)}>
-      {ADD_MENU_OPTIONS.map((menuOption, index) => {
+      {menuOptions.map((menuOption, index) => {
         return <MenuOption key={menuOption.title} {...{ menuOption, index }} />;
       })}
     </Animated.View>

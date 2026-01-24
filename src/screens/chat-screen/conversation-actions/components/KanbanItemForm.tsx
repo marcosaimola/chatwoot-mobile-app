@@ -3,6 +3,7 @@ import { Pressable, TextInput } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Button } from '@/components-next';
 import { KanbanItem, KanbanFunnel, KanbanItemFormData } from '../types/KanbanTypes';
 import { showToast } from '@/utils/toastUtils';
@@ -35,6 +36,7 @@ export const KanbanItemForm: React.FC<KanbanItemFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedFunnel, setSelectedFunnel] = useState<KanbanFunnel | null>(null);
   const [selectedStage, setSelectedStage] = useState<any>(null);
+  const { colors, isDark } = useThemeContext();
 
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
 
@@ -138,13 +140,13 @@ export const KanbanItemForm: React.FC<KanbanItemFormProps> = ({
   };
 
   return (
-    <Animated.View style={tailwind.style('flex-1')}>
+    <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <Animated.View style={tailwind.style('flex-row justify-between items-center mb-6 px-4')}>
-        <Animated.Text style={tailwind.style('text-xl font-inter-medium-24 text-gray-900')}>
+        <Animated.Text style={tailwind.style(`text-xl font-inter-medium-24 ${colors.textPrimary}`)}>
           {item ? i18n.t('KANBAN.EDIT_ITEM') : i18n.t('KANBAN.ADD_ITEM')}
         </Animated.Text>
         <Pressable onPress={onCancel}>
-          <Animated.Text style={tailwind.style('text-blue-600 font-inter-medium-24')}>
+          <Animated.Text style={tailwind.style(`font-inter-medium-24 ${isDark ? 'text-blue-400' : 'text-blue-600'}`)}>
             ✕
           </Animated.Text>
         </Pressable>
@@ -153,27 +155,29 @@ export const KanbanItemForm: React.FC<KanbanItemFormProps> = ({
       <Animated.ScrollView style={tailwind.style('flex-1 px-4')} showsVerticalScrollIndicator={false}>
         {/* Título */}
         <Animated.View style={tailwind.style('mb-4')}>
-          <Animated.Text style={tailwind.style('text-sm font-inter-medium-24 text-gray-700 mb-2')}>
+          <Animated.Text style={tailwind.style(`text-sm font-inter-medium-24 mb-2 ${colors.textSecondary}`)}>
             {i18n.t('KANBAN.FORM.TITLE')} *
           </Animated.Text>
           <TextInput
-            style={tailwind.style('border border-gray-300 rounded-lg px-3 py-2 text-base')}
+            style={tailwind.style(`border rounded-lg px-3 py-2 text-base ${colors.textPrimary} ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-300'}`)}
             value={title}
             onChangeText={setTitle}
             placeholder={i18n.t('KANBAN.FORM.TITLE_PLACEHOLDER')}
+            placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
           />
         </Animated.View>
 
         {/* Descrição */}
         <Animated.View style={tailwind.style('mb-4')}>
-          <Animated.Text style={tailwind.style('text-sm font-inter-medium-24 text-gray-700 mb-2')}>
+          <Animated.Text style={tailwind.style(`text-sm font-inter-medium-24 mb-2 ${colors.textSecondary}`)}>
             {i18n.t('KANBAN.FORM.DESCRIPTION')}
           </Animated.Text>
           <TextInput
-            style={tailwind.style('border border-gray-300 rounded-lg px-3 py-2 text-base h-20')}
+            style={tailwind.style(`border rounded-lg px-3 py-2 text-base h-20 ${colors.textPrimary} ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-300'}`)}
             value={description}
             onChangeText={setDescription}
             placeholder={i18n.t('KANBAN.FORM.DESCRIPTION_PLACEHOLDER')}
+            placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
             multiline
           />
         </Animated.View>
@@ -211,21 +215,22 @@ export const KanbanItemForm: React.FC<KanbanItemFormProps> = ({
 
         {/* Valor */}
         <Animated.View style={tailwind.style('mb-6')}>
-          <Animated.Text style={tailwind.style('text-sm font-inter-medium-24 text-gray-700 mb-2')}>
+          <Animated.Text style={tailwind.style(`text-sm font-inter-medium-24 mb-2 ${colors.textSecondary}`)}>
             {i18n.t('KANBAN.FORM.VALUE')}
           </Animated.Text>
           <TextInput
-            style={tailwind.style('border border-gray-300 rounded-lg px-3 py-2 text-base')}
+            style={tailwind.style(`border rounded-lg px-3 py-2 text-base ${colors.textPrimary} ${isDark ? 'border-gray-800 bg-gray-900' : 'border-gray-300'}`)}
             value={value}
             onChangeText={setValue}
             placeholder={i18n.t('KANBAN.FORM.VALUE_PLACEHOLDER')}
+            placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
             keyboardType="numeric"
           />
         </Animated.View>
       </Animated.ScrollView>
 
       {/* Botões */}
-      <Animated.View style={tailwind.style('px-6 py-4 bg-gray-50 border-t border-gray-200')}>
+      <Animated.View style={tailwind.style(`px-6 py-4 border-t ${isDark ? 'bg-gray-950 border-gray-800' : 'bg-gray-50 border-gray-200'}`)}>
         <Animated.View style={tailwind.style('flex-row')}>
           <Animated.View style={tailwind.style('flex-1 mr-3')}>
             <Button

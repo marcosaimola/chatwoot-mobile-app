@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, Alert, Switch, ScrollView, Image } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Switch,
+  StatusBar,
+  ImageURISource,
+  StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { ImageURISource } from 'react-native';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { fetchAiAgents, updateAgentStatus, type AiAgent } from '@/services/aiAgentsService';
-import { Icon } from '@/components-next/common';
-import { AiAgentsIcon } from '@/svg-icons/common';
+import { Avatar } from '@/components-next/common';
 import i18n from '@/i18n';
+import { TAB_BAR_HEIGHT } from '@/constants';
 
 const AiAgentsScreen = () => {
+  const { colors, isDark } = useThemeContext();
   const [agents, setAgents] = useState<AiAgent[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
@@ -39,7 +47,7 @@ const AiAgentsScreen = () => {
     // Show confirmation dialog
     Alert.alert(
       newStatus ? 'Ativar Agente de IA' : 'Desativar Agente de IA',
-      newStatus 
+      newStatus
         ? 'Ao continuar, o agente de IA passará a atender os contatos.'
         : 'Ao continuar, o agente de IA deixará de atender os contatos.',
       [
@@ -56,12 +64,10 @@ const AiAgentsScreen = () => {
 
             try {
               await updateAgentStatus({ id: agentId, ativo: newStatus });
-              
+
               // Update local state
               setAgents(prevAgents =>
-                prevAgents.map(ag =>
-                  ag.id === agentId ? { ...ag, ativo: newStatus } : ag
-                )
+                prevAgents.map(ag => (ag.id === agentId ? { ...ag, ativo: newStatus } : ag)),
               );
             } catch (error) {
               Alert.alert('Erro', 'Não foi possível atualizar o status do agente.');
@@ -77,20 +83,28 @@ const AiAgentsScreen = () => {
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
-      <Animated.View style={[tailwind.style('border-b-[1px] border-b-blackA-A3')]}>
+    <SafeAreaView edges={['top']} style={tailwind.style(`flex-1 ${colors.bgPrimary}`)}>
+      <StatusBar
+        translucent
+        backgroundColor={tailwind.color(colors.statusBarBg)}
+        barStyle={colors.statusBarStyle}
+      />
+      {/* Header */}
+      <Animated.View style={[tailwind.style(`border-b-[1px] ${colors.borderPrimary}`)]}>
         <Animated.View
-          style={[tailwind.style('flex flex-row justify-between items-center px-4 pt-2 pb-[12px]')]}>
+          style={[
+            tailwind.style('flex flex-row justify-between items-center px-4 pt-2 pb-[12px]'),
+          ]}>
           <Animated.View style={tailwind.style('flex-1')} />
           <Animated.View style={tailwind.style('flex-1')}>
             <Animated.Text
               style={tailwind.style(
-                'text-[17px] text-center leading-[17px] tracking-[0.32px] font-inter-medium-24 text-gray-950',
+                `text-[17px] text-center leading-[17px] tracking-[0.32px] font-inter-medium-24 ${colors.textPrimary}`,
               )}>
               {i18n.t('AI_AGENTS.TITLE')}
             </Animated.Text>
@@ -100,73 +114,98 @@ const AiAgentsScreen = () => {
       </Animated.View>
 
       {loading ? (
-        <View style={tailwind.style('flex-1 items-center justify-center')}>
-          <ActivityIndicator size="large" color={tailwind.color('bg-blue-600')} />
-        </View>
+        <Animated.View
+          style={tailwind.style('flex-1 items-center justify-center', `pb-[${TAB_BAR_HEIGHT}px]`)}>
+          <ActivityIndicator color={isDark ? '#FFFFFF' : undefined} />
+        </Animated.View>
       ) : agents.length === 0 ? (
-        <View style={tailwind.style('flex-1 items-center justify-center px-4')}>
-          <Text style={tailwind.style('text-lg font-inter-medium-24 text-gray-600 text-center')}>
-            Nenhum agente de IA disponível
-          </Text>
-        </View>
+        <Animated.View
+          style={tailwind.style(
+            'flex-1 items-center justify-center px-4',
+            `pb-[${TAB_BAR_HEIGHT}px]`,
+          )}>
+          <Animated.Text
+            style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
+            {i18n.t('AI_AGENTS.EMPTY')}
+          </Animated.Text>
+        </Animated.View>
       ) : (
-        <ScrollView
-          style={tailwind.style('flex-1')}
-          contentContainerStyle={tailwind.style('py-4 px-4 pb-24')}>
-          {agents.map(agent => {
-            const imageSource: ImageURISource | null = agent.picture 
+        <Animated.ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT}px]`)}>
+          {/* Agents List */}
+          {agents.map((agent, index) => {
+            const imageSource: ImageURISource = agent.picture
               ? { uri: agent.picture }
-              : null;
+              : { uri: '' };
+            const isLastItem = index === agents.length - 1;
 
             return (
               <Animated.View
                 key={agent.id}
                 entering={FadeIn}
                 exiting={FadeOut}
-                style={tailwind.style(
-                  'bg-white rounded-lg border border-gray-200 p-4 mb-3 shadow-sm',
-                )}>
-                <View style={tailwind.style('flex-row items-center mb-3')}>
-                  {imageSource ? (
-                    <Image
-                      source={imageSource}
-                      style={tailwind.style('w-16 h-16 rounded-full mr-3')}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={tailwind.style('w-16 h-16 rounded-full mr-3 bg-gray-200 items-center justify-center')}>
-                      <Icon size={32} icon={<AiAgentsIcon stroke={tailwind.color('text-gray-400')} />} />
-                    </View>
-                  )}
-                  <View style={tailwind.style('flex-1')}>
-                    <Text
+                style={tailwind.style('px-3 gap-3 flex-row justify-between')}>
+                {/* Avatar */}
+                <Animated.View style={tailwind.style('py-3 flex flex-row')}>
+                  <Avatar size="4xl" src={imageSource} name={agent.nome || ''} status="offline" />
+                </Animated.View>
+
+                {/* Content */}
+                <Animated.View
+                  style={tailwind.style(
+                    'flex-1 flex-row items-center justify-between py-3',
+                    !isLastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
+                  )}>
+                  <Animated.View style={tailwind.style('flex-1 gap-1')}>
+                    <Animated.Text
+                      numberOfLines={1}
                       style={tailwind.style(
-                        'text-lg font-inter-semibold-20 text-gray-900',
+                        `text-base font-inter-medium-24 tracking-[0.24px] ${colors.textPrimary}`,
                       )}>
                       {agent.nome}
-                    </Text>
-                  </View>
-                  <Switch
-                    value={agent.ativo}
-                    onValueChange={() => handleToggle(agent)}
-                    disabled={updatingIds.has(agent.id)}
-                  />
-                </View>
-                <Text style={tailwind.style('text-sm font-inter-normal-20 text-gray-600')}>
-                  {agent.persona}
-                </Text>
-                {updatingIds.has(agent.id) && (
-                  <View style={tailwind.style('mt-2')}>
-                    <ActivityIndicator size="small" color={tailwind.color('bg-blue-600')} />
-                  </View>
-                )}
+                    </Animated.Text>
+                    {agent.persona ? (
+                      <Animated.Text
+                        numberOfLines={1}
+                        style={tailwind.style(
+                          `text-sm font-inter-normal-20 tracking-[0.24px] ${colors.textSecondary}`,
+                        )}>
+                        {agent.persona}
+                      </Animated.Text>
+                    ) : null}
+                  </Animated.View>
+
+                  {/* Switch */}
+                  <Animated.View style={tailwind.style('flex-row items-center')}>
+                    {updatingIds.has(agent.id) ? (
+                      <ActivityIndicator size="small" color={isDark ? '#FFFFFF' : undefined} />
+                    ) : (
+                      <Switch
+                        trackColor={{ false: colors.switchTrackOff, true: colors.switchTrackOn }}
+                        thumbColor={colors.switchThumb}
+                        style={styles.switch}
+                        ios_backgroundColor={colors.switchTrackOff}
+                        value={agent.ativo}
+                        onValueChange={() => handleToggle(agent)}
+                        disabled={updatingIds.has(agent.id)}
+                      />
+                    )}
+                  </Animated.View>
+                </Animated.View>
               </Animated.View>
             );
           })}
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  switch: {
+    transform: [{ scale: 0.8 }],
+  },
+});
 
 export default AiAgentsScreen;

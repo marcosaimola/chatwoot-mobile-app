@@ -3,7 +3,7 @@ import { Channel, Message } from '@/types';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { selectConversationById } from '@/store/conversation/conversationSelectors';
-import { useChatWindowContext } from '@/context';
+import { useChatWindowContext, useThemeContext } from '@/context';
 import { conversationActions } from '@/store/conversation/conversationActions';
 import { unixTimestampToReadableTime, useHaptic } from '@/utils';
 import {
@@ -61,34 +61,36 @@ type MessageWrapperProps = {
   channel?: Channel;
 };
 
-const variantTextMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'text-gray-700',
+const getVariantTextMap = (isDark: boolean) => ({
+  [MESSAGE_VARIANTS.AGENT]: isDark ? 'text-gray-200' : 'text-gray-700',
   [MESSAGE_VARIANTS.USER]: 'text-white',
-  [MESSAGE_VARIANTS.BOT]: 'text-gray-700',
-  [MESSAGE_VARIANTS.TEMPLATE]: 'text-gray-700',
+  [MESSAGE_VARIANTS.BOT]: isDark ? 'text-gray-200' : 'text-gray-700',
+  [MESSAGE_VARIANTS.TEMPLATE]: isDark ? 'text-gray-200' : 'text-gray-700',
   [MESSAGE_VARIANTS.ERROR]: 'text-white',
-};
+});
 
-const variantBaseMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'bg-gray-100',
-  [MESSAGE_VARIANTS.PRIVATE]: 'bg-amber-100',
-  [MESSAGE_VARIANTS.USER]: 'bg-blue-700',
-  [MESSAGE_VARIANTS.BOT]: 'bg-blue-100',
-  [MESSAGE_VARIANTS.TEMPLATE]: 'bg-blue-100',
-  [MESSAGE_VARIANTS.ERROR]: 'bg-ruby-700',
-  [MESSAGE_VARIANTS.EMAIL]: 'bg-gray-100',
-  [MESSAGE_VARIANTS.UNSUPPORTED]: 'bg-amber-100 border border-dashed border-amber-700',
-};
+const getVariantBaseMap = (isDark: boolean) => ({
+  [MESSAGE_VARIANTS.AGENT]: isDark ? 'bg-gray-800/80' : 'bg-gray-100',
+  [MESSAGE_VARIANTS.PRIVATE]: isDark ? 'bg-amber-900/60' : 'bg-amber-100',
+  [MESSAGE_VARIANTS.USER]: isDark ? 'bg-blue-800/80' : 'bg-blue-700',
+  [MESSAGE_VARIANTS.BOT]: isDark ? 'bg-blue-900/60' : 'bg-blue-100',
+  [MESSAGE_VARIANTS.TEMPLATE]: isDark ? 'bg-blue-900/60' : 'bg-blue-100',
+  [MESSAGE_VARIANTS.ERROR]: isDark ? 'bg-ruby-800/80' : 'bg-ruby-700',
+  [MESSAGE_VARIANTS.EMAIL]: isDark ? 'bg-gray-800/80' : 'bg-gray-100',
+  [MESSAGE_VARIANTS.UNSUPPORTED]: isDark
+    ? 'bg-amber-900/60 border border-dashed border-amber-600'
+    : 'bg-amber-100 border border-dashed border-amber-700',
+});
 
-const variantBorderMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'border-gray-100',
-  [MESSAGE_VARIANTS.USER]: 'border-gray-100',
-  [MESSAGE_VARIANTS.BOT]: 'border-gray-100',
-  [MESSAGE_VARIANTS.TEMPLATE]: 'border-gray-100',
-  [MESSAGE_VARIANTS.ERROR]: 'border-gray-100',
-  [MESSAGE_VARIANTS.EMAIL]: 'border-gray-100',
-  [MESSAGE_VARIANTS.UNSUPPORTED]: 'border-gray-100',
-};
+const getVariantBorderMap = (isDark: boolean) => ({
+  [MESSAGE_VARIANTS.AGENT]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.USER]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.BOT]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.TEMPLATE]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.ERROR]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.EMAIL]: isDark ? 'border-gray-700' : 'border-gray-100',
+  [MESSAGE_VARIANTS.UNSUPPORTED]: isDark ? 'border-gray-700' : 'border-gray-100',
+});
 
 const MessageWrapper = ({
   children,
@@ -102,6 +104,11 @@ const MessageWrapper = ({
   variant,
   channel,
 }: MessageWrapperProps) => {
+  const { isDark } = useThemeContext();
+  const variantBaseMap = getVariantBaseMap(isDark);
+  const variantBorderMap = getVariantBorderMap(isDark);
+  const variantTextMap = getVariantTextMap(isDark);
+
   const flexOrientationClass = () => {
     const map = {
       [ORIENTATION.LEFT]: 'items-start',
@@ -178,8 +185,8 @@ const MessageWrapper = ({
                   channel={channel}
                   sourceId={item.sourceId}
                   errorMessage={item.contentAttributes?.externalError || ''}
-                  deliveredColor="text-gray-700"
-                  sentColor="text-gray-700"
+                  deliveredColor={isDark ? 'text-gray-400' : 'text-gray-700'}
+                  sentColor={isDark ? 'text-gray-400' : 'text-gray-700'}
                 />
               </Animated.View>
             )}

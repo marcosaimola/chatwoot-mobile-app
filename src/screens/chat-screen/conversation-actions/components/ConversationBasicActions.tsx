@@ -10,6 +10,7 @@ import Animated, {
 import { Icon } from '@/components-next';
 import { OpenIcon, ResolvedFilledIcon, PendingFilledIcon, SnoozedFilledIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { useHaptic, useScaleAnimation } from '@/utils';
 import { ConversationStatus } from '@/types';
 
@@ -20,6 +21,8 @@ type ConversationStateType = 'open' | 'pending' | 'snooze' | 'resolve';
 type ConversationActionOptionsType = {
   backgroundActionColor: string;
   backgroundActionPressedColor: string;
+  backgroundActionColorDark: string;
+  backgroundActionPressedColorDark: string;
   borderActionColor: string;
   actionIcon: React.JSX.Element;
   actionText: ConversationStateType;
@@ -33,6 +36,8 @@ const conversationActionOptions: ConversationActionOptionsType[] = [
   {
     backgroundActionColor: 'bg-gray-100',
     backgroundActionPressedColor: 'bg-gray-200',
+    backgroundActionColorDark: 'bg-gray-800',
+    backgroundActionPressedColorDark: 'bg-gray-700',
     borderActionColor: 'bg-gray-700',
     actionIcon: <OpenIcon stroke={tailwind.color('text-gray-700') as string} />,
     actionText: 'open',
@@ -41,6 +46,8 @@ const conversationActionOptions: ConversationActionOptionsType[] = [
   {
     backgroundActionColor: 'bg-amber-100',
     backgroundActionPressedColor: 'bg-amber-200',
+    backgroundActionColorDark: 'bg-amber-900/30',
+    backgroundActionPressedColorDark: 'bg-amber-800/40',
     borderActionColor: 'bg-amber-700',
     actionIcon: <PendingFilledIcon />,
     actionText: 'pending',
@@ -49,6 +56,8 @@ const conversationActionOptions: ConversationActionOptionsType[] = [
   {
     backgroundActionColor: 'bg-indigo-100',
     backgroundActionPressedColor: 'bg-indigo-200',
+    backgroundActionColorDark: 'bg-indigo-900/30',
+    backgroundActionPressedColorDark: 'bg-indigo-800/40',
     borderActionColor: 'bg-indigo-700',
     actionIcon: <SnoozedFilledIcon />,
     actionText: 'snooze',
@@ -57,6 +66,8 @@ const conversationActionOptions: ConversationActionOptionsType[] = [
   {
     backgroundActionColor: 'bg-green-100',
     backgroundActionPressedColor: 'bg-green-200',
+    backgroundActionColorDark: 'bg-green-900/30',
+    backgroundActionPressedColorDark: 'bg-green-800/40',
     borderActionColor: 'bg-green-700',
     actionIcon: <ResolvedFilledIcon />,
     actionText: 'resolve',
@@ -74,6 +85,7 @@ type ConversationActionOptionProps = {
 
 const ConversationActionOption = (props: ConversationActionOptionProps) => {
   const { index, conversationAction, status, updateConversationStatus, isMuted } = props;
+  const { colors, isDark } = useThemeContext();
 
   const hapticSelection = useHaptic();
 
@@ -107,6 +119,9 @@ const ConversationActionOption = (props: ConversationActionOptionProps) => {
     };
   });
 
+  const bgColor = isDark ? conversationAction.backgroundActionColorDark : conversationAction.backgroundActionColor;
+  const bgColorPressed = isDark ? conversationAction.backgroundActionPressedColorDark : conversationAction.backgroundActionPressedColor;
+
   return (
     <Animated.View
       style={[
@@ -119,8 +134,8 @@ const ConversationActionOption = (props: ConversationActionOptionProps) => {
           tailwind.style(
             'flex items-center justify-between rounded-xl pt-7 pb-3',
             `w-[${ACTION_WIDTH}px]`,
-            conversationAction.backgroundActionColor,
-            pressed ? conversationAction.backgroundActionPressedColor : '',
+            bgColor,
+            pressed ? bgColorPressed : '',
           ),
         ]}
         onPress={handleActionOptionPress}
@@ -134,7 +149,7 @@ const ConversationActionOption = (props: ConversationActionOptionProps) => {
         <Icon icon={conversationAction.actionIcon} size={32} />
         <Animated.Text
           style={tailwind.style(
-            'text-md font-inter-normal-20 leading-[17px] tracking-[0.32px] text-center pt-5 capitalize text-gray-950 ',
+            `text-md font-inter-normal-20 leading-[17px] tracking-[0.32px] text-center pt-5 capitalize ${colors.textPrimary}`,
           )}>
           {conversationAction.actionText}
         </Animated.Text>

@@ -2,8 +2,9 @@ import React from 'react';
 import { Pressable, Text, ViewStyle } from 'react-native';
 import Animated, { AnimatedStyle } from 'react-native-reanimated';
 import { Icon } from '@/components-next/common';
-import { CheckedIcon, CloseIcon, FilterIcon, UncheckedIcon } from '@/svg-icons';
+import { CheckedIcon, CloseIcon, FilterIcon, SearchIcon, UncheckedIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import i18n from '@/i18n';
 import { useScaleAnimation } from '@/utils';
 import { useHeaderAnimation } from '@/hooks/useHeaderAnimation';
@@ -38,51 +39,62 @@ type RightSectionProps = {
   onRightIconPress: () => void;
 };
 
-const HeaderTitle = () => (
-  <Animated.View style={tailwind.style('flex-1')}>
-    <Text
-      numberOfLines={1}
-      adjustsFontSizeToFit
-      style={tailwind.style(
-        'text-[17px] font-inter-medium-24 tracking-[0.32px] leading-[17px] text-center text-gray-950',
-      )}>
-      {i18n.t('CONVERSATION.HEADER.TITLE')}
-    </Text>
-  </Animated.View>
-);
+const HeaderTitle = () => {
+  const { colors } = useThemeContext();
+  return (
+    <Animated.View style={tailwind.style('flex-1')}>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        style={tailwind.style(
+          `text-[17px] font-inter-medium-24 tracking-[0.32px] leading-[17px] text-center ${colors.textPrimary}`,
+        )}>
+        {i18n.t('CONVERSATION.HEADER.TITLE')}
+      </Text>
+    </Animated.View>
+  );
+};
 
 const LeftSection = ({ currentState, isSelectedAll, onLeftIconPress }: LeftSectionProps) => {
   const { entering, exiting } = useHeaderAnimation();
+  const { isDark } = useThemeContext();
 
   if (currentState === 'Filter' || currentState === 'Search') return null;
-  if (currentState !== 'Select') {
+
+  if (currentState === 'none') {
     return (
       <Animated.View style={tailwind.style('flex-1 items-start')}>
-        <Pressable hitSlop={16}>
-          <Animated.View exiting={exiting} entering={entering} />
+        <Pressable onPress={onLeftIconPress} hitSlop={16}>
+          <Animated.View exiting={exiting} entering={entering}>
+            <Icon size={24} icon={<SearchIcon stroke={isDark ? '#9CA3AF' : '#858585'} />} />
+          </Animated.View>
         </Pressable>
       </Animated.View>
     );
   }
 
-  return (
-    <Animated.View style={tailwind.style('flex-1 items-start')}>
-      <Pressable onPress={onLeftIconPress} hitSlop={16}>
-        <Animated.View exiting={exiting} entering={entering}>
-          <Icon
-            size={24}
-            icon={
-              isSelectedAll ? (
-                <CheckedIcon />
-              ) : (
-                <UncheckedIcon stroke={tailwind.color('text-gray-800')} />
-              )
-            }
-          />
-        </Animated.View>
-      </Pressable>
-    </Animated.View>
-  );
+  if (currentState === 'Select') {
+    return (
+      <Animated.View style={tailwind.style('flex-1 items-start')}>
+        <Pressable onPress={onLeftIconPress} hitSlop={16}>
+          <Animated.View exiting={exiting} entering={entering}>
+            <Icon
+              size={24}
+              icon={
+                isSelectedAll ? (
+                  <CheckedIcon />
+                ) : (
+                  <UncheckedIcon stroke={tailwind.color('text-gray-800')} />
+                )
+              }
+            />
+          </Animated.View>
+        </Pressable>
+      </Animated.View>
+    );
+  }
+
+  return null;
 };
 
 const FilterSection = ({
@@ -152,7 +164,6 @@ export const ConversationHeaderPresenter = ({
   onClearFilter,
 }: ConversationHeaderPresenterProps) => {
   const { handlers, animatedStyle } = useScaleAnimation();
-
 
   return (
     <Animated.View

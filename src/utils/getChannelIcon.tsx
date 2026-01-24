@@ -31,48 +31,51 @@ const isAWhatsAppChannel = (channelType: Channel) => {
   return channelType === InboxTypes.WHATSAPP;
 };
 
+// Gray color that works on both light and dark backgrounds
+const CHANNEL_ICON_COLOR = '#6B7280';
+
 export const getChannelIcon = (channelType: Channel, medium: string, additionalType: string) => {
   if (isFacebookChannel(channelType)) {
     if (additionalType === 'instagram_direct_message') {
-      return <InstagramFilledIcon />;
+      return <InstagramFilledIcon color={CHANNEL_ICON_COLOR} />;
     }
-    return <MessengerFilledIcon />;
+    return <MessengerFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (isTwilioChannel(channelType)) {
     if (isATwilioSMSChannel(channelType, medium)) {
-      return <SMSFilledIcon />;
+      return <SMSFilledIcon color={CHANNEL_ICON_COLOR} />;
     }
-    return <WhatsAppFilledIcon />;
+    return <WhatsAppFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (isAWhatsAppChannel(channelType)) {
-    return <WhatsAppFilledIcon />;
+    return <WhatsAppFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.WEB) {
-    return <WebsiteFilledIcon />;
+    return <WebsiteFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.EMAIL) {
-    return <MailFilledIcon />;
+    return <MailFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.TELEGRAM) {
-    return <TelegramFilledIcon />;
+    return <TelegramFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.LINE) {
-    return <LineFilledIcon />;
+    return <LineFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.SMS) {
-    return <SMSFilledIcon />;
+    return <SMSFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
   if (channelType === InboxTypes.TWITTER) {
-    return <XFilledIcon />;
+    return <XFilledIcon color={CHANNEL_ICON_COLOR} />;
   }
 
-  return <WebsiteFilledIcon />;
+  return <WebsiteFilledIcon color={CHANNEL_ICON_COLOR} />;
 };

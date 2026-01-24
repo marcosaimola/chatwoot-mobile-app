@@ -31,6 +31,7 @@ import {
   BottomSheetWrapper,
   Button,
   LanguageList,
+  ThemeList,
   AvailabilityStatusList,
   NotificationPreferences,
   SwitchAccount,
@@ -39,8 +40,8 @@ import {
 import { UserAvatar } from './components/UserAvatar';
 
 import { LANGUAGES, TAB_BAR_HEIGHT } from '@/constants';
-import { useRefsContext } from '@/context';
-import { ChatwootIcon, NotificationIcon, SwitchIcon, TranslateIcon } from '@/svg-icons';
+import { useRefsContext, useThemeContext } from '@/context';
+import { ChatwootIcon, NotificationIcon, SwitchIcon, TranslateIcon, ThemeIcon } from '@/svg-icons';
 import { GenericListType } from '@/types';
 
 import { useHaptic } from '@/utils';
@@ -57,9 +58,11 @@ import {
   selectLocale,
   selectIsChatwootCloud,
   selectPushToken,
+  selectTheme,
 } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
-import { setLocale } from '@/store/settings/settingsSlice';
+import { setLocale, setTheme } from '@/store/settings/settingsSlice';
+import { Theme } from '@/types/common/Theme';
 
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
@@ -76,6 +79,7 @@ const appVersionDetails = buildNumber ? `${appVersion} (${buildNumber})` : appVe
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const { colors, isDark } = useThemeContext();
   const availabilityStatus =
     (useSelector(selectCurrentUserAvailability) as AvailabilityStatus) || 'offline';
 
@@ -131,9 +135,11 @@ const SettingsScreen = () => {
   const enableAccountSwitch = accounts.length > 1;
 
   const activeLocale = useSelector(selectLocale);
+  const activeTheme = useAppSelector(selectTheme);
   const {
     userAvailabilityStatusSheetRef,
     languagesModalSheetRef,
+    themeSheetRef,
     notificationPreferencesSheetRef,
     switchAccountSheetRef,
     debugActionsSheetRef,
@@ -167,6 +173,10 @@ const SettingsScreen = () => {
     dispatch(setLocale(locale));
   };
 
+  const onChangeTheme = (theme: Theme) => {
+    dispatch(setTheme(theme));
+  };
+
   const changeAccount = (accountId: number) => {
     dispatch(clearAllContacts());
     dispatch(clearAllConversations());
@@ -189,6 +199,13 @@ const SettingsScreen = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLocale]);
+
+  useEffect(() => {
+    themeSheetRef.current?.dismiss({
+      overshootClamping: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTheme]);
 
   const openURL = async () => {
     await WebBrowser.openBrowserAsync(HELP_URL);
@@ -236,6 +253,14 @@ const SettingsScreen = () => {
       onPressListItem: () => languagesModalSheetRef.current?.present(),
     },
     {
+      hasChevron: true,
+      title: i18n.t('SETTINGS.CHANGE_THEME'),
+      icon: <ThemeIcon />,
+      subtitle: i18n.t(`SETTINGS.THEME_OPTIONS.${activeTheme.toUpperCase()}`),
+      subtitleType: 'light',
+      onPressListItem: () => themeSheetRef.current?.present(),
+    },
+    {
       hasChevron: enableAccountSwitch,
       title: i18n.t('SETTINGS.SWITCH_ACCOUNT'),
       icon: <SwitchIcon />,
@@ -261,13 +286,13 @@ const SettingsScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={tailwind.style('flex-1 bg-white font-inter-normal-20')}>
+    <SafeAreaView style={tailwind.style(`flex-1 ${colors.bgPrimary} font-inter-normal-20`)}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={tailwind.color(colors.statusBarBg)}
+        barStyle={colors.statusBarStyle}
       />
-      <SettingsHeader />
+      <SettingsHeader isDark={isDark} />
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT - 1}px]`)}>
@@ -276,16 +301,16 @@ const SettingsScreen = () => {
             <UserAvatar src={avatarUrl} name={name} status={availabilityStatus} />
             <Animated.View
               style={tailwind.style(
-                'absolute border-[2px] border-white rounded-full -bottom-[2px] right-[10px]',
+                `absolute border-[2px] ${isDark ? 'border-gray-950' : 'border-white'} rounded-full -bottom-[2px] right-[10px]`,
               )}></Animated.View>
           </Animated.View>
           <Animated.View style={tailwind.style('flex flex-col items-center gap-1')}>
-            <Animated.Text style={tailwind.style('text-[22px] font-inter-580-24 text-gray-950')}>
+            <Animated.Text style={tailwind.style(`text-[22px] font-inter-580-24 ${colors.textPrimary}`)}>
               {name}
             </Animated.Text>
             <Animated.Text
               style={tailwind.style(
-                'text-[15px] font-inter-420-20 leading-[17.25px] text-gray-900',
+                `text-[15px] font-inter-420-20 leading-[17.25px] ${colors.textSecondary}`,
               )}>
               {email}
             </Animated.Text>
@@ -308,7 +333,7 @@ const SettingsScreen = () => {
         <Pressable
           style={tailwind.style('p-4 items-center')}
           onLongPress={() => debugActionsSheetRef.current?.present()}>
-          <Text style={tailwind.style('text-sm text-gray-700 ')}>
+          <Text style={tailwind.style(`text-sm ${colors.textSecondary}`)}>
             {appVersionDetails}
           </Text>
         </Pressable>
@@ -347,6 +372,20 @@ const SettingsScreen = () => {
           <BottomSheetHeader headerText={i18n.t('SETTINGS.SET_LANGUAGE')} />
           <LanguageList onChangeLanguage={onChangeLanguage} currentLanguage={activeLocale} />
         </BottomSheetScrollView>
+      </BottomSheetModal>
+      <BottomSheetModal
+        ref={themeSheetRef}
+        backdropComponent={BottomSheetBackdrop}
+        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        enablePanDownToClose
+        animationConfigs={animationConfigs}
+        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
+        style={tailwind.style('rounded-[26px] overflow-hidden')}
+        snapPoints={[200]}>
+        <BottomSheetWrapper>
+          <BottomSheetHeader headerText={i18n.t('SETTINGS.SET_THEME')} />
+          <ThemeList onChangeTheme={onChangeTheme} currentTheme={activeTheme} />
+        </BottomSheetWrapper>
       </BottomSheetModal>
       <BottomSheetModal
         ref={notificationPreferencesSheetRef}

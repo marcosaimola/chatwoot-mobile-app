@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { Agent } from '@/types';
 import { Avatar, Icon, SearchBar } from '@/components-next';
@@ -28,24 +28,25 @@ type ParticipantCellProps = {
 
 const ParticipantCell = (props: ParticipantCellProps) => {
   const { value, lastItem, onPress } = props;
+  const { colors, isDark } = useThemeContext();
 
   return (
     <Pressable onPress={() => onPress(value)} style={tailwind.style('flex flex-row items-center')}>
       <Avatar src={{ uri: value.thumbnail || undefined }} name={value.name ?? ''} size="md" />
       <Animated.View
         style={tailwind.style(
-          'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !lastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          `flex-1 ml-3 flex-row justify-between py-[11px] pr-3`,
+          !lastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={[
             tailwind.style(
-              'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+              `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
             ),
           ]}>
           {value.name}
         </Animated.Text>
-        {value.isParticipant ? <Icon icon={<TickIcon />} size={20} /> : null}
+        {value.isParticipant ? <Icon icon={<TickIcon stroke={isDark ? '#10B981' : undefined} />} size={20} /> : null}
       </Animated.View>
     </Pressable>
   );
@@ -126,6 +127,7 @@ export const UpdateParticipant = (props: UpdateParticipantProps) => {
   const dispatch = useAppDispatch();
   const { updateParticipantSheetRef } = useRefsContext();
   const [searchTerm, setSearchTerm] = useState('');
+  const { isDark } = useThemeContext();
 
   const selectedConversation = useAppSelector(selectSelectedConversation);
 
@@ -153,7 +155,7 @@ export const UpdateParticipant = (props: UpdateParticipantProps) => {
   };
 
   return (
-    <React.Fragment>
+    <Animated.View style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <SearchBar
         isInsideBottomSheet
         onFocus={handleFocus}
@@ -165,6 +167,6 @@ export const UpdateParticipant = (props: UpdateParticipantProps) => {
         allAgents={allAgents}
         activeConversationParticipants={activeConversationParticipants}
       />
-    </React.Fragment>
+    </Animated.View>
   );
 };

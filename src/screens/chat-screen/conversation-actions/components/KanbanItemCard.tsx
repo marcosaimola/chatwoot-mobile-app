@@ -4,9 +4,10 @@ import Animated from 'react-native-reanimated';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { webhookService } from '@/services/WebhookService';
 import { showToast } from '@/utils/toastUtils';
-import { BottomSheetHeader } from '@/components-next';
+import { BottomSheetBackdrop } from '@/components-next';
 import { KanbanItem, KanbanFunnel } from './types/KanbanTypes';
 import { KanbanItemForm } from './KanbanItemForm';
 import { KanbanItemDisplay } from './KanbanItemDisplay';
@@ -25,6 +26,7 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formModalRef] = useState(() => React.createRef<BottomSheetModal>());
+  const { colors, isDark } = useThemeContext();
 
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const contactName = conversation?.meta?.sender?.name || '';
@@ -55,20 +57,23 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
     }
   };
 
-  const loadAvailableFunnels = async () => {
+  const loadAvailableFunnels = async (): Promise<KanbanFunnel[]> => {
     try {
       const funnelsResponse = await webhookService.get('kanban/mobile-list');
       console.log('Funis disponíveis:', funnelsResponse.data);
-      setAvailableFunnels(funnelsResponse.data || []);
+      const funnels = funnelsResponse.data || [];
+      setAvailableFunnels(funnels);
+      return funnels;
     } catch (error) {
       console.error('Erro ao carregar funis disponíveis:', error);
+      return [];
     }
   };
 
   const handleAddItem = async () => {
     // Load available funnels before opening add form
-    await loadAvailableFunnels();
-    if (availableFunnels.length === 0) {
+    const funnels = await loadAvailableFunnels();
+    if (funnels.length === 0) {
       showToast({ message: i18n.t('KANBAN.MESSAGES.NO_FUNNELS_ADD') });
       return;
     }
@@ -78,8 +83,8 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
 
   const handleEditItem = async () => {
     // Load available funnels before opening edit form
-    await loadAvailableFunnels();
-    if (availableFunnels.length === 0) {
+    const funnels = await loadAvailableFunnels();
+    if (funnels.length === 0) {
       showToast({ message: i18n.t('KANBAN.MESSAGES.NO_FUNNELS_EDIT') });
       return;
     }
@@ -172,9 +177,9 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
   if (loading) {
     return (
       <Animated.View style={tailwind.style('px-4')}>
-        <Animated.View style={tailwind.style('bg-gray-50 rounded-lg p-4')}>
+        <Animated.View style={tailwind.style(`rounded-lg p-4 ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`)}>
           <ActivityIndicator size="small" color={tailwind.color('blue-600')} />
-          <Animated.Text style={tailwind.style('text-center text-gray-600 mt-2')}>
+          <Animated.Text style={tailwind.style(`text-center mt-2 ${colors.textSecondary}`)}>
             {i18n.t('KANBAN.MESSAGES.LOADING')}
           </Animated.Text>
         </Animated.View>
@@ -187,13 +192,13 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
       <Animated.View style={tailwind.style('pl-4 pb-3')}>
         <Animated.Text
           style={tailwind.style(
-            'text-sm font-inter-medium-24 tracking-[0.32px] leading-[16px] text-gray-700',
+            `text-sm font-inter-medium-24 tracking-[0.32px] leading-[16px] ${colors.textSecondary}`,
           )}>
           {i18n.t('KANBAN.TITLE')}
         </Animated.Text>
       </Animated.View>
       
-      <Animated.View style={[tailwind.style('rounded-[13px] mx-4 bg-white'), styles.listShadow]}>
+      <Animated.View style={[tailwind.style(`rounded-[13px] mx-4 ${isDark ? 'bg-gray-950' : 'bg-white'}`), isDark ? styles.listShadowDark : styles.listShadow]}>
         {kanbanItem ? (
           <KanbanItemDisplay
             item={kanbanItem}
@@ -202,14 +207,14 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
           />
         ) : (
           <Animated.View style={tailwind.style('p-4')}>
-            <Animated.Text style={tailwind.style('text-gray-600 mb-4')}>
+            <Animated.Text style={tailwind.style(`mb-4 ${colors.textSecondary}`)}>
               {i18n.t('KANBAN.NO_ITEM')}
             </Animated.Text>
             {availableFunnels.length > 0 && (
               <Pressable
                 onPress={handleAddItem}
-                style={tailwind.style('flex-row items-center justify-center bg-blue-50 rounded-lg p-3')}>
-                <Animated.Text style={tailwind.style('text-blue-600 font-inter-medium-24')}>
+                style={tailwind.style(`flex-row items-center justify-center rounded-lg p-3 ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`)}>
+                <Animated.Text style={tailwind.style(`font-inter-medium-24 ${isDark ? 'text-blue-400' : 'text-blue-600'}`)}>
                   {i18n.t('KANBAN.ADD_ITEM')}
                 </Animated.Text>
               </Pressable>
@@ -220,11 +225,15 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
 
       <BottomSheetModal
         ref={formModalRef}
+        backdropComponent={BottomSheetBackdrop}
+        backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
+        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
+        style={tailwind.style('rounded-[26px] overflow-hidden')}
         snapPoints={['90%']}
         enablePanDownToClose
         onDismiss={() => setShowForm(false)}>
-        <BottomSheetScrollView>
-          <BottomSheetHeader title={kanbanItem ? i18n.t('KANBAN.EDIT_ITEM_TITLE') : i18n.t('KANBAN.ADD_ITEM_TITLE')} />
+        <BottomSheetScrollView style={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}>
           <KanbanItemForm
             conversationId={conversationId}
             item={kanbanItem}
@@ -252,6 +261,20 @@ const styles = StyleSheet.create({
       android: {
         elevation: 4,
         backgroundColor: 'white',
+      },
+    }) || {},
+  listShadowDark:
+    Platform.select({
+      ios: {
+        shadowColor: '#00000080',
+        shadowOffset: { width: 0, height: 0.15 },
+        shadowRadius: 2,
+        shadowOpacity: 0.5,
+        elevation: 2,
+      },
+      android: {
+        elevation: 4,
+        backgroundColor: '#030712',
       },
     }) || {},
 });

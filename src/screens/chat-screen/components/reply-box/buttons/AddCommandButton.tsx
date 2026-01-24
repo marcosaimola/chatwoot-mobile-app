@@ -4,6 +4,7 @@ import { Pressable } from 'react-native';
 import { Icon } from '@/components-next/common';
 import { AddIcon } from '@/svg-icons';
 import { useScaleAnimation } from '@/utils';
+import { useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { AddCommandButtonProps } from '../types';
 
@@ -12,6 +13,7 @@ export const AddCommandButton = ({
   ...otherProps
 }: AddCommandButtonProps) => {
   const { animatedStyle, handlers } = useScaleAnimation();
+  const { isDark } = useThemeContext();
 
   const addIconAnimation = useAnimatedStyle(() => {
     return {
@@ -36,7 +38,7 @@ export const AddCommandButton = ({
             tailwind.style('flex items-center justify-center h-10 w-10 rounded-2xl'),
             addIconAnimation,
           ]}>
-          <Icon icon={<AddIcon />} size={24} />
+          <Icon icon={<AddIcon stroke={isDark ? '#9CA3AF' : 'black'} />} size={24} />
         </Animated.View>
       </Pressable>
     </Animated.View>

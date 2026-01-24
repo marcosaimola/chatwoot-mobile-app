@@ -239,3 +239,60 @@ export interface TogglePriorityPayload {
   conversationId: number;
   priority: ConversationPriority;
 }
+
+export interface SearchPayload {
+  query: string;
+  page?: number;
+}
+
+export interface SearchContactsAPIResponse {
+  payload: {
+    contacts: Array<{
+      id: number;
+      name: string | null;
+      email: string | null;
+      phone_number: string | null;
+      identifier: string | null;
+    }>;
+  };
+}
+
+export interface SearchConversationsAPIResponse {
+  payload: {
+    conversations: Array<{
+      id: number;
+      account_id: number;
+      created_at: number;
+      message: {
+        id: number;
+        content: string;
+        inbox_id: number;
+        conversation_id: number;
+        message_type: number;
+        content_type: string;
+        status: string;
+        created_at: number;
+        private: boolean;
+      };
+      contact: {
+        id: number;
+        name: string | null;
+        email: string | null;
+        phone_number: string | null;
+        identifier: string | null;
+      };
+      inbox: {
+        id: number;
+        channel_id: number;
+        name: string;
+        channel_type: string;
+      };
+      agent: {
+        id: number;
+        name: string;
+        email: string;
+        available_name: string;
+      } | null;
+    }>;
+  };
+}

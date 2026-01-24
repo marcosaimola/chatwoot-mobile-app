@@ -12,7 +12,7 @@ import { tailwind } from '@/theme';
 import { Message } from '@/types';
 import { MessageComponent } from '../message-item/Message';
 // import { MessageItemContainer } from '../message-item/MessageItemContainer';
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 
 export type FlashListRenderProps = {
   item: { date: string } | Message;
@@ -24,12 +24,14 @@ const AnimatedFlashlist = Animated.createAnimatedComponent(FlashList<Message | {
 type DateSectionProps = { item: { date: string } };
 
 const DateSection = ({ item }: DateSectionProps) => {
+  const { isDark } = useThemeContext();
+
   return (
     <Animated.View style={tailwind.style('flex flex-row justify-center items-center py-4')}>
-      <Animated.View style={tailwind.style('rounded-lg py-1 px-[7px] bg-blackA-A3')}>
+      <Animated.View style={tailwind.style(`rounded-lg py-1 px-[7px] ${isDark ? 'bg-whiteA-A3' : 'bg-blackA-A3'}`)}>
         <Animated.Text
           style={tailwind.style(
-            'text-cxs font-inter-420-20 tracking-[0.32px] text-blackA-A11 leading-[15px]',
+            `text-cxs font-inter-420-20 tracking-[0.32px] leading-[15px] ${isDark ? 'text-gray-400' : 'text-blackA-A11'}`,
           )}>
           {item.date}
         </Animated.Text>

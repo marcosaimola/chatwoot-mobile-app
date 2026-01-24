@@ -3,6 +3,7 @@ import { StyleSheet, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Label } from '@/types';
 
 type LabelItemProps = {
@@ -12,16 +13,18 @@ type LabelItemProps = {
 
 export const LabelItem = (props: LabelItemProps) => {
   const { item } = props;
+  const { colors, isDark } = useThemeContext();
+
   return (
     <Animated.View
       style={[
-        styles.labelShadow,
-        tailwind.style('flex flex-row items-center bg-white px-3 py-[7px] rounded-lg mr-2 mt-3'),
+        isDark ? styles.labelShadowDark : styles.labelShadow,
+        tailwind.style(`flex flex-row items-center px-3 py-[7px] rounded-lg mr-2 mt-3 ${isDark ? 'bg-gray-950' : 'bg-white'}`),
       ]}>
       <Animated.View style={tailwind.style('h-2 w-2 rounded-full', `bg-[${item.color}]`)} />
       <Animated.Text
         style={tailwind.style(
-          'text-md font-inter-normal-20 leading-[17px] tracking-[0.32px] pl-1.5 text-gray-950',
+          `text-md font-inter-normal-20 leading-[17px] tracking-[0.32px] pl-1.5 ${colors.textPrimary}`,
         )}>
         {item.title}
       </Animated.Text>
@@ -43,5 +46,19 @@ const styles = StyleSheet.create({
         elevation: 4,
         backgroundColor: 'white',
       },
-    }) || {}, // Add fallback empty object
+    }) || {},
+  labelShadowDark:
+    Platform.select({
+      ios: {
+        shadowColor: '#00000080',
+        shadowOffset: { width: 0, height: 0.15 },
+        shadowRadius: 2,
+        shadowOpacity: 0.5,
+        elevation: 2,
+      },
+      android: {
+        elevation: 4,
+        backgroundColor: '#030712',
+      },
+    }) || {},
 });

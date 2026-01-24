@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { ConversationStatus, StatusCollection } from '@/types';
 import { getStatusTypeIcon, useHaptic } from '@/utils';
@@ -17,6 +17,7 @@ import { conversationActions } from '@/store/conversation/conversationActions';
 import { setCurrentState } from '@/store/conversation/conversationHeaderSlice';
 import i18n from '@/i18n';
 import { StatusOptions } from '@/types';
+
 type StatusCellProps = {
   value: StatusCollection;
   isLastItem: boolean;
@@ -32,6 +33,8 @@ const StatusList: StatusCollection[] = [
 
 const StatusCell = (props: StatusCellProps) => {
   const { value, isLastItem, onPress } = props;
+  const { colors } = useThemeContext();
+
   return (
     <Pressable
       onPress={() => onPress(value.id)}
@@ -41,12 +44,12 @@ const StatusCell = (props: StatusCellProps) => {
       </Animated.View>
       <Animated.View
         style={tailwind.style(
-          'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !isLastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          `flex-1 ml-3 flex-row justify-between py-[11px] pr-3`,
+          !isLastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={tailwind.style(
-            'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize',
+            `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ${colors.textPrimary}`,
           )}>
           {i18n.t(`CONVERSATION.ASSIGNEE.STATUS.OPTIONS.${StatusOptions[value.id].toUpperCase()}`)}
         </Animated.Text>
@@ -61,6 +64,7 @@ const filterStatusList = (status: ConversationStatus) => {
 
 export const UpdateStatus = () => {
   const { actionsModalSheetRef } = useRefsContext();
+  const { isDark } = useThemeContext();
 
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector(selectSelectedIds);
@@ -96,7 +100,7 @@ export const UpdateStatus = () => {
 
 
   return (
-    <BottomSheetView>
+    <BottomSheetView style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
       <BottomSheetHeader headerText={i18n.t('CONVERSATION.CHANGE_STATUS')} />
       <Animated.View style={tailwind.style('py-1 pl-3')}>
         {statusList.map((value, index) => (

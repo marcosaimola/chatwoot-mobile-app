@@ -3,6 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Agent, ConversationPriority, Team } from '@/types';
 import AssigneePanel from './AssigneePanel';
 import TeamPanel from './TeamPanel';
@@ -25,8 +26,10 @@ export const ConversationSettingsPanel = ({
   onChangeTeamAssignee,
   onChangePriority,
 }: ConversationSettingsPanelProps) => {
+  const { isDark } = useThemeContext();
+
   return (
-    <Animated.View style={[tailwind.style('rounded-[13px] mx-4 bg-white'), styles.listShadow]}>
+    <Animated.View style={[tailwind.style(`rounded-[13px] mx-4 ${isDark ? 'bg-gray-950' : 'bg-white'}`), isDark ? styles.listShadowDark : styles.listShadow]}>
       <AssigneePanel assignee={assignee} onPress={onChangeAssignee} />
       <TeamPanel team={team} onPress={onChangeTeamAssignee} />
       <PriorityPanel priority={priority} onPress={onChangePriority} />
@@ -48,5 +51,19 @@ const styles = StyleSheet.create({
         elevation: 4,
         backgroundColor: 'white',
       },
-    }) || {}, // Add fallback empty object
+    }) || {},
+  listShadowDark:
+    Platform.select({
+      ios: {
+        shadowColor: '#00000080',
+        shadowOffset: { width: 0, height: 0.15 },
+        shadowRadius: 2,
+        shadowOpacity: 0.5,
+        elevation: 2,
+      },
+      android: {
+        elevation: 4,
+        backgroundColor: '#030712',
+      },
+    }) || {},
 });

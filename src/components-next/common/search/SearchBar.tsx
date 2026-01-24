@@ -5,6 +5,7 @@ import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import { SearchIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { RenderPropType } from '@/types';
 import { Spinner } from '@/components-next/spinner';
 import { Icon } from '../icon';
@@ -17,6 +18,7 @@ interface SearchBarProps extends TextInputProps {
 
 export const SearchBar = (props: SearchBarProps) => {
   const { isLoading = false, prefix, isInsideBottomSheet = false, ...otherProps } = props;
+  const { colors, isDark } = useThemeContext();
 
   // Row Exit Animation
   const exiting = () => {
@@ -42,16 +44,17 @@ export const SearchBar = (props: SearchBarProps) => {
           'flex items-center justify-center absolute bg-transparent z-10 inset-y-0 left-0',
           'pl-5.5',
         )}>
-        <Icon icon={prefix ? prefix : <SearchIcon />} size={18} />
+        <Icon icon={prefix ? prefix : <SearchIcon stroke={isDark ? '#9CA3AF' : undefined} />} size={18} />
       </Animated.View>
       <SearchTextInput
         style={[
           tailwind.style(
-            'h-9 px-8.5 py-[7px] bg-blackA-A3 text-black text-base font-inter-normal-20 leading-[19.5px] rounded-[11px]',
+            `h-9 px-8.5 py-[7px] text-base font-inter-normal-20 leading-[19.5px] rounded-[11px] ${colors.textPrimary}`,
+            isDark ? 'bg-gray-900' : 'bg-blackA-A3',
             isLoading ? 'px-8.5' : 'pl-8.5 pr-4',
           ),
         ]}
-        placeholderTextColor={tailwind.color('text-gray-800')}
+        placeholderTextColor={isDark ? '#9CA3AF' : tailwind.color('text-gray-800')}
         {...otherProps}
       />
       {isLoading ? (
