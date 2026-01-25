@@ -390,6 +390,33 @@
     "CONTACT_ATTRIBUTES": "Contact Attributes",
     "VALUE_UNAVAILABLE": "Unavailable"
   },
+  "CONTACT_EDIT": {
+    "TITLE": "Edit Contact",
+    "SAVE": "Save",
+    "SAVING": "Saving...",
+    "CANCEL": "Cancel",
+    "SUCCESS": "Contact updated successfully",
+    "ERROR": "Error updating contact",
+    "FIELDS": {
+      "NAME": "Name",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "COMPANY": "Company",
+      "CITY": "City",
+      "COUNTRY": "Country",
+      "BIO": "Bio",
+      "LOCATION": "Location"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "Enter name",
+      "EMAIL": "Enter email",
+      "PHONE": "Enter phone number",
+      "COMPANY": "Enter company name",
+      "CITY": "Enter city",
+      "COUNTRY": "Enter country",
+      "BIO": "Enter bio or description"
+    }
+  },
   "CONVERSATION_PARTICIPANTS": {
     "TITLE": "Participants",
     "TOTAL_PARTICIPANTS_TEXT": "%{count} people are participating.",
@@ -543,5 +570,36 @@
       "CANCEL": "Cancel",
       "REMOVE": "Remove"
     }
+  },
+  "WHATSAPP_TEMPLATES": {
+    "TITLE": "Message Templates",
+    "SUBTITLE": "Select a template to send",
+    "SELECT_TEMPLATE": "Select Template",
+    "SEARCH_PLACEHOLDER": "Search templates...",
+    "NO_TEMPLATES": "No templates available",
+    "NO_RESULTS": "No templates found",
+    "VARIABLE": "variable",
+    "VARIABLES": "variables",
+    "VARIABLES_SECTION": "Fill in the variables",
+    "FILL_VARIABLES": "Fill in the fields below to personalize the message",
+    "EXAMPLE": "e.g.",
+    "ENTER_VALUE": "Enter value",
+    "PREVIEW": "Preview",
+    "SEND": "Send",
+    "CANCEL": "Cancel",
+    "BACK": "Back",
+    "CLEAR": "Clear",
+    "SEND_SUCCESS": "Template sent successfully",
+    "SEND_ERROR": "Error sending template"
+  },
+  "CREATE_CONVERSATION": {
+    "BUTTON": "Create conversation",
+    "TITLE": "Create Conversation",
+    "SUBTITLE": "Select an inbox to create a new conversation",
+    "WHATSAPP_TEMPLATE_REQUIRED": "Template required to start",
+    "NO_INBOXES": "No API or WhatsApp inboxes available",
+    "CANCEL": "Cancel",
+    "SUCCESS": "Conversation created successfully",
+    "ERROR": "Error creating conversation"
   }
 }

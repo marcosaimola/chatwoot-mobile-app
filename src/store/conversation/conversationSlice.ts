@@ -194,6 +194,18 @@ const conversationSlice = createSlice({
       }
       conversation.lastActivityAt = lastActivityAt;
     },
+    updateConversationContact: (state, action) => {
+      const { contactId, contact } = action.payload;
+      // Update all conversations that have this contact as sender
+      Object.values(state.entities).forEach(conversation => {
+        if (conversation && conversation.meta?.sender?.id === contactId) {
+          conversation.meta.sender = {
+            ...conversation.meta.sender,
+            ...contact,
+          };
+        }
+      });
+    },
   },
   extraReducers: builder => {
     builder
@@ -326,6 +338,7 @@ export const {
   updateConversationLastActivity,
   addOrUpdateMessage,
   addConversation,
+  updateConversationContact,
 } = conversationSlice.actions;
 
 export default conversationSlice.reducer;

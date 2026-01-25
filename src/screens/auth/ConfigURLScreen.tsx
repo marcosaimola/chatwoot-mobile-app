@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Animated, StatusBar, TextInput, View } from 'react-native';
-import * as Application from 'expo-application';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Button, Icon } from '@/components-next';
 import { URL_WITHOUT_HTTP_REGEX } from '@/constants';
 import { LinkIcon } from '@/svg-icons';
@@ -17,11 +17,9 @@ type FormData = {
   url: string;
 };
 
-const appName = Application.applicationName;
-
 const ConfigURLScreen = () => {
   const baseUrl = useAppSelector(selectBaseUrl);
-
+  const navigation = useNavigation();
   const dispatch = useAppDispatch();
 
   const {
@@ -30,7 +28,7 @@ const ConfigURLScreen = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      url: baseUrl ? baseUrl : appName === 'Chatwoot' ? 'atendimento.zapicrm.com.br' : '',
+      url: baseUrl || '',
     },
   });
 
@@ -41,7 +39,12 @@ const ConfigURLScreen = () => {
   const onSubmit = async (data: FormData) => {
     const { url } = data;
     if (url) {
-      dispatch(settingsActions.setInstallationUrl(url));
+      try {
+        await dispatch(settingsActions.setInstallationUrl(url)).unwrap();
+        navigation.navigate('Login' as never);
+      } catch {
+        // Error is already handled by the action (shows toast)
+      }
     }
   };
 

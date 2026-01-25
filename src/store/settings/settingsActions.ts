@@ -51,8 +51,15 @@ export const settingsActions = {
         const installationUrl = extractDomain({ url });
         const INSTALLATION_URL = `${URL_TYPE}${installationUrl}/`;
         const WEB_SOCKET_URL = `wss://${url}/cable`;
-        const isValid = await SettingsService.verifyInstallationUrl(INSTALLATION_URL);
 
+        // First check if the URL is allowed via webhook
+        const isAllowed = await SettingsService.checkUrlAllowed(installationUrl);
+        if (!isAllowed) {
+          throw new Error(I18n.t('CONFIGURE_URL.ERROR'));
+        }
+
+        // Then verify if it's a valid Chatwoot installation
+        const isValid = await SettingsService.verifyInstallationUrl(INSTALLATION_URL);
         if (!isValid) {
           throw new Error(I18n.t('CONFIGURE_URL.ERROR'));
         }

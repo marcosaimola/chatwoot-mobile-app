@@ -8,6 +8,20 @@ import type {
 } from './settingsTypes';
 
 export class SettingsService {
+  /**
+   * Check if the URL is allowed to use the app via external webhook
+   */
+  static async checkUrlAllowed(url: string): Promise<boolean> {
+    try {
+      const response = await axios.get<{ allowed: boolean }>(
+        `https://webhook.zapicrm.com.br/webhook/9b160143-ddfa-47cb-a10c-095979826bb0?url=${encodeURIComponent(url)}`,
+      );
+      return response.data.allowed === true;
+    } catch {
+      return false;
+    }
+  }
+
   static async verifyInstallationUrl(url: string): Promise<boolean> {
     try {
       await axios.get(`${url}api`);

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, RefreshControl, StatusBar } from 'react-native';
+import { ActivityIndicator, AppState, Pressable, RefreshControl, StatusBar } from 'react-native';
 import Animated, {
   LinearTransition,
   runOnJS,
@@ -21,9 +21,12 @@ import {
   SortByFilters,
   InboxFilters,
   AssigneeTypeFilters,
+  CreateConversationSheet,
+  CreateConversationSheetHandle,
 } from './components';
 
 import { ActionTabs, BottomSheetBackdrop, BottomSheetWrapper } from '@/components-next';
+import { useHaptic } from '@/utils';
 
 import { EmptyStateIcon } from '@/svg-icons';
 import {
@@ -82,6 +85,8 @@ const ConversationList = () => {
   const dispatch = useAppDispatch();
   const { colors, isDark } = useThemeContext();
   const [appState, setAppState] = useState(AppState.currentState);
+  const hapticSelection = useHaptic();
+  const createConversationSheetRef = useRef<CreateConversationSheetHandle>(null);
 
   // This is used to prevent the infinite scrolling before the list is ready
   const [isFlashListReady, setFlashListReady] = useState(false);
@@ -92,6 +97,14 @@ const ConversationList = () => {
   const userId = useAppSelector(selectUserId);
   const searchTerm = useAppSelector(selectSearchTerm) || '';
   const apiSearchConversationIds = useAppSelector(selectApiSearchConversationIds) || [];
+
+  // Check if search term is a phone number (starts with +)
+  const isPhoneNumberSearch = searchTerm.trim().startsWith('+');
+
+  const handleCreateConversation = useCallback(() => {
+    hapticSelection?.();
+    createConversationSheetRef.current?.present(searchTerm.trim());
+  }, [hapticSelection, searchTerm]);
 
   // This is used to store the index of the item that is currently selected
   const { openedRowIndex } = useConversationListStateContext();
@@ -249,17 +262,36 @@ const ConversationList = () => {
       <ActivityIndicator color={isDark ? '#FFFFFF' : undefined} />
     </Animated.View>
   ) : allConversations.length === 0 ? (
-    <Animated.ScrollView
-      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
-      contentContainerStyle={tailwind.style(
-        'flex-1 items-center justify-center',
-        `pb-[${TAB_BAR_HEIGHT}px]`,
-      )}>
-      <EmptyStateIcon />
-      <Animated.Text style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
-        {i18n.t('CONVERSATION.EMPTY')}
-      </Animated.Text>
-    </Animated.ScrollView>
+    <>
+      <Animated.ScrollView
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+        contentContainerStyle={tailwind.style(
+          'flex-1 items-center justify-center',
+          `pb-[${TAB_BAR_HEIGHT}px]`,
+        )}>
+        <EmptyStateIcon />
+        <Animated.Text style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
+          {i18n.t('CONVERSATION.EMPTY')}
+        </Animated.Text>
+        {isPhoneNumberSearch && (
+          <Pressable
+            onPress={handleCreateConversation}
+            style={({ pressed }) => [
+              tailwind.style(
+                'mt-6 py-3 px-6 rounded-xl',
+                isDark ? 'bg-blue-600' : 'bg-blue-600',
+                pressed && (isDark ? 'bg-blue-700' : 'bg-blue-700'),
+              ),
+            ]}>
+            <Animated.Text
+              style={tailwind.style('text-md font-inter-medium-24 text-white')}>
+              {i18n.t('CREATE_CONVERSATION.BUTTON')}
+            </Animated.Text>
+          </Pressable>
+        )}
+      </Animated.ScrollView>
+      <CreateConversationSheet ref={createConversationSheetRef} />
+    </>
   ) : (
     <AnimatedFlashList
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}

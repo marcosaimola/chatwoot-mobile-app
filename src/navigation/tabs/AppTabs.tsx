@@ -25,7 +25,7 @@ import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
 import AiAgentsScreen from '@/screens/ai-agents/AiAgentsScreen';
 
-import { selectInstallationUrl } from '@/store/settings/settingsSelectors';
+import { selectInstallationUrl, selectIsCustomFeaturesEnabled } from '@/store/settings/settingsSelectors';
 import { BottomTabBar } from './BottomTabBar';
 import { settingsActions } from '@/store/settings/settingsActions';
 import { selectChatwootVersion } from '@/store/settings/settingsSelectors';
@@ -81,6 +81,7 @@ const Tabs = () => {
   const userId = useAppSelector(selectUserId);
   const accountId = useAppSelector(selectCurrentUserAccountId);
   const webSocketUrl = useAppSelector(selectWebSocketUrl);
+  const isCustomFeaturesEnabled = useAppSelector(selectIsCustomFeaturesEnabled);
 
   useEffect(() => {
     // Here is the place we are loading all the data for the app first time first time or user switches account
@@ -166,11 +167,13 @@ const Tabs = () => {
           component={ConversationStack}
         />
       )}
-      <Tab.Screen 
-        name="AiAgents" 
-        options={{ headerShown: false }} 
-        component={AiAgentsScreen} 
-      />
+      {isCustomFeaturesEnabled && (
+        <Tab.Screen 
+          name="AiAgents" 
+          options={{ headerShown: false }} 
+          component={AiAgentsScreen} 
+        />
+      )}
       <Tab.Screen name="Settings" options={{ headerShown: false }} component={SettingsStack} />
     </Tab.Navigator>
   );

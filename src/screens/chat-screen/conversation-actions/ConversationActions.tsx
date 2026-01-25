@@ -26,7 +26,7 @@ import { useRefsContext } from '@/context';
 import { selectSingleConversation } from '@/store/conversation/conversationSelectedSlice';
 import { teamActions } from '@/store/team/teamActions';
 import { selectAllTeams } from '@/store/team/teamSelectors';
-import { selectInstallationUrl } from '@/store/settings/settingsSelectors';
+import { selectInstallationUrl, selectIsCustomFeaturesEnabled } from '@/store/settings/settingsSelectors';
 import { ConversationMetaInformation } from './components/ConversationMetaInformation';
 import { selectConversationParticipantsByConversationId } from '@/store/conversation-participant/conversationParticipantSelectors';
 import { KanbanItemCard } from './components/KanbanItemCard';
@@ -48,6 +48,7 @@ export const ConversationActions = () => {
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
 
   const installationUrl = useAppSelector(selectInstallationUrl);
+  const isCustomFeaturesEnabled = useAppSelector(selectIsCustomFeaturesEnabled);
 
   const { status, muted: isMuted, meta, priority = null } = conversation || {};
   const { assignee, team } = meta || {};
@@ -147,9 +148,11 @@ export const ConversationActions = () => {
         <Animated.View style={tailwind.style('pt-10')}>
           <ConversationLabelActions labels={currentLabels} />
         </Animated.View>
-        <Animated.View style={tailwind.style('pt-10')}>
-          <KanbanItemCard conversationId={conversationId} />
-        </Animated.View>
+        {isCustomFeaturesEnabled && (
+          <Animated.View style={tailwind.style('pt-10')}>
+            <KanbanItemCard conversationId={conversationId} />
+          </Animated.View>
+        )}
         <Animated.View style={tailwind.style('pt-10')}>
           <AddParticipantList
             conversationParticipants={conversationParticipants}

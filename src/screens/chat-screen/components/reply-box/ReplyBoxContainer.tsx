@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Keyboard, TextInput } from 'react-native';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import Animated, {
@@ -53,7 +53,7 @@ import { SendMessagePayload } from '@/store/conversation/conversationTypes';
 import { TypingIndicator } from './TypingIndicator';
 import { getTypingUsersText } from '@/utils';
 import { selectTypingUsersByConversationId } from '@/store/conversation/conversationTypingSlice';
-import { Agent, CannedResponse, Conversation } from '@/types';
+import { Agent, CannedResponse, Conversation, WhatsAppTemplateParams } from '@/types';
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { CONVERSATION_EVENTS } from '@/constants/analyticsEvents';
 import {
@@ -66,6 +66,9 @@ import { getLastEmailInSelectedChat } from '@/store/conversation/conversationSel
 import { selectAssignableParticipantsByInboxId } from '@/store/assignable-agent/assignableAgentSelectors';
 import { AudioRecorder } from '../audio-recorder/AudioRecorder';
 import { VoiceRecordButton } from './buttons/VoiceRecordButton';
+import { SelectTemplateButton, TemplateListSheet, TemplateListSheetHandle } from '../whatsapp-templates';
+import { showToast } from '@/utils/toastUtils';
+import i18n from '@/i18n';
 
 const SHEET_APPEAR_SPRING_CONFIG = {
   damping: 20,
@@ -84,6 +87,7 @@ const BottomSheetContent = () => {
   const { colors } = useThemeContext();
   const { bottom } = useSafeAreaInsets();
   const { messageListRef } = useRefsContext();
+  const templateSheetRef = useRef<TemplateListSheetHandle>(null);
 
   // Selectors
   const userId = useAppSelector(selectUserId);
@@ -108,6 +112,7 @@ const BottomSheetContent = () => {
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const { inboxId, canReply } = conversation || {};
   const inbox = useAppSelector(state => (inboxId ? selectInboxById(state, inboxId) : undefined));
+  const contactName = conversation?.meta?.sender?.name || '';
 
   const selectAgents = useAppSelector(selectAssignableParticipantsByInboxId);
   const agents = inboxId ? selectAgents(inboxId, '') : [];
@@ -411,6 +416,44 @@ const BottomSheetContent = () => {
 
   const shouldShowCannedResponses = messageContent?.charAt(0) === '/';
 
+  // Check if we should show WhatsApp template selector instead of regular input
+  const isWhatsAppInbox = inbox && isAWhatsAppChannel(inbox);
+  const shouldShowTemplateSelector = !canReply && isWhatsAppInbox;
+  const whatsappTemplates = inbox?.messageTemplates || [];
+
+  const handleOpenTemplateSheet = useCallback(() => {
+    hapticSelection?.();
+    Keyboard.dismiss();
+    templateSheetRef.current?.present();
+  }, [hapticSelection]);
+
+  const handleSendTemplate = useCallback(
+    async (templateParams: WhatsAppTemplateParams, messageContent: string) => {
+      hapticSelection?.();
+      
+      const messagePayload: SendMessagePayload = {
+        conversationId,
+        message: messageContent,
+        private: false,
+        sender: {
+          id: userId ?? 0,
+          thumbnail: userThumbnail ?? '',
+          name: userName ?? '',
+        },
+        templateParams,
+      };
+
+      try {
+        await dispatch(conversationActions.sendMessage(messagePayload));
+        showToast({ message: i18n.t('WHATSAPP_TEMPLATES.SEND_SUCCESS') });
+        messageListRef?.current?.scrollToOffset({ offset: 0, animated: true });
+      } catch (error) {
+        showToast({ message: i18n.t('WHATSAPP_TEMPLATES.SEND_ERROR') });
+      }
+    },
+    [conversationId, userId, userThumbnail, userName, dispatch, hapticSelection, messageListRef],
+  );
+
   return (
     <AnimatedKeyboardStickyView style={[tailwind.style(colors.bgPrimary), animatedInputWrapperStyle]}>
       {!canReply && inbox && conversation && (
@@ -429,7 +472,7 @@ const BottomSheetContent = () => {
         )}>
         {quoteMessage && (
           <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(10)}>
-            <QuoteReply />s
+            <QuoteReply />
           </Animated.View>
         )}
 
@@ -444,12 +487,19 @@ const BottomSheetContent = () => {
           />
         )}
 
-        {typingText && <TypingIndicator typingText={typingText} />}
+        {typingText ? <TypingIndicator typingText={typingText} /> : null}
 
         {isVoiceRecorderOpen ? (
           <AudioRecorder onRecordingComplete={onRecordingComplete} audioFormat={audioFormat()} />
         ) : null}
-        {!isVoiceRecorderOpen ? (
+        
+        {/* Show template selector button for WhatsApp when can't reply */}
+        {shouldShowTemplateSelector && !isVoiceRecorderOpen ? (
+          <SelectTemplateButton onPress={handleOpenTemplateSheet} />
+        ) : null}
+        
+        {/* Show normal message input when can reply or not WhatsApp */}
+        {!shouldShowTemplateSelector && !isVoiceRecorderOpen ? (
           <Animated.View style={tailwind.style('flex flex-row px-1 items-end z-20 relative')}>
             {attachmentsLength === 0 && shouldShowFileUpload && (
               <AddCommandButton
@@ -478,6 +528,16 @@ const BottomSheetContent = () => {
         <CommandOptionsMenu />
       ) : attachmentsLength > 0 ? (
         <AttachedMedia />
+      ) : null}
+      
+      {/* WhatsApp Templates Modal */}
+      {isWhatsAppInbox ? (
+        <TemplateListSheet
+          ref={templateSheetRef}
+          templates={whatsappTemplates}
+          contactName={contactName}
+          onSendTemplate={handleSendTemplate}
+        />
       ) : null}
     </AnimatedKeyboardStickyView>
   );

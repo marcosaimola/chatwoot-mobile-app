@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { settingsActions } from './settingsActions';
-import * as RootNavigation from '@/utils/navigationUtils';
 import { NotificationSettings } from './settingsTypes';
 import { Theme } from '@/types/common/Theme';
 
@@ -20,14 +19,14 @@ interface SettingsState {
   pushToken: string;
 }
 const initialState: SettingsState = {
-  baseUrl: 'atendimento.zapicrm.com.br',
-  installationUrl: 'https://atendimento.zapicrm.com.br/',
+  baseUrl: '',
+  installationUrl: '',
   uiFlags: {
     isSettingUrl: false,
     isUpdating: false,
     isLocaleSet: false,
   },
-  localeValue: 'en',
+  localeValue: 'pt_BR',
   notificationSettings: {
     account_id: 0,
     all_email_flags: [],
@@ -37,7 +36,7 @@ const initialState: SettingsState = {
     selected_push_flags: [],
     user_id: 0,
   },
-  webSocketUrl: 'wss://atendimento.zapicrm.com.br/cable',
+  webSocketUrl: '',
   theme: 'system',
   version: '',
   pushToken: '',
@@ -68,7 +67,7 @@ export const settingsSlice = createSlice({
         state.installationUrl = action.payload.installationUrl;
         state.baseUrl = action.payload.baseUrl;
         state.webSocketUrl = action.payload.webSocketUrl;
-        RootNavigation.navigate('Login');
+        // Navigation is now handled automatically by AuthStack's dynamic initialRouteName
       })
       .addCase(settingsActions.setInstallationUrl.rejected, state => {
         state.uiFlags.isSettingUrl = false;

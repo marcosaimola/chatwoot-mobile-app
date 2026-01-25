@@ -90,16 +90,16 @@ const AttachedImage = (props: AttachedImageProps) => {
             tailwind.style('border-[1px] rounded-lg border-[#0000000F] z-50'),
           ]}
         />
-        {showBadge && totalImagesCount && totalImagesCount > 1 && (
+        {showBadge && totalImagesCount !== undefined && totalImagesCount > 1 ? (
           <Animated.View
             style={tailwind.style(
               'absolute bottom-2 right-2 bg-blackA-A11 rounded-full px-2 py-1 z-50',
             )}>
             <Text style={tailwind.style('text-whiteA-A12 text-xs font-inter-semibold-20')}>
-              +{totalImagesCount - 1}
+              {`+${totalImagesCount - 1}`}
             </Text>
           </Animated.View>
-        )}
+        ) : null}
         <Animated.View
           style={[
             tailwind.style(

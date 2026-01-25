@@ -13,7 +13,7 @@
     "SETTINGS": "Configurações"
   },
   "CONFIGURE_URL": {
-    "ENTER_URL": "Account URL",
+    "ENTER_URL": "URL da Conta",
     "DESCRIPTION": "Preencha com a mesma URL que você utiliza para acessar a versão web do app",
     "URL_ERROR": "Insira uma URL válida",
     "URL_REQUIRED": "URL é obrigatório",
@@ -367,6 +367,33 @@
     "CONTACT_ATTRIBUTES": "Atributos do contato",
     "VALUE_UNAVAILABLE": "Indisponível"
   },
+  "CONTACT_EDIT": {
+    "TITLE": "Editar Contato",
+    "SAVE": "Salvar",
+    "SAVING": "Salvando...",
+    "CANCEL": "Cancelar",
+    "SUCCESS": "Contato atualizado com sucesso",
+    "ERROR": "Erro ao atualizar contato",
+    "FIELDS": {
+      "NAME": "Nome",
+      "EMAIL": "E-mail",
+      "PHONE": "Telefone",
+      "COMPANY": "Empresa",
+      "CITY": "Cidade",
+      "COUNTRY": "País",
+      "BIO": "Bio",
+      "LOCATION": "Localização"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "Digite o nome",
+      "EMAIL": "Digite o e-mail",
+      "PHONE": "Digite o telefone",
+      "COMPANY": "Digite o nome da empresa",
+      "CITY": "Digite a cidade",
+      "COUNTRY": "Digite o país",
+      "BIO": "Digite a bio ou descrição"
+    }
+  },
   "CONVERSATION_PARTICIPANTS": {
     "TITLE": "Participantes",
     "TOTAL_PARTICIPANTS_TEXT": "%{count} pessoas estão participando.",
@@ -520,5 +547,36 @@
       "CANCEL": "Cancelar",
       "REMOVE": "Remover"
     }
+  },
+  "WHATSAPP_TEMPLATES": {
+    "TITLE": "Modelos de Mensagem",
+    "SUBTITLE": "Selecione um modelo para enviar",
+    "SELECT_TEMPLATE": "Selecionar Modelo",
+    "SEARCH_PLACEHOLDER": "Buscar modelos...",
+    "NO_TEMPLATES": "Nenhum modelo disponível",
+    "NO_RESULTS": "Nenhum modelo encontrado",
+    "VARIABLE": "variável",
+    "VARIABLES": "variáveis",
+    "VARIABLES_SECTION": "Preencha as variáveis",
+    "FILL_VARIABLES": "Preencha os campos abaixo para personalizar a mensagem",
+    "EXAMPLE": "ex",
+    "ENTER_VALUE": "Digite o valor",
+    "PREVIEW": "Pré-visualização",
+    "SEND": "Enviar",
+    "CANCEL": "Cancelar",
+    "BACK": "Voltar",
+    "CLEAR": "Limpar",
+    "SEND_SUCCESS": "Modelo enviado com sucesso",
+    "SEND_ERROR": "Erro ao enviar modelo"
+  },
+  "CREATE_CONVERSATION": {
+    "BUTTON": "Criar conversa",
+    "TITLE": "Criar Conversa",
+    "SUBTITLE": "Selecione uma inbox para criar uma nova conversa",
+    "WHATSAPP_TEMPLATE_REQUIRED": "Template obrigatório para iniciar",
+    "NO_INBOXES": "Nenhuma inbox API ou WhatsApp disponível",
+    "CANCEL": "Cancelar",
+    "SUCCESS": "Conversa criada com sucesso",
+    "ERROR": "Erro ao criar conversa"
   }
 }

@@ -38,3 +38,13 @@ export const selectIsChatwootCloud = createSelector(selectSettings, settings =>
 export const selectChatwootVersion = createSelector(selectSettings, settings => settings.version);
 
 export const selectPushToken = createSelector(selectSettings, settings => settings.pushToken);
+
+/**
+ * Selector to check if the current installation is Zenvor or ZapiCRM
+ * Used to conditionally show features like AI Agents and Funnel/Kanban
+ */
+const ALLOWED_CUSTOM_FEATURES_URLS = ['app.zenvor.com.br', 'atendimento.zapicrm.com.br'];
+
+export const selectIsCustomFeaturesEnabled = createSelector(selectSettings, settings =>
+  ALLOWED_CUSTOM_FEATURES_URLS.includes(settings.baseUrl),
+);

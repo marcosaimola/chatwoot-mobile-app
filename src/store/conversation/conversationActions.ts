@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ConversationService } from './conversationService';
+import { ContactConversationService } from '@/services/ContactConversationService';
 import type {
   ConversationResponse,
   ConversationPayload,
@@ -28,6 +29,8 @@ import type {
   SearchPayload,
   SearchContactsAPIResponse,
   SearchConversationsAPIResponse,
+  CreateConversationFromPhonePayload,
+  CreateConversationFromPhoneResponse,
 } from './conversationTypes';
 import { AxiosError } from 'axios';
 import { MESSAGE_STATUS } from '@/constants';
@@ -283,6 +286,39 @@ export const conversationActions = {
           throw error;
         }
         return rejectWithValue(response.data);
+      }
+    },
+  ),
+  createConversationFromPhone: createAsyncThunk<
+    CreateConversationFromPhoneResponse,
+    CreateConversationFromPhonePayload
+  >(
+    'conversations/createConversationFromPhone',
+    async (payload, { dispatch, rejectWithValue }) => {
+      try {
+        const { phoneNumber, inboxId } = payload;
+
+        // Create contact and conversation
+        const result = await ContactConversationService.createContactAndConversation(
+          phoneNumber,
+          inboxId,
+        );
+
+        // Add the new conversation to the store
+        dispatch({
+          type: 'conversation/addConversation',
+          payload: result.conversation,
+        });
+
+        return {
+          conversationId: result.conversation.id,
+        };
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+        if (axiosError.response) {
+          return rejectWithValue(axiosError.response.data);
+        }
+        throw error;
       }
     },
   ),

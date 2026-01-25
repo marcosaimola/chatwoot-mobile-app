@@ -1,4 +1,5 @@
 import { Channel } from './common/Channel';
+import { WhatsAppTemplate } from './WhatsAppTemplate';
 
 export type Inbox = {
   id: number;
@@ -12,4 +13,5 @@ export type Inbox = {
     agentReplyTimeWindowMessage?: string;
   };
   provider: string;
+  messageTemplates?: WhatsAppTemplate[];
 };

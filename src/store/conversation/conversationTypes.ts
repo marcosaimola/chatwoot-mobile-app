@@ -80,6 +80,16 @@ export interface MessagesResponse {
   conversationId: number;
 }
 
+export interface WhatsAppTemplateParamsPayload {
+  name: string;
+  category: string;
+  language: string;
+  processed_params?: {
+    body?: Record<string, string>;
+    header?: Record<string, string>;
+  };
+}
+
 export interface SendMessagePayload {
   conversationId: number;
   message: string;
@@ -93,7 +103,7 @@ export interface SendMessagePayload {
   contentAttributes?: {
     inReplyTo: number;
   };
-  templateParams?: string;
+  templateParams?: WhatsAppTemplateParamsPayload;
   ccEmails?: string;
   bccEmails?: string;
   toEmails?: string;
@@ -118,7 +128,7 @@ export type MessageBuilderPayload =
       content_attributes?: Record<string, unknown>;
       cc_emails?: string;
       bcc_emails?: string;
-      template_params?: string;
+      template_params?: WhatsAppTemplateParamsPayload;
     };
 
 export interface SendMessageAPIResponse {
@@ -295,4 +305,14 @@ export interface SearchConversationsAPIResponse {
       } | null;
     }>;
   };
+}
+
+// Types for creating conversation from phone number
+export interface CreateConversationFromPhonePayload {
+  phoneNumber: string;
+  inboxId: number;
+}
+
+export interface CreateConversationFromPhoneResponse {
+  conversationId: number;
 }
