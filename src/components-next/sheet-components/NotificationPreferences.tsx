@@ -8,6 +8,7 @@ import i18n from 'i18n';
 import { selectNotificationSettings } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
 import { NOTIFICATION_PREFERENCE_TYPES } from '@/constants';
+import { useThemeContext } from '@/context';
 
 const addOrRemoveItemFromArray = <T,>(array: T[], key: T): T[] => {
   const index = array.indexOf(key);
@@ -58,6 +59,7 @@ export const NotificationPreferences = () => {
   };
 
   const typedPushFlags = allPushFlags as NotificationPreferenceType[];
+  const { colors, isDark } = useThemeContext();
 
   return (
     <Animated.View style={tailwind.style('py-4 px-3')}>
@@ -66,14 +68,14 @@ export const NotificationPreferences = () => {
           key={item}
           style={tailwind.style('flex flex-row items-center justify-between ml-2 mt-2')}>
           <Animated.Text
-            style={tailwind.style('flex-1 leading-[17px] tracking-[0.24px] text-gray-950')}>
+            style={tailwind.style(`flex-1 leading-[17px] tracking-[0.24px] ${colors.textPrimary}`)}>
             {i18n.t(`NOTIFICATION_PREFERENCE.${NOTIFICATION_PREFERENCE_TYPES[item]}`)}
           </Animated.Text>
           <Switch
-            trackColor={{ false: '#C9D7E3', true: '#1F93FF' }}
+            trackColor={{ false: isDark ? '#3A3A3C' : '#C9D7E3', true: '#1F93FF' }}
             thumbColor="#FFFFFF"
             style={styles.switch}
-            ios_backgroundColor="#C9D7E3"
+            ios_backgroundColor={isDark ? '#3A3A3C' : '#C9D7E3'}
             onValueChange={() => onPushItemChange(item)}
             value={selectedPushFlags.includes(item)}
           />

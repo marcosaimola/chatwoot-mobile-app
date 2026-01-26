@@ -135,8 +135,8 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const isGestureActive = useSharedValue(false);
 
   const maxTranslation = WIDTH * 0.6;
-  const defaultBgStyle = isDark ? '#030712' : '#FFFFFF'; // gray-950 or white
-  const tappedBgStyle = tailwind.color(isDark ? 'bg-gray-800' : 'bg-gray-200') as string;
+  const defaultBgStyle = tailwind.color(isDark ? 'bg-grayDark-50' : 'bg-white') as string;
+  const tappedBgStyle = tailwind.color(isDark ? 'bg-grayDark-200' : 'bg-gray-200') as string;
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
 

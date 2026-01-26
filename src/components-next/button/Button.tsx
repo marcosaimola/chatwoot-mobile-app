@@ -18,11 +18,11 @@ const getButtonStyles = (isPrimary: boolean, pressed: boolean, isDark: boolean) 
   const baseStyles = 'py-[11px] flex items-center justify-center rounded-[13px]';
   const variantStyles = isPrimary 
     ? 'bg-blue-800' 
-    : isDark ? 'bg-gray-800' : 'bg-gray-50';
+    : isDark ? 'bg-grayDark-200' : 'bg-gray-100';
   const pressedStyles = isPrimary 
     ? 'opacity-95' 
     : pressed 
-      ? isDark ? 'bg-gray-700' : 'bg-gray-100' 
+      ? isDark ? 'bg-grayDark-300' : 'bg-gray-200' 
       : '';
 
   return tailwind.style(baseStyles, variantStyles, pressedStyles);
@@ -35,8 +35,8 @@ const getTextStyles = (isPrimary: boolean, isDestructive: boolean, isDark: boole
       ? 'text-tomato-800'
       : 'text-white'
     : isDestructive
-      ? isDark ? 'text-red-400' : 'text-ruby-800'
-      : isDark ? 'text-gray-100' : 'text-gray-950';
+      ? isDark ? 'text-redDark-700' : 'text-ruby-800'
+      : isDark ? 'text-grayDark-900' : 'text-gray-950';
 
   return tailwind.style(baseStyles, colorStyles);
 };

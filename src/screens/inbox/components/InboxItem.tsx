@@ -114,7 +114,7 @@ export const InboxItemComponent = (props: InboxItemProps) => {
         </Animated.View>
       </Animated.View>
       {isRead && (
-        <Animated.View style={tailwind.style(`absolute ${isDark ? 'bg-gray-950' : 'bg-white'} opacity-50 inset-0 z-20`)} />
+        <Animated.View style={tailwind.style(`absolute ${isDark ? 'bg-grayDark-50' : 'bg-white'} opacity-50 inset-0 z-20`)} />
       )}
     </Animated.View>
   );

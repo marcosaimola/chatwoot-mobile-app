@@ -7,12 +7,17 @@ import { tailwind } from '@/theme';
 import { AvailabilityStatus, AvailabilityStatusListItemType } from '@/types';
 import { useHaptic } from '@/utils';
 import { Icon } from '@/components-next/common/icon';
+import { useThemeContext } from '@/context';
 
 type StatusCellProps = {
   item: AvailabilityStatusListItemType;
   index: number;
   availabilityStatus: string;
   changeAvailabilityStatus: (status: string) => void;
+  colors: {
+    textPrimary: string;
+    borderPrimary: string;
+  };
 };
 
 const StatusCell = ({
@@ -20,6 +25,7 @@ const StatusCell = ({
   index,
   availabilityStatus,
   changeAvailabilityStatus,
+  colors,
 }: StatusCellProps) => {
   const hapticSelection = useHaptic();
 
@@ -38,11 +44,11 @@ const StatusCell = ({
         <Animated.View
           style={tailwind.style(
             'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-            !isLastItem && 'border-b-[1px] border-blackA-A3',
+            !isLastItem && `border-b-[1px] ${colors.borderPrimary}`,
           )}>
           <Text
             style={tailwind.style(
-              'text-base capitalize text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+              `text-base capitalize font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
             )}>
             {item.status}
           </Text>
@@ -59,16 +65,21 @@ export const AvailabilityStatusList = ({
 }: {
   availabilityStatus: string;
   changeAvailabilityStatus: (status: string) => void;
-}) => (
-  <Animated.View style={tailwind.style('py-1 pl-3')}>
-    {AVAILABILITY_STATUS_LIST.map((item, index) => (
-      <StatusCell
-        key={item.status}
-        item={item as AvailabilityStatusListItemType}
-        index={index}
-        availabilityStatus={availabilityStatus as AvailabilityStatus}
-        changeAvailabilityStatus={changeAvailabilityStatus}
-      />
-    ))}
-  </Animated.View>
-);
+}) => {
+  const { colors } = useThemeContext();
+  
+  return (
+    <Animated.View style={tailwind.style('py-1 pl-3')}>
+      {AVAILABILITY_STATUS_LIST.map((item, index) => (
+        <StatusCell
+          key={item.status}
+          item={item as AvailabilityStatusListItemType}
+          index={index}
+          availabilityStatus={availabilityStatus as AvailabilityStatus}
+          changeAvailabilityStatus={changeAvailabilityStatus}
+          colors={colors}
+        />
+      ))}
+    </Animated.View>
+  );
+};

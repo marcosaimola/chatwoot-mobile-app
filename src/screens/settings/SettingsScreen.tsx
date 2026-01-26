@@ -59,6 +59,7 @@ import {
   selectIsChatwootCloud,
   selectPushToken,
   selectTheme,
+  selectIsCustomFeaturesEnabled,
 } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
 import { setLocale, setTheme } from '@/store/settings/settingsSlice';
@@ -125,6 +126,7 @@ const SettingsScreen = () => {
   };
 
   const isChatwootCloud = useAppSelector(selectIsChatwootCloud);
+  const isCustomFeaturesEnabled = useAppSelector(selectIsCustomFeaturesEnabled);
 
   const accounts = useSelector(selectAccounts) || [];
 
@@ -319,9 +321,11 @@ const SettingsScreen = () => {
         <Animated.View style={tailwind.style('pt-6')}>
           <SettingsList sectionTitle={i18n.t('SETTINGS.PREFERENCES')} list={preferencesList} />
         </Animated.View>
-        <Animated.View style={tailwind.style('pt-6')}>
-          <SettingsList sectionTitle={i18n.t('SETTINGS.SUPPORT')} list={supportList} />
-        </Animated.View>
+        {isCustomFeaturesEnabled && (
+          <Animated.View style={tailwind.style('pt-6')}>
+            <SettingsList sectionTitle={i18n.t('SETTINGS.SUPPORT')} list={supportList} />
+          </Animated.View>
+        )}
         <Animated.View style={tailwind.style('pt-6 mx-4')}>
           <Button
             variant="secondary"
@@ -341,7 +345,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={userAvailabilityStatusSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         enablePanDownToClose
         animationConfigs={animationConfigs}
         // TODO: Fix this later
@@ -360,7 +365,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={languagesModalSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         // TODO: Fix this later
         // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
@@ -376,7 +382,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={themeSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         enablePanDownToClose
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
@@ -390,7 +397,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={notificationPreferencesSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         // TODO: Fix this later
         // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
@@ -406,7 +414,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={switchAccountSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         // TODO: Fix this later
         // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
@@ -426,7 +435,8 @@ const SettingsScreen = () => {
       <BottomSheetModal
         ref={debugActionsSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
         enablePanDownToClose
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}

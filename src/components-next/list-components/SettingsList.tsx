@@ -34,7 +34,7 @@ const ListItem = (props: ListItemProps) => {
       key={index}
       style={({ pressed }) => [
         tailwind.style(
-          pressed ? (isDark ? 'bg-gray-800' : 'bg-gray-100') : '',
+          pressed ? (isDark ? 'bg-grayDark-300' : 'bg-gray-100') : '',
           index === 0 ? 'rounded-t-[13px]' : '',
           isLastItem ? 'rounded-b-[13px]' : '',
         ),
@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
         elevation: 2,
       },
       android: {
-        elevation: 4,
-        backgroundColor: 'white',
+        elevation: 2,
+        backgroundColor: '#f9fafb',
       },
     }) || {},
   listShadowDark:
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
         elevation: 2,
       },
       android: {
-        elevation: 4,
-        backgroundColor: '#1a1a1a',
+        elevation: 2,
+        backgroundColor: '#282828', // grayDark-100: hsl(0, 0%, 15.8%)
       },
     }) || {},
 });
