@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from 'react';
-import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { ActivityIndicator, AppState, AppStateStatus, Linking, StyleSheet, View } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { getStateFromPath } from '@react-navigation/native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -11,7 +11,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AppTabs } from './tabs/AppTabs';
 import i18n from 'i18n';
 import { navigationRef } from '@/utils/navigationUtils';
-import { findConversationLinkFromPush, findNotificationFromFCM } from '@/utils/pushUtils';
+import { clearAllDeliveredNotifications, incrementBadgeCount, findConversationLinkFromPush, findNotificationFromFCM } from '@/utils/pushUtils';
 import { extractConversationIdFromUrl } from '@/utils/conversationUtils';
 import { useAppSelector } from '@/hooks';
 import { selectInstallationUrl, selectLocale } from '@/store/settings/settingsSelectors';
@@ -28,8 +28,10 @@ import Inter50024 from '@/assets/fonts/Inter-500-24.ttf';
 import Inter58024 from '@/assets/fonts/Inter-580-24.ttf';
 import Inter60020 from '@/assets/fonts/Inter-600-20.ttf';
 
-messaging().setBackgroundMessageHandler(async () => {
-  // Background message handled
+messaging().setBackgroundMessageHandler(async message => {
+  console.log('[Badge] setBackgroundMessageHandler fired, message:', JSON.stringify(message?.notification?.title || 'no title'));
+  // Badge count is handled by APNS payload from server
+  // No additional processing needed here
 });
 
 export const AppNavigationContainer = () => {
@@ -121,6 +123,7 @@ export const AppNavigationContainer = () => {
       }
 
       // getInitialNotification: When the application is opened from a quit state.
+      await clearAllDeliveredNotifications();
       const message = await messaging().getInitialNotification();
       if (message) {
         const notification = findNotificationFromFCM({ message });
@@ -153,6 +156,8 @@ export const AppNavigationContainer = () => {
 
       //onNotificationOpenedApp: When the application is running, but in the background.
       const unsubscribeNotification = messaging().onNotificationOpenedApp(message => {
+        // Clear badge when user taps a notification to open the app
+        clearAllDeliveredNotifications();
         if (message) {
           const notification = findNotificationFromFCM({ message });
           const camelCaseNotification = transformNotification(notification);
@@ -173,6 +178,35 @@ export const AppNavigationContainer = () => {
       };
     },
   };
+
+  // Reset badge count every time the app comes to foreground
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+  useEffect(() => {
+    let badgeResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      console.log('[Badge] AppState changed:', appStateRef.current, '->', nextAppState);
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('[Badge] App came to foreground, clearing badge...');
+        // Clear immediately
+        clearAllDeliveredNotifications();
+        // Clear again after a short delay to override any APNS badge
+        // that iOS may process after our initial clear
+        badgeResetTimer = setTimeout(() => {
+          console.log('[Badge] Delayed badge clear (1s)...');
+          clearAllDeliveredNotifications();
+        }, 1000);
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+      if (badgeResetTimer) {
+        clearTimeout(badgeResetTimer);
+      }
+    };
+  }, []);
 
   i18n.locale = locale;
 

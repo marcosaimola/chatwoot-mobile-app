@@ -1,25 +1,45 @@
-import { Platform } from 'react-native';
 import { NOTIFICATION_TYPES } from '@/constants';
 import { Notification } from '@/types/Notification';
 
-let notifee: typeof import('@notifee/react-native').default | undefined;
-
-if (Platform.OS === 'ios') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  notifee = require('@notifee/react-native')
-    .default as typeof import('@notifee/react-native').default;
-}
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const notifee = require('@notifee/react-native')
+  .default as typeof import('@notifee/react-native').default;
 
 export const clearAllDeliveredNotifications = async () => {
-  if (Platform.OS === 'ios' && notifee) {
+  try {
+    const currentBadge = await notifee.getBadgeCount();
+    console.log('[Badge] clearAllDeliveredNotifications called, current badge:', currentBadge);
     await notifee.cancelAllNotifications();
+    console.log('[Badge] cancelAllNotifications done');
+    await notifee.setBadgeCount(0);
+    const afterBadge = await notifee.getBadgeCount();
+    console.log('[Badge] setBadgeCount(0) done, badge after reset:', afterBadge);
+  } catch (e) {
+    console.log('[Badge] clearAllDeliveredNotifications error:', e);
   }
 };
 
-export const updateBadgeCount = async ({ count = 0 }) => {
-  if (Platform.OS === 'ios' && count >= 0 && notifee) {
-    await notifee.setBadgeCount(count);
+export const incrementBadgeCount = async () => {
+  try {
+    // Only increment badge when app is in background
+    // In foreground, user is already seeing the app, no need for badge
+    const { AppState } = require('react-native');
+    if (AppState.currentState === 'active') {
+      console.log('[Badge] incrementBadgeCount skipped (app is active)');
+      return;
+    }
+    const current = await notifee.getBadgeCount();
+    console.log('[Badge] incrementBadgeCount called, current:', current, '-> setting to:', current + 1);
+    await notifee.setBadgeCount(current + 1);
+  } catch (e) {
+    console.log('[Badge] incrementBadgeCount error:', e);
   }
+};
+
+export const updateBadgeCount = async (_args: { count?: number } = {}) => {
+  console.log('[Badge] updateBadgeCount called (no-op), count:', _args.count);
+  // No-op: badge is now managed by APNS payload (background push)
+  // and clearAllDeliveredNotifications (reset on foreground)
 };
 
 export const findConversationLinkFromPush = ({

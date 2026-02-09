@@ -7,7 +7,7 @@ import type {
 } from './notificationTypes';
 import { Notification } from '@/types/Notification';
 import { notificationActions } from './notificationAction';
-import { updateBadgeCount } from '@/utils/pushUtils';
+import { updateBadgeCount, incrementBadgeCount } from '@/utils/pushUtils';
 
 export interface NotificationState {
   unreadCount: number;
@@ -50,7 +50,7 @@ const notificationsSlice = createSlice({
       const { notification, unreadCount } = action.payload;
       notificationsAdapter.addOne(state, notification);
       state.unreadCount = unreadCount;
-      updateBadgeCount({ count: unreadCount });
+      incrementBadgeCount();
     },
     removeNotification(state, action: PayloadAction<NotificationRemovedResponse>) {
       const { notification, unreadCount } = action.payload;
