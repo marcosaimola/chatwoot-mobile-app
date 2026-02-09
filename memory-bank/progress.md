@@ -1,38 +1,45 @@
-# Progress - ZapiCRM Mobile App
+# Progress - AppConecta Mobile App
 
 ## What Works ✅
 
 ### Core Functionality
 - **iOS Build**: App builds and runs successfully on iOS devices
-- **Audio Playback**: All audio formats work (MP3, AAC, OGG via conversion)
+- **Android Build**: 16KB page size compatible (React Native 0.77.0)
+- **Audio Playback**: All audio formats work (MP3, AAC, OGG/OGA via FFmpeg)
 - **Background Audio**: Audio continues playing when screen is locked
 - **Push Notifications**: Firebase notifications working correctly
 - **TestFlight Distribution**: App can be distributed via TestFlight
 - **Real-time Messaging**: Chat functionality working as expected
 
+### Audio Conversion System (Jan/2025) ✅
+- **iOS**: FFmpeg-Kit converte OGG/OGA → M4A (AAC) client-side
+- **Android**: Reprodução nativa de OGG (sem conversão necessária)
+- **Cache**: Áudios convertidos são cacheados localmente
+- **Cleanup**: Cache limpo no logout e expirados no startup
+
 ### Technical Implementation
-- **Backend Integration**: Backend provides MP3 conversion for OGG files
-- **Frontend Logic**: Smart audio URL selection (`dataUrlConverted || dataUrl`)
+- **FFmpeg Integration**: chatwoot-ffmpeg-kit-ios-https fork funcionando
 - **State Management**: Redux store working correctly
 - **Navigation**: React Navigation working smoothly
 - **Styling**: Tailwind CSS styling applied correctly
 
-### Audio System
-- **Format Support**: MP3, AAC, OGG (converted) all supported
-- **Background Playback**: Configured via Expo AV
-- **Error Handling**: Graceful fallback when conversion fails
-- **Performance**: Smooth audio playback without lag
+## What's In Progress 🔄
+
+### iOS Now Playing Lock Screen
+- **Status**: Implementação em andamento
+- **Componentes**: NowPlayingManager (nativo) + NowPlayingCenter (TS)
+- **Problema atual**: Audio session configurada como Ambient pelo expo-av
+- **Solução**: Forçando categoria Playback no módulo nativo
 
 ## What's Left to Build
 
 ### Immediate Tasks
-- **Production Testing**: Verify all features work in TestFlight production build
-- **Performance Monitoring**: Monitor app performance and memory usage
-- **User Acceptance Testing**: Collect feedback from beta testers
+- **Complete Now Playing**: Finalizar exibição na tela de bloqueio iOS
+- **Production Testing**: Verificar todas features em TestFlight
+- **Performance Monitoring**: Monitorar uso de memória com FFmpeg
 
 ### Future Enhancements
 - **Re-enable Sentry**: Re-enable error tracking once app is stable
-- **FFmpeg Alternative**: Consider alternative audio processing if needed
 - **Performance Optimization**: Optimize bundle size and loading times
 - **Additional Features**: Any new features requested by users
 
@@ -42,43 +49,46 @@
 - iOS build: ✅ Success
 - Android build: ✅ Success (16KB page size compatível)
 - TestFlight: ✅ Working
-- Google Play: ✅ Working (versão 5.2, versionCode 12)
-- Audio playback: ✅ Working
+- Google Play: ✅ Working
+- Audio playback: ✅ Working (OGG/OGA convertido via FFmpeg)
 - Background audio: ✅ Working
+- Now Playing lock screen: 🔄 In Progress
 
-### Version: 5.2 (versionCode 12)
-- **Bundle ID**: br.com.zapicrm
-- **App Name**: ZapiCRM
+### Version: 4.6.0
+- **Bundle ID iOS**: br.com.zapicrm
+- **Package Android**: br.com.zapicrm
+- **App Name**: AppConecta
 - **Platform**: iOS e Android
 - **React Native**: 0.77.0 (atualizado para suporte 16KB)
 
 ## Known Issues
 
 ### Resolved Issues ✅
-1. **FFmpeg Download Errors**: Resolved by removing FFmpeg dependency
-2. **Sentry TestFlight Crashes**: Resolved by temporarily disabling Sentry
-3. **Firebase Module Errors**: Resolved by proper configuration
-4. **OGG Audio Playback**: Resolved by backend MP3 conversion
-5. **Background Audio**: Resolved by Expo AV configuration
-6. **Bundle URL Errors**: Resolved by AppDelegate.mm fixes
-7. **Google Play 16KB Page Size Error (Dez/2024)**:
-   - Erro: "Seu app não é compatível com tamanhos de página de 16 KB de memória"
-   - Causa: React Native 0.76.9 não tinha suporte completo a 16KB
-   - Solução:
-     - Atualizar React Native 0.76.9 → 0.77.0
-     - NDK 27 → 29.0.14206865
-     - AGP → 8.5.1
-     - Remover x86/x86_64 (focar em ARM: armeabi-v7a, arm64-v8a)
-     - Criar Application.mk com APP_SUPPORT_FLEXIBLE_PAGE_SIZES
-     - Atualizar dependências: gesture-handler, screens, safe-area-context, svg, webview
-8. **Assinatura Android Incorreta**:
-   - Erro: "App Bundle assinado com chave incorreta"
-   - Solução: Configurar signingConfigs.release com upload-keystore.jks
+1. **FFmpeg-Kit Deprecated**: Original FFmpegKit foi descontinuado
+   - **Solução**: Usar chatwoot-ffmpeg-kit-ios-https fork
+   - **Podspec**: Manual configuration in Podfile
+   
+2. **FFmpeg encoder 'libmp3lame' not found**: 
+   - **Causa**: Build "https" do FFmpegKit não inclui libmp3lame
+   - **Solução**: Usar `aac_at` encoder para output M4A (AAC)
 
-### Current Issues: None Known
-- All major issues have been resolved
-- App is stable and functional
-- Android compatível com 16KB page size (Android 15+)
+3. **expo-av local file playback**: 
+   - **Causa**: expo-av requer URI scheme `file://` para arquivos locais
+   - **Solução**: Prepend `file://` ao path local convertido
+
+4. **Memory issues with FFmpeg logging**:
+   - **Causa**: Logs verbosos do FFmpeg consumiam muita memória
+   - **Solução**: Remover console.log de outputs FFmpeg
+
+5. **Google Play 16KB Page Size (Dez/2024)**:
+   - React Native 0.77.0 + NDK r29 + ARM only
+
+6. **Sentry TestFlight Crashes**: Temporarily disabled
+
+### Current Issues 🔄
+1. **iOS Now Playing não aparece**:
+   - **Causa**: expo-av configura audio session como `Ambient`
+   - **Solução em progresso**: Forçar `AVAudioSessionCategoryPlayback` no módulo nativo
 
 ## Testing Status
 

@@ -40,11 +40,32 @@ export const selectChatwootVersion = createSelector(selectSettings, settings => 
 export const selectPushToken = createSelector(selectSettings, settings => settings.pushToken);
 
 /**
- * Selector to check if the current installation is Zenvor or ZapiCRM
+ * Selector to check if the current installation is Zenvor or AppConecta
  * Used to conditionally show features like AI Agents and Funnel/Kanban
  */
-const ALLOWED_CUSTOM_FEATURES_URLS = ['app.zenvor.com.br', 'atendimento.zapicrm.com.br'];
+const ALLOWED_CUSTOM_FEATURES_URLS = ['app.zenvor.com.br','atendimento.zapicrm.com.br'];
 
-export const selectIsCustomFeaturesEnabled = createSelector(selectSettings, settings =>
-  ALLOWED_CUSTOM_FEATURES_URLS.includes(settings.baseUrl),
-);
+function normalizeHost(value?: string) {
+  if (!value) return '';
+  const trimmedValue = value.trim().toLowerCase();
+  if (!trimmedValue) return '';
+  if (trimmedValue.startsWith('http://') || trimmedValue.startsWith('https://')) {
+    try {
+      return new URL(trimmedValue).hostname.toLowerCase();
+    } catch {
+      return '';
+    }
+  }
+  return trimmedValue
+    .replace(/^wss?:\/\//i, '')
+    .split('/')[0]
+    .split('?')[0]
+    .split('#')[0]
+    .split(':')[0]
+    .toLowerCase();
+}
+
+export const selectIsCustomFeaturesEnabled = createSelector(selectSettings, settings => {
+  const baseHost = normalizeHost(settings.baseUrl || settings.installationUrl);
+  return ALLOWED_CUSTOM_FEATURES_URLS.some(allowed => normalizeHost(allowed) === baseHost);
+});

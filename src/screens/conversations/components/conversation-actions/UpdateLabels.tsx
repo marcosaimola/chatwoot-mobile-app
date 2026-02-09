@@ -10,6 +10,7 @@ import { filterLabels } from '@/store/label/labelSelectors';
 import { Label } from '@/types/common/Label';
 import { selectSelectedIds } from '@/store/conversation/conversationSelectedSlice';
 import { conversationActions } from '@/store/conversation/conversationActions';
+import { setCurrentState } from '@/store/conversation/conversationHeaderSlice';
 import { LabelCell } from '@/components-next/label-section';
 import i18n from '@/i18n';
 
@@ -82,8 +83,8 @@ export const UpdateLabels = () => {
         labels: { add: [_selectedLabel] },
       };
       dispatch(conversationActions.bulkAction(payload));
-      // actionsModalSheetRef.current?.dismiss({ overshootClamping: true });
-      // dispatch(setCurrentState('none'));
+      actionsModalSheetRef.current?.dismiss({ overshootClamping: true });
+      dispatch(setCurrentState('none'));
       return updatedLabels;
     });
   };

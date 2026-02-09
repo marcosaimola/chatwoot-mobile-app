@@ -136,13 +136,31 @@ export const ComposedBubble = (props: ComposedBubbleProps) => {
               );
             }
             if (attachment.fileType === ATTACHMENT_TYPES.AUDIO) {
+              // Extract sender info for lock screen display
+              const sender = props.item.sender;
+              const senderName = sender && 'name' in sender 
+                ? (sender.name || (sender as any).availableName || 'Mensagem de Áudio')
+                : 'Mensagem de Áudio';
+              
+              // Only use avatar if it's a valid http URL
+              let senderAvatar: string | undefined;
+              if (sender && 'thumbnail' in sender) {
+                const thumbnail = (sender as any).thumbnail;
+                if (thumbnail && typeof thumbnail === 'string' && thumbnail.startsWith('http')) {
+                  senderAvatar = thumbnail;
+                }
+              }
+              
               return (
                 <Animated.View
                   key={attachment.fileType + index}
                   style={tailwind.style('flex flex-row items-center my-2')}>
                   <AudioBubble 
-                    audioSrc={attachment.dataUrlConverted || attachment.dataUrl} 
-                    variant={props.variant} 
+                    audioSrc={attachment.dataUrl} 
+                    variant={props.variant}
+                    senderName={senderName}
+                    senderAvatar={senderAvatar}
+                    conversationName="AppConecta"
                   />
                 </Animated.View>
               );

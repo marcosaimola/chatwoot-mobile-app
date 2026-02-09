@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 
 import { CaretBottomSmall } from '@/svg-icons';
 import { tailwind } from '@/theme';
@@ -18,6 +18,7 @@ export const FilterButton = (props: FilterButtonProps) => {
   const { value, handleOnPress } = props;
   const { handlers, animatedStyle } = useScaleAnimation();
   const { filtersModalSheetRef } = useRefsContext();
+  const { colors } = useThemeContext();
 
   const hapticSelection = useHaptic();
 
@@ -31,16 +32,21 @@ export const FilterButton = (props: FilterButtonProps) => {
   return (
     <Animated.View style={animatedStyle}>
       <Pressable
-        style={tailwind.style('px-3 py-[7px] rounded-lg bg-gray-100 flex flex-row items-center')}
+        style={tailwind.style(
+          `px-3 py-[7px] rounded-lg flex flex-row items-center ${colors.bgInput}`,
+        )}
         onPress={onPress}
         {...handlers}>
         <Animated.Text
           style={tailwind.style(
-            'text-sm font-inter-medium-24 leading-[16px] tracking-[0.24px] pr-1 capitalize text-gray-950',
+            `text-sm font-inter-medium-24 leading-[16px] tracking-[0.24px] pr-1 capitalize ${colors.textPrimary}`,
           )}>
           {value}
         </Animated.Text>
-        <Icon icon={<CaretBottomSmall />} size={7.5} />
+        <Icon
+          icon={<CaretBottomSmall fill={tailwind.color(colors.textPrimary) as string} />}
+          size={7.5}
+        />
       </Pressable>
     </Animated.View>
   );

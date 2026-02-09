@@ -1,14 +1,14 @@
 import React from 'react';
-import { Alert, Linking, Platform, Pressable, Text } from 'react-native';
+import { Alert, Linking, Platform, Pressable, Text, View } from 'react-native';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import { Asset, launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppDispatch } from '@/hooks';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { updateAttachments } from '@/store/conversation/sendMessageSlice';
-import { useRefsContext, useThemeContext } from '@/context';
-import { AttachFileIcon, CameraIcon, MacrosIcon, PhotosIcon } from '@/svg-icons';
+import { useRefsContext, useThemeContext, useChatWindowContext } from '@/context';
+import { AttachFileIcon, CameraIcon, MacrosIcon, PhotosIcon, UserIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useHaptic, useScaleAnimation } from '@/utils';
 import { Icon } from '@/components-next/common';
@@ -16,6 +16,9 @@ import { MAXIMUM_FILE_UPLOAD_SIZE } from '@/constants';
 import i18n from '@/i18n';
 import { showToast } from '@/utils/toastUtils';
 import { findFileSize } from '@/utils/fileUtils';
+import { selectConversationById } from '@/store/conversation/conversationSelectors';
+import { selectSingleConversation } from '@/store/conversation/conversationSelectedSlice';
+import { setActionState } from '@/store/conversation/conversationActionSlice';
 
 export const handleOpenPhotosLibrary = async dispatch => {
   const pickedAssets = await launchImageLibrary({
@@ -147,28 +150,49 @@ const handleAttachFile = async dispatch => {
   }
 };
 
-const getAddMenuOptions = (iconColor: string) => [
-  {
-    icon: <PhotosIcon stroke={iconColor} />,
-    title: 'Photos',
-    handlePress: handleOpenPhotosLibrary,
-  },
+type MenuOptionConfig = {
+  icon: React.ReactElement;
+  title: string;
+  handlePress: (dispatch: ReturnType<typeof useAppDispatch>) => void;
+  iconBgColor: string;
+  isSpecialAction?: boolean;
+};
+
+const getAddMenuOptions = (iconColor: string, iconBgColor: string): MenuOptionConfig[] => [
   {
     icon: <CameraIcon stroke={iconColor} />,
-    title: 'Camera',
+    title: i18n.t('ATTACHMENT_MENU.CAMERA'),
     handlePress: handleLaunchCamera,
+    iconBgColor,
+  },
+  {
+    icon: <PhotosIcon stroke={iconColor} />,
+    title: i18n.t('ATTACHMENT_MENU.PHOTOS'),
+    handlePress: handleOpenPhotosLibrary,
+    iconBgColor,
   },
   {
     icon: <AttachFileIcon stroke={iconColor} />,
-    title: 'Attach File',
+    title: i18n.t('ATTACHMENT_MENU.ATTACH_FILE'),
     handlePress: handleAttachFile,
+    iconBgColor,
   },
   {
     icon: <MacrosIcon stroke={iconColor} />,
-    title: 'Macros',
+    title: i18n.t('ATTACHMENT_MENU.MACROS'),
     handlePress: () => {},
+    iconBgColor,
+    isSpecialAction: true,
   },
 ];
+
+const getAssignMenuOption = (iconColor: string, iconBgColor: string): MenuOptionConfig => ({
+  icon: <UserIcon stroke={iconColor} />,
+  title: i18n.t('ATTACHMENT_MENU.ASSIGN'),
+  handlePress: () => {},
+  iconBgColor,
+  isSpecialAction: true,
+});
 
 export const validateFileAndSetAttachments = async (
   dispatch: ReturnType<typeof useAppDispatch>,
@@ -199,17 +223,14 @@ export const validateFileAndSetAttachments = async (
   }
 };
 
-type MenuOptionType = ReturnType<typeof getAddMenuOptions>[0];
-
 type MenuOptionProps = {
-  index: number;
-  menuOption: MenuOptionType;
+  menuOption: MenuOptionConfig;
+  onSpecialAction?: () => void;
 };
 
 const MenuOption = (props: MenuOptionProps) => {
-  const { index, menuOption } = props;
+  const { menuOption, onSpecialAction } = props;
   const dispatch = useAppDispatch();
-  const { macrosListSheetRef } = useRefsContext();
   const { colors } = useThemeContext();
 
   const { animatedStyle, handlers } = useScaleAnimation();
@@ -217,26 +238,29 @@ const MenuOption = (props: MenuOptionProps) => {
 
   const handlePress = () => {
     hapticSelection?.();
-    menuOption?.handlePress(dispatch);
-    if (menuOption.title === 'Macros') {
-      macrosListSheetRef.current?.present();
+    if (menuOption.isSpecialAction && onSpecialAction) {
+      onSpecialAction();
+    } else {
+      menuOption?.handlePress(dispatch);
     }
   };
 
   return (
-    <Animated.View style={[tailwind.style('mb-3'), animatedStyle]}>
-      <Pressable onPress={handlePress} {...handlers}>
-        <Animated.View key={index} style={[tailwind.style('flex-row items-center justify-start')]}>
-          <Animated.View style={tailwind.style('p-2')}>
-            <Icon icon={menuOption.icon} size={24} />
-          </Animated.View>
-          <Text
-            style={tailwind.style(
-              `text-base font-inter-normal-20 leading-[18px] tracking-[0.24px] pl-5 ${colors.textPrimary}`,
-            )}>
-            {menuOption.title}
-          </Text>
-        </Animated.View>
+    <Animated.View style={[tailwind.style('items-center justify-center w-1/4 mb-4'), animatedStyle]}>
+      <Pressable onPress={handlePress} {...handlers} style={tailwind.style('items-center')}>
+        <View
+          style={tailwind.style(
+            `w-12 h-12 rounded-full items-center justify-center ${menuOption.iconBgColor}`,
+          )}>
+          <Icon icon={menuOption.icon} size={24} />
+        </View>
+        <Text
+          style={tailwind.style(
+            `text-xs font-inter-normal-20 leading-[14px] tracking-[0.24px] mt-2 text-center ${colors.textPrimary}`,
+          )}
+          numberOfLines={2}>
+          {menuOption.title}
+        </Text>
       </Pressable>
     </Animated.View>
   );
@@ -245,22 +269,66 @@ const MenuOption = (props: MenuOptionProps) => {
 export const CommandOptionsMenu = () => {
   const { bottom } = useSafeAreaInsets();
   const { isDark } = useThemeContext();
+  const dispatch = useAppDispatch();
+  const { macrosListSheetRef, actionsModalSheetRef } = useRefsContext();
+  const { conversationId } = useChatWindowContext();
+  const conversation = useAppSelector(state => selectConversationById(state, conversationId));
+
   const isAndroid = Platform.OS === 'android';
   const containerHeight = isAndroid
-    ? 210 + (bottom === 0 ? 16 : bottom)
-    : 175 + (bottom === 0 ? 16 : bottom);
+    ? 130 + (bottom === 0 ? 16 : bottom)
+    : 120 + (bottom === 0 ? 16 : bottom);
 
-  const iconColor = isDark ? '#9CA3AF' : 'black';
-  const menuOptions = getAddMenuOptions(iconColor);
+  // Colors for better visibility in both themes
+  const iconColor = isDark ? '#E5E7EB' : '#374151';
+  const iconBgColor = isDark ? 'bg-gray-800' : 'bg-gray-100';
+
+  const menuOptions = getAddMenuOptions(iconColor, iconBgColor);
+  const assignOption = getAssignMenuOption(iconColor, iconBgColor);
+
+  // Combine all options
+  const allOptions = [...menuOptions, assignOption];
+
+  const handleMacrosPress = () => {
+    macrosListSheetRef.current?.present();
+  };
+
+  const handleAssignPress = () => {
+    if (!conversation) return;
+    dispatch(selectSingleConversation(conversation));
+    dispatch(setActionState('Assign'));
+    actionsModalSheetRef.current?.present();
+  };
+
+  const getSpecialActionHandler = (title: string) => {
+    if (title === i18n.t('ATTACHMENT_MENU.MACROS')) {
+      return handleMacrosPress;
+    }
+    if (title === i18n.t('ATTACHMENT_MENU.ASSIGN')) {
+      return handleAssignPress;
+    }
+    return undefined;
+  };
 
   return (
     <Animated.View
       entering={SlideInDown.springify().damping(38).stiffness(240)}
       exiting={SlideOutDown.springify().damping(38).stiffness(240)}
-      style={tailwind.style('mx-1 pt-2 items-start', `h-[${containerHeight}px]`)}>
-      {menuOptions.map((menuOption, index) => {
-        return <MenuOption key={menuOption.title} {...{ menuOption, index }} />;
-      })}
+      style={tailwind.style(
+        'mx-1 pt-4 pb-2',
+        `h-[${containerHeight}px]`,
+      )}>
+      <View style={tailwind.style('flex-row flex-wrap justify-start')}>
+        {allOptions.map(menuOption => {
+          return (
+            <MenuOption
+              key={menuOption.title}
+              menuOption={menuOption}
+              onSpecialAction={getSpecialActionHandler(menuOption.title)}
+            />
+          );
+        })}
+      </View>
     </Animated.View>
   );
 };

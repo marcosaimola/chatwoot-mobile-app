@@ -349,6 +349,12 @@
     "CONTACT_ATTRIBUTES": "Atributos de contacto",
     "VALUE_UNAVAILABLE": "No disponible"
   },
+  "CONTACT_EDIT": {
+    "TITLE": "Editar Contacto",
+    "CANCEL": "Cancelar",
+    "SAVE": "Guardar",
+    "SAVING": "Guardando..."
+  },
   "CONVERSATION_PARTICIPANTS": {
     "TITLE": "Participants",
     "TOTAL_PARTICIPANTS_TEXT": "%{count} personas están participando.",
@@ -364,7 +370,14 @@
     "ADD_PARTICIPANT": "Add Participant"
   },
   "CONTACT_ATTRIBUTES": {
-    "TITLE": "Atributos de contacto"
+    "TITLE": "Atributos de contacto",
+    "SECTION_TITLE": "Atributos del contacto",
+    "CHOOSE_OPTION": "Elige una opción",
+    "DATE_PLACEHOLDER": "DD/MM/AAAA",
+    "DATE_INVALID": "Fecha inválida. Usa el formato DD/MM/AAAA",
+    "URL_INVALID": "La URL debe comenzar con http:// o https://",
+    "DELETE_SUCCESS": "Atributo eliminado con éxito",
+    "DELETE_ERROR": "Error al eliminar atributo"
   },
   "CONVERSATION_ACTION": {
     "TITLE": "Acciones"
@@ -398,19 +411,19 @@
     "CHANGE_TEAMS": "Equipo de conversación cambiado"
   },
   "ERRORS": {
-    "COMMON_ERROR": "Could not connect to Chatwoot Server, Please try again later",
+    "COMMON_ERROR": "Could not connect to app Server, Please try again later",
     "OfFLINE": "Debe conectarse a Wi-Fi o a una red móvil para conectarse de nuevo",
     "CANNOT_FETCH": "Hubo un error al recuperar la información, por favor inténtalo de nuevo",
     "AUTH": "Nombre de usuario / Contraseña incorrecto. Inténtalo de nuevo",
-    "NO_ACCOUNTS_MESSAGE": "No tienes acceso a ninguna cuenta de chatwoot"
+    "NO_ACCOUNTS_MESSAGE": "No tienes acceso a ninguna cuenta de app"
   },
   "SUCCESS": {
     "AUTH": "Inicio de sesión exitoso"
   },
   "SERVER_UPGRADE": {
     "TITLE": "Actualización de servidor necesaria",
-    "WARNING_FOR_AGENT": "Parece que estás usando un servidor de Chatwoot no soportado para tu aplicación móvil. Por favor, contacta con tu administrador para actualizar tu servidor de Chatwoot.",
-    "WARNING_FOR_ADMIN": "Parece que estás usando un servidor de Chatwoot no compatible para tu aplicación móvil. Se requiere actualizar a la versión del servidor %{minimumVersion} o posterior."
+    "WARNING_FOR_AGENT": "Parece que estás usando un servidor de app no soportado para tu aplicación móvil. Por favor, contacta con tu administrador para actualizar tu servidor de app.",
+    "WARNING_FOR_ADMIN": "Parece que estás usando un servidor de app no compatible para tu aplicación móvil. Se requiere actualizar a la versión del servidor %{minimumVersion} o posterior."
   },
   "EXIT": {
     "TITLE": "Salir",

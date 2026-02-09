@@ -18,7 +18,7 @@ import { showToast } from '@/utils/toastUtils';
 import i18n from '@/i18n';
 
 export interface CreateConversationSheetHandle {
-  present: (phoneNumber: string) => void;
+  present: (phoneNumber: string, contactId?: number) => void;
   dismiss: () => void;
 }
 
@@ -84,19 +84,22 @@ export const CreateConversationSheet = forwardRef<CreateConversationSheetHandle,
 
     const [isVisible, setIsVisible] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
+  const [contactId, setContactId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedInboxId, setSelectedInboxId] = useState<number | null>(null);
 
     const inboxes = useAppSelector(selectApiAndWhatsAppInboxes);
 
     useImperativeHandle(ref, () => ({
-      present: (phone: string) => {
+      present: (phone: string, contactIdValue?: number) => {
         setPhoneNumber(phone);
+        setContactId(contactIdValue ?? null);
         setIsVisible(true);
       },
       dismiss: () => {
         setIsVisible(false);
         setPhoneNumber('');
+        setContactId(null);
         setIsLoading(false);
         setSelectedInboxId(null);
       },
@@ -105,6 +108,7 @@ export const CreateConversationSheet = forwardRef<CreateConversationSheetHandle,
     const handleDismiss = useCallback(() => {
       setIsVisible(false);
       setPhoneNumber('');
+      setContactId(null);
       setIsLoading(false);
       setSelectedInboxId(null);
     }, []);
@@ -118,10 +122,16 @@ export const CreateConversationSheet = forwardRef<CreateConversationSheetHandle,
 
         try {
           const result = await dispatch(
-            conversationActions.createConversationFromPhone({
-              phoneNumber,
-              inboxId: inbox.id,
-            }),
+            contactId
+              ? conversationActions.createConversationForContact({
+                  contactId,
+                  phoneNumber,
+                  inboxId: inbox.id,
+                })
+              : conversationActions.createConversationFromPhone({
+                  phoneNumber,
+                  inboxId: inbox.id,
+                }),
           ).unwrap();
 
           handleDismiss();
@@ -143,7 +153,7 @@ export const CreateConversationSheet = forwardRef<CreateConversationSheetHandle,
           showToast({ message: errorMessage });
         }
       },
-      [dispatch, phoneNumber, handleDismiss, navigation, isLoading],
+      [dispatch, phoneNumber, contactId, handleDismiss, navigation, isLoading],
     );
 
     const hasInboxes = inboxes.length > 0;

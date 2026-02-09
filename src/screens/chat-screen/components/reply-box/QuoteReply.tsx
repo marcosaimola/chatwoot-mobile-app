@@ -4,7 +4,7 @@ import Markdown, { MarkdownIt } from 'react-native-markdown-display';
 import Animated from 'react-native-reanimated';
 import { Image } from 'expo-image';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { CloseIcon, FileIcon, VoiceNote } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { isMarkdown } from '@/utils';
@@ -38,10 +38,11 @@ const File = () => {
 export const QuoteReply = () => {
   const quoteMessage = useAppSelector(selectQuoteMessage);
   const dispatch = useAppDispatch();
+  const { isDark } = useThemeContext();
 
   const { messageListRef } = useRefsContext();
 
-  const textStyle = tailwind.style('text-gray-950');
+  const textStyle = tailwind.style(isDark ? 'text-gray-100' : 'text-gray-950');
 
   const styles = StyleSheet.create({
     text: {
@@ -104,7 +105,10 @@ export const QuoteReply = () => {
   return (
     <Pressable
       onPress={handleScrollToMessage}
-      style={tailwind.style('flex flex-row items-center px-2.5 pb-[14px] bg-white -z-10')}>
+      style={tailwind.style(
+        'flex flex-row items-center px-2.5 pb-[14px] -z-10',
+        isDark ? 'bg-gray-900' : 'bg-white',
+      )}>
       {quoteMessage?.attachments?.length && quoteMessage?.attachments?.length > 0 ? (
         <Animated.View style={tailwind.style('h-9.5 w-9.5 mr-3 rounded-lg overflow-hidden')}>
           {quoteMessage?.attachments?.length > 0 &&
@@ -130,7 +134,8 @@ export const QuoteReply = () => {
         <Animated.View>
           <Animated.Text
             style={tailwind.style(
-              'text-cxs tracking-[0.32px] leading-[15px] font-inter-420-20 text-blackA-A11',
+              'text-cxs tracking-[0.32px] leading-[15px] font-inter-420-20',
+              isDark ? 'text-gray-400' : 'text-blackA-A11',
             )}>
             Replying to {quoteMessage?.sender?.name}
           </Animated.Text>
@@ -154,13 +159,19 @@ export const QuoteReply = () => {
             ) : (
               <Text
                 numberOfLines={1}
-                style={tailwind.style('text-md font-inter-normal-20 tracking-[0.32px] capitalize')}>
+                style={tailwind.style(
+                  'text-md font-inter-normal-20 tracking-[0.32px] capitalize',
+                  isDark ? 'text-gray-200' : 'text-gray-950',
+                )}>
                 {quoteMessage?.content}
               </Text>
             )
           ) : (
             <Text
-              style={tailwind.style('text-md font-inter-normal-20 tracking-[0.32px] capitalize')}>
+              style={tailwind.style(
+                'text-md font-inter-normal-20 tracking-[0.32px] capitalize',
+                isDark ? 'text-gray-200' : 'text-gray-950',
+              )}>
               {quoteMessage?.attachments?.[0]?.fileType}
             </Text>
           )}

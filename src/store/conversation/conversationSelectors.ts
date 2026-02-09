@@ -269,3 +269,16 @@ export const getSearchFilteredConversations = createDraftSafeSelector(
     return filteredByAssignee;
   },
 );
+
+/**
+ * Selector to get total unread messages count across all conversations
+ * Used for displaying badge on tab bar
+ */
+export const selectTotalUnreadCount = createSelector(
+  [selectAllConversations],
+  conversations => {
+    return conversations.reduce((total, conversation) => {
+      return total + (conversation.unreadCount || 0);
+    }, 0);
+  },
+);

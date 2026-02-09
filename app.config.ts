@@ -1,10 +1,35 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
+/**
+ * Extracts host from URL for deep linking configuration
+ * @param url - Full URL (e.g., https://atendimento.zapicrm.com.br/)
+ * @returns Host string (e.g., atendimento.zapicrm.com.br)
+ */
+const extractHostFromUrl = (url: string | undefined): string => {
+  if (!url) {
+    return 'atendimento.zapicrm.com.br'; // Default fallback
+  }
+
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch {
+    // If URL parsing fails, try to extract host manually
+    const cleaned = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return cleaned.split('/')[0] || 'atendimento.zapicrm.com.br';
+  }
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => {
+  // Extract host from environment variable or use default
+  const deepLinkHost = extractHostFromUrl(
+    process.env.EXPO_PUBLIC_DEEP_LINK_HOST || process.env.EXPO_PUBLIC_INSTALLATION_URL,
+  );
+
   return {
-    name: 'ZapiCRM',
+    name: 'AppConecta',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'chatwoot-mobile',
-    version: '5.3',
+    version: '4.6.14',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -19,43 +44,50 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       supportsTablet: true,
       bundleIdentifier: process.env.EXPO_PUBLIC_IOS_BUNDLE_ID || 'br.com.zapicrm',
+      buildNumber: '6',
       infoPlist: {
         NSCameraUsageDescription:
-          'ZapiCRM uses the camera to allow users to take and send photos or videos in customer conversations or when chatting with the support team.',
+          'AppConecta uses the camera to allow users to take and send photos or videos in customer conversations or when chatting with the support team.',
         NSPhotoLibraryUsageDescription:
-          'ZapiCRM needs access to your photo library to let you choose and send images in customer conversations.',
+          'AppConecta needs access to your photo library to let you choose and send images in customer conversations.',
         NSMicrophoneUsageDescription:
-          'ZapiCRM uses the microphone so users can record and send voice messages in customer conversations or when contacting our support team.',
+          'AppConecta uses the microphone so users can record and send voice messages in customer conversations or when contacting our support team.',
         NSAppleMusicUsageDescription:
           'This app does not use Apple Music, but a system API may require this permission.',
+        NSContactsUsageDescription:
+          'AppConecta precisa acessar seus contatos para importá-los',
         UIBackgroundModes: ['fetch', 'remote-notification', 'audio'],
         ITSAppUsesNonExemptEncryption: false,
       },
-      // Please use the relative path to the google-services.json file
+      // Arquivos Firebase na raiz do projeto
       googleServicesFile: './GoogleService-Info.plist',
       entitlements: { 'aps-environment': 'production' },
-      associatedDomains: ['applinks:atendimento.zapicrm.com.br'],
-      // Fix dSYM warning
-      buildConfiguration: 'Release',
+      // Associated domains are optional - React Navigation handles deep links dynamically in runtime
+      // If you need App Links verification, set EXPO_PUBLIC_DEEP_LINK_HOST environment variable
+      associatedDomains: deepLinkHost ? [`applinks:${deepLinkHost}`] : [],
     },
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#ffffff' },
       package: process.env.EXPO_PUBLIC_ANDROID_PACKAGE || 'br.com.zapicrm',
+      versionCode: 32,
       permissions: [
-        'android.permission.CAMERA', 
+        'android.permission.CAMERA',
         'android.permission.RECORD_AUDIO',
-        'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'
+        'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
+        'android.permission.READ_CONTACTS',
       ],
-      // Please use the relative path to the google-services.json file
+      // Arquivos Firebase na raiz do projeto
       googleServicesFile: './google-services.json',
       intentFilters: [
         {
           action: 'VIEW',
-          autoVerify: true,
+          autoVerify: false, // Disabled to allow dynamic hosts - React Navigation handles deep links in runtime
           data: [
             {
               scheme: 'https',
-              host: 'atendimento.zapicrm.com.br',
+              // Host from environment variable or default - React Navigation will handle deep links dynamically
+              // based on installationUrl in runtime, so this is mainly for Android manifest
+              host: deepLinkHost,
               pathPrefix: '/app/accounts/',
               pathPattern: '/*/conversations/*',
             },
@@ -79,10 +111,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         storybookEnabled: process.env.EXPO_STORYBOOK_ENABLED,
       },
     },
-    owner: 'chatwoot',
+    owner: 'zapicrm',
     plugins: [
       'expo-font',
-      ['react-native-permissions', { iosPermissions: ['Camera', 'PhotoLibrary', 'MediaLibrary'] }],
+      ['react-native-permissions', { iosPermissions: ['Camera', 'PhotoLibrary', 'MediaLibrary', 'Contacts'] }],
       // Temporarily disabled Sentry to fix TestFlight crash
       // [
       //   '@sentry/react-native/expo',
@@ -94,6 +126,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // ],
       '@react-native-firebase/app',
       '@react-native-firebase/messaging',
+      '@react-native-firebase/crashlytics',
       [
         'expo-build-properties',
         {
@@ -107,8 +140,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           ios: { useFrameworks: 'static' },
         },
       ],
-      // Temporarily disabled FFmpeg due to download issues
-      // './with-ffmpeg-pod.js',
+      // FFmpeg for OGG to MP3 conversion on device
+      './with-ffmpeg-pod.js',
     ],
     androidNavigationBar: { backgroundColor: '#ffffff' },
   };

@@ -6,6 +6,7 @@ import { store, persistor } from './store';
 import { AppNavigator } from '@/navigation';
 import { ThemeProvider } from '@/context';
 import * as EdgeToEdge from 'react-native-edge-to-edge';
+import { clearExpiredCaches } from '@/utils/cacheManager';
 
 import i18n from '@/i18n';
 
@@ -23,6 +24,11 @@ const Chatwoot = () => {
         // Continue app execution even if edge-to-edge fails
       }
     }
+
+    // Clean up expired audio cache files (older than 7 days)
+    clearExpiredCaches(7).catch(() => {
+      // Silently fail - cache cleanup is not critical
+    });
 
     BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
     return () => {

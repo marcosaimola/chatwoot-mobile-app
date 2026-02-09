@@ -244,13 +244,27 @@ export const MessageTextInput = ({
           style={[
             tailwind.style(
               'text-base font-inter-normal-20 tracking-[0.24px] leading-[20px] android:leading-[18px]',
-              `ml-[5px] mr-2 py-2 pl-3 pr-[36px] rounded-2xl ${isDark ? 'text-gray-100' : 'text-gray-950'}`,
+              `ml-[5px] mr-2 py-2 pl-3 pr-[36px] rounded-2xl`,
               'min-h-9 max-h-[76px]',
-              isPrivateMessage ? 'bg-amber-100' : isDark ? 'bg-whiteA-A4' : 'bg-blackA-A4',
+              isPrivateMessage
+                ? isDark
+                  ? 'bg-amber-950 text-amber-100'
+                  : 'bg-amber-100 text-amber-950'
+                : isDark
+                  ? 'bg-whiteA-A4 text-gray-100'
+                  : 'bg-blackA-A4 text-gray-950',
             ),
             // TODO: Try settings includeFontPadding to false and have a single lineHeight value of 20
           ]}
-          placeholderTextColor={tailwind.color(isDark ? 'bg-gray-400' : 'bg-gray-800')}
+          placeholderTextColor={tailwind.color(
+            isPrivateMessage
+              ? isDark
+                ? 'text-amber-400'
+                : 'text-amber-700'
+              : isDark
+                ? 'text-gray-400'
+                : 'text-gray-600',
+          )}
           maxLength={maxLength}
           placeholder={
             isPrivateMessage

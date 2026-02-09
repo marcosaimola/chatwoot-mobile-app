@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { Platform, Pressable } from 'react-native';
+import { Platform, Pressable, View, Text } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -11,18 +11,20 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { selectCurrentState } from '@/store/conversation/conversationHeaderSlice';
+import { selectTotalUnreadCount } from '@/store/conversation/conversationSelectors';
 
 import {
   AiAgentsIconFilled,
   AiAgentsIconOutline,
   ConversationIconFilled,
   ConversationIconOutline,
-  InboxIconFilled,
-  InboxIconOutline,
+  ContactsIconFilled,
+  ContactsIconOutline,
   SettingsIconFilled,
   SettingsIconOutline,
 } from '@/svg-icons';
 import { tailwind } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 import { useHaptic, useScaleAnimation, useTabBarHeight } from '@/utils';
 
 import { TabParamList } from './AppTabs';
@@ -36,18 +38,21 @@ const tabEnterSpringConfig = { damping: 30, stiffness: 360, mass: 1 };
 type TabBarIconsProps = {
   focused: boolean;
   route: RouteProp<TabParamList, keyof TabParamList>;
+  iconColor?: string;
 };
 
-const TabBarIcons = ({ focused, route }: TabBarIconsProps) => {
+const TabBarIcons = ({ focused, route, iconColor }: TabBarIconsProps) => {
   switch (route.name) {
     case 'Conversations':
-      return focused ? <ConversationIconFilled /> : <ConversationIconOutline />;
+      return focused ? <ConversationIconFilled color={iconColor} /> : <ConversationIconOutline color={iconColor} />;
     case 'Inbox':
-      return focused ? <InboxIconFilled /> : <InboxIconOutline />;
+      return focused ? <ContactsIconFilled color={iconColor} /> : <ContactsIconOutline color={iconColor} />;
+    case 'Contacts':
+      return focused ? <ContactsIconFilled color={iconColor} /> : <ContactsIconOutline color={iconColor} />;
     case 'AiAgents':
-      return focused ? <AiAgentsIconFilled /> : <AiAgentsIconOutline />;
+      return focused ? <AiAgentsIconFilled color={iconColor} /> : <AiAgentsIconOutline color={iconColor} />;
     case 'Settings':
-      return focused ? <SettingsIconFilled /> : <SettingsIconOutline />;
+      return focused ? <SettingsIconFilled color={iconColor} /> : <SettingsIconOutline color={iconColor} />;
   }
 };
 
@@ -89,6 +94,8 @@ const TabBarBackground = (props: TabBarBackgroundProps) => {
 const TabItem = (props: any) => {
   const { handlers, animatedStyle } = useScaleAnimation();
   const hapticSelection = useHaptic('selection');
+  const totalUnreadCount = useAppSelector(selectTotalUnreadCount);
+  const { isDark } = useTheme();
 
   const { onPress, onLongPress, isFocused, options, route } = props;
 
@@ -106,6 +113,8 @@ const TabItem = (props: any) => {
     onPress();
   }, [hapticSelection, onPress]);
 
+  const showBadge = route.name === 'Conversations' && totalUnreadCount > 0;
+
   return (
     <Animated.View
       style={[tailwind.style('justify-center items-center flex-1 bg-transparent'), animatedStyle]}>
@@ -118,7 +127,31 @@ const TabItem = (props: any) => {
         testID={options.tabBarTestID}
         onPress={handlePress}
         onLongPress={onLongPress}>
-        <TabBarIcons focused={isFocused} route={route} />
+        <View style={tailwind.style('relative')}>
+        <TabBarIcons 
+          focused={isFocused} 
+          route={route} 
+          iconColor={
+            isFocused 
+              ? (isDark ? '#0A84FF' : '#171717') // Azul no dark quando ativo, preto no light
+              : (isDark ? '#FFFFFF' : '#171717') // Branco no dark quando inativo, preto no light
+          } 
+        />
+          {showBadge && (
+            <View
+              style={[
+                tailwind.style('absolute h-5 min-w-[20px] px-1.5 flex justify-center items-center rounded-full bg-blue-700'),
+                { top: -3, right: -3 },
+              ]}>
+              <Text
+                style={tailwind.style(
+                  'text-[10px] font-inter-semibold-20 leading-none text-center text-white',
+                )}>
+                {totalUnreadCount > 99 ? '99+' : totalUnreadCount.toString()}
+              </Text>
+            </View>
+          )}
+        </View>
       </Pressable>
     </Animated.View>
   );
@@ -127,6 +160,7 @@ const TabItem = (props: any) => {
 export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const tabBarHeight = useTabBarHeight();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
 
   // Memoize press handlers using useCallback
   const createPressHandler = React.useCallback(
@@ -161,35 +195,38 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
 
   return (
     <Animated.View
+      pointerEvents="box-none"
       style={[
         tailwind.style('absolute w-full'),
         Platform.select({
           ios: { bottom: 0 },
           android: { 
             bottom: 0,
-            backgroundColor: 'white',
+            backgroundColor: isDark ? '#2C2C2E' : '#FFFFFF',
             paddingBottom: insets.bottom,
           },
         }),
       ]}>
       <TabBarBackground
         blurAmount={25}
-        blurType="light"
+        blurType={isDark ? 'dark' : 'light'}
         style={Platform.select({
           ios: [
             tailwind.style(
-              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-8 bg-[#00000009]',
+              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-8',
+              isDark ? 'bg-[#2C2C2E80]' : 'bg-[#00000009]',
               `h-[${tabBarHeight}px]`,
             ),
           ],
           android: [
             tailwind.style(
-              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-[11px] bg-white',
+              'flex flex-row w-full pl-[72px] pr-[71px] pt-[11px] pb-[11px]',
+              isDark ? 'bg-grayDark-100' : 'bg-white',
               `h-[${tabBarHeight}px]`,
             ),
           ],
         })}>
-        <Animated.View style={tailwind.style('absolute inset-0 h-[1px] bg-blackA-A3')} />
+        <Animated.View style={tailwind.style('absolute inset-0 h-[1px]', colors.borderPrimary)} />
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;

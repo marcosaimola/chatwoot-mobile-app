@@ -14,7 +14,7 @@
   },
   "CONFIGURE_URL": {
     "ENTER_URL": "URL da Instalação",
-    "DESCRIPTION": "Se estiver a usar uma instalação Chatwoot auto-hospedada, insira o URL do seu servidor. Caso contrário, utilize app.chatwoot.com.",
+    "DESCRIPTION": "Se estiver a usar uma instalação auto-hospedada, insira o URL do seu servidor. Caso contrário, utilize app.chatwoot.com.",
     "URL_ERROR": "Insira um URL válido",
     "URL_REQUIRED": "URL é obrigatório",
     "CONNECT": "Ligar",
@@ -347,8 +347,10 @@
     "EMAIL": "e-mail",
     "PHONE_NUMBER": "Número de telefone",
     "CALL": "Chamada",
+    "CHAT": "Conversar",
     "CONTACT_ATTRIBUTES": "Atributos do contacto",
-    "VALUE_UNAVAILABLE": "Indisponível"
+    "VALUE_UNAVAILABLE": "Indisponível",
+    "TAB_EDIT": "Dados"
   },
   "CONVERSATION_PARTICIPANTS": {
     "TITLE": "Participantes",
@@ -366,6 +368,19 @@
   },
   "CONTACT_ATTRIBUTES": {
     "TITLE": "Atributos do Contato"
+  },
+  "CONTACTS": {
+    "SORT": {
+      "SORT_BY": "Classificar por",
+      "ORDER": "Ordenação",
+      "NAME": "Nome",
+      "EMAIL": "Email",
+      "CITY": "Cidade",
+      "LAST_ACTIVITY": "Última atividade",
+      "CREATED_AT": "Criado em",
+      "ASCENDING": "Crescente",
+      "DESCENDING": "Decrescente"
+    }
   },
   "CONVERSATION_ACTION": {
     "TITLE": "Ações."
@@ -399,19 +414,19 @@
     "CHANGE_TEAMS": "Equipa de conversação alterada"
   },
   "ERRORS": {
-    "COMMON_ERROR": "Não foi possível ligar ao servidor Chatwoot, por favor tente novamente mais tarde",
+    "COMMON_ERROR": "Não foi possível ligar ao servidor, por favor tente novamente mais tarde",
     "OfFLINE": "Tem de se ligar ao Wi-Fi ou a uma rede móvel para voltar a estar online",
     "CANNOT_FETCH": "Tem de se ligar ao Wi-Fi ou a uma rede móvel para voltar a estar online",
     "AUTH": "Nome de usuário / senha incorreta. Por favor, tente novamente",
-    "NO_ACCOUNTS_MESSAGE": "Não tem acesso a nenhuma conta Chatwoot"
+    "NO_ACCOUNTS_MESSAGE": "Não tem acesso a nenhuma conta"
   },
   "SUCCESS": {
     "AUTH": "Login bem sucedido"
   },
   "SERVER_UPGRADE": {
     "TITLE": "Atualização do servidor necessária",
-    "WARNING_FOR_AGENT": "Parece que está a utilizar um servidor Chatwoot não suportado para a sua aplicação móvel. Por favor, contacte o seu administrador para atualizar o servidor Chatwoot.",
-    "WARNING_FOR_ADMIN": "Parece que está a utilizar um servidor Chatwoot não suportado para a sua aplicação móvel. É necessário atualizar para a versão %{minimumVersion} ou superior do servidor."
+    "WARNING_FOR_AGENT": "Parece que está a utilizar um servidor não suportado para a sua aplicação móvel. Por favor, contacte o seu administrador para atualizar o servidor.",
+    "WARNING_FOR_ADMIN": "Parece que está a utilizar um servidor não suportado para a sua aplicação móvel. É necessário atualizar para a versão %{minimumVersion} ou superior do servidor."
   },
   "EXIT": {
     "TITLE": "Sair",
@@ -454,5 +469,33 @@
     "EXECUTION_SUCCESS": "Macro executada com sucesso",
     "EXECUTION_ERROR": "Falha na execução do macro",
     "NO_MACROS": "Nenhuma macro encontrada"
+  },
+  "ATTACHMENT_MENU": {
+    "CAMERA": "Câmara",
+    "PHOTOS": "Fotos",
+    "ATTACH_FILE": "Ficheiro",
+    "MACROS": "Macros",
+    "ASSIGN": "Atribuir"
+  },
+  "PROFILE_EDIT": {
+    "TITLE": "Editar Perfil",
+    "NAME": "Nome",
+    "NAME_PLACEHOLDER": "Introduza o seu nome",
+    "DISPLAY_NAME": "Nome de Exibição",
+    "DISPLAY_NAME_PLACEHOLDER": "Introduza o nome de exibição",
+    "EMAIL": "E-mail",
+    "EMAIL_PLACEHOLDER": "Introduza o seu e-mail",
+    "CAMERA": "Câmara",
+    "PHOTOS": "Fotos",
+    "SAVE": "Guardar",
+    "SAVING": "A guardar...",
+    "SUCCESS": "Perfil atualizado com sucesso",
+    "ERROR": "Erro ao atualizar perfil",
+    "NAME_REQUIRED": "Nome é obrigatório",
+    "EMAIL_REQUIRED": "E-mail é obrigatório",
+    "PERMISSION_DENIED": "Permissão Negada",
+    "PHOTO_PERMISSION_MESSAGE": "A permissão para aceder à galeria de fotos foi negada. Por favor, ative nas definições do dispositivo.",
+    "CAMERA_PERMISSION_MESSAGE": "A permissão para aceder à câmara foi negada. Por favor, ative nas definições do dispositivo.",
+    "OPEN_SETTINGS": "Abrir Definições"
   }
 }

@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { selectFilters, setFilters } from '@/store/conversation/conversationFilterSlice';
 import { TickIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
@@ -29,6 +29,7 @@ export const status: StatusCollection[] = [
 
 const StatusCell = (props: StatusCellProps) => {
   const { filtersModalSheetRef } = useRefsContext();
+  const { colors } = useThemeContext();
   const { value, index } = props;
   const filters = useAppSelector(selectFilters);
   const dispatch = useAppDispatch();
@@ -48,11 +49,11 @@ const StatusCell = (props: StatusCellProps) => {
       <Animated.View
         style={tailwind.style(
           'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          index !== status.length - 1 ? 'border-b-[1px] border-blackA-A3' : '',
+          index !== status.length - 1 ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={tailwind.style(
-            'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize',
+            `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ${colors.textPrimary}`,
           )}>
           {i18n.t(`CONVERSATION.FILTERS.STATUS.OPTIONS.${StatusOptions[value.id].toUpperCase()}`)}
         </Animated.Text>

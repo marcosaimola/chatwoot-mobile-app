@@ -26,10 +26,7 @@ export const ContactDetailsScreenHeader = (props: ContactDetailsScreenHeaderProp
 
   return (
     <Animated.View
-      style={tailwind.style(
-        'flex flex-row items-start px-4 py-[13px] border-b-[1px]',
-        isDark ? 'border-b-gray-800' : 'border-b-blackA-A3',
-      )}>
+      style={tailwind.style('flex flex-row items-start px-4 py-[13px]')}>
       <Pressable hitSlop={16} onPress={handleBackPress} style={tailwind.style('flex-1')}>
         <Animated.View>
           <Icon icon={<CloseIcon stroke={isDark ? '#FFFFFF' : undefined} />} size={24} />

@@ -13,6 +13,7 @@ import type {
   SetActiveAccountPayload,
   SsoAuthPayload,
   SsoAuthResponse,
+  UpdateProfilePayload,
 } from './authTypes';
 
 export class AuthService {
@@ -77,5 +78,27 @@ export class AuthService {
         client: response.headers.client,
       },
     };
+  }
+
+  static async updateProfile(payload: UpdateProfilePayload): Promise<ProfileResponse> {
+    const formData = new FormData();
+    formData.append('profile[name]', payload.name);
+    formData.append('profile[email]', payload.email);
+    formData.append('profile[display_name]', payload.display_name);
+
+    if (payload.avatar) {
+      formData.append('profile[avatar]', {
+        uri: payload.avatar.uri,
+        type: payload.avatar.type,
+        name: payload.avatar.name,
+      } as unknown as Blob);
+    }
+
+    const response = await apiService.put<ProfileResponse>('profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   }
 }

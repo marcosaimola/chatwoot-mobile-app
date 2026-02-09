@@ -18,6 +18,7 @@ import {
   selectSelectedConversation,
 } from '@/store/conversation/conversationSelectedSlice';
 import { conversationActions } from '@/store/conversation/conversationActions';
+import { setCurrentState } from '@/store/conversation/conversationHeaderSlice';
 import { isAssignableAgentFetching } from '@/store/assignable-agent/assignableAgentSelectors';
 import { showToast } from '@/utils/toastUtils';
 import i18n from '@/i18n';
@@ -106,6 +107,7 @@ export const UpdateAssignee = () => {
       const payload = { type: 'Conversation', ids: selectedIds, fields: { assignee_id: agent.id } };
       await dispatch(conversationActions.bulkAction(payload));
       actionsModalSheetRef.current?.dismiss({ overshootClamping: true });
+      dispatch(setCurrentState('none'));
     } else {
       if (!selectedConversation?.id) return;
       await dispatch(

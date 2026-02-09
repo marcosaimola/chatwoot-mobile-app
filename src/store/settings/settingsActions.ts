@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import * as Sentry from '@sentry/react-native';
+// import * as Sentry from '@sentry/react-native'; // Sentry disabled
 
 import messaging from '@react-native-firebase/messaging';
 import { Platform, PermissionsAndroid } from 'react-native';
@@ -97,6 +97,8 @@ export const settingsActions = {
     async (_, { rejectWithValue }) => {
       try {
         const permissionEnabled = await messaging().hasPermission();
+        // Permission values: -1 = NOT_DETERMINED, 0 = DENIED, 1 = AUTHORIZED, 2 = PROVISIONAL
+
         const deviceId = await getUniqueId();
         const devicePlatform = getSystemName();
         const manufacturer = await getManufacturer();
@@ -110,7 +112,9 @@ export const settingsActions = {
 
         if (!permissionEnabled || permissionEnabled === -1) {
           if (isAndroidAPILevelGreater32) {
-            await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+            await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            );
           }
           await messaging().requestPermission();
         }
@@ -119,7 +123,12 @@ export const settingsActions = {
         // https://github.com/invertase/react-native-firebase/issues/6893#issuecomment-1427998691
         // await messaging().registerDeviceForRemoteMessages();
         await sleep(1000);
+
         const fcmToken = await messaging().getToken();
+
+        if (!fcmToken) {
+          throw new Error('FCM token is empty');
+        }
 
         const pushData: PushPayload = {
           subscription_type: 'fcm',
@@ -133,10 +142,13 @@ export const settingsActions = {
             device_id: deviceId,
           },
         };
+
         await SettingsService.saveDeviceDetails(pushData);
+
         return { fcmToken };
       } catch (error) {
-        Sentry.captureException(error);
+        console.error('Error in saveDeviceDetails:', error);
+        // Sentry.captureException(error); // Sentry disabled
         return rejectWithValue(
           error instanceof Error ? error.message : 'Error saving device details',
         );

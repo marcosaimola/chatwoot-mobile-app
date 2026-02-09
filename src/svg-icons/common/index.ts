@@ -1,3 +1,4 @@
+export * from './AdaptiveIcon';
 export * from './Add';
 export * from './AddParticipant';
 export * from './AiAgents';
@@ -44,3 +45,4 @@ export * from './SocialIcons';
 export * from './Error';
 export * from './ThemeIcon';
 export * from './Edit';
+export * from '../ShareIcon';

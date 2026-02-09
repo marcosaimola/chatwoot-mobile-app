@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Platform, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, Platform, Pressable, StatusBar } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import camelCase from 'camelcase';
 
 import { TAB_BAR_HEIGHT } from '@/constants';
 import {
   CallIcon,
+  CloseIcon,
   EmailIcon,
   LocationIcon,
   CompanyIcon,
@@ -16,6 +18,7 @@ import {
   GithubIcon,
   LinkedinIcon,
 } from '@/svg-icons';
+import { Icon } from '@/components-next/common';
 import { tailwind } from '@/theme';
 import { useThemeContext } from '@/context';
 import { AttributeListType, Contact, CustomAttribute, GenericListType } from '@/types';
@@ -25,16 +28,23 @@ import {
   ContactBasicActions,
   ContactMetaInformation,
   ContactEditForm,
+  ContactConversationsTab,
+  ContactNotesTab,
 } from './components';
-import { AttributeList } from '@/components-next';
+import { AttributeList, ContactTabs } from '@/components-next';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { TabBarExcludedScreenParamList } from '@/navigation/tabs/AppTabs';
 import { selectConversationById } from '@/store/conversation/conversationSelectors';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { contactLabelActions } from '@/store/contact/contactLabelActions';
+import { updateContact as updateContactInStore } from '@/store/contact/contactSlice';
 import { getContactCustomAttributes } from '@/store/custom-attribute/customAttributeSlice';
 import { selectContactById } from '@/store/contact/contactSelectors';
+import { ContactConversationService } from '@/services/ContactConversationService';
+import { selectContactList } from '@/store/contact/contactListSelectors';
 import i18n from '@/i18n';
+import { CreateConversationSheet, CreateConversationSheetHandle } from '@/screens/conversations/components';
+import { normalizeToE164 } from '@/utils/phoneUtils';
 
 type ContactDetailsScreenProps = NativeStackScreenProps<
   TabBarExcludedScreenParamList,
@@ -117,22 +127,33 @@ const processContactAttributes = (
 };
 
 const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
-  const { conversationId } = props.route.params;
+  const { conversationId, contactId: paramContactId } = props.route.params;
   const dispatch = useAppDispatch();
   const { isDark, colors } = useThemeContext();
+  const { top: safeTop } = useSafeAreaInsets();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const createConversationSheetRef = useRef<CreateConversationSheetHandle>(null);
 
+  // Get contactId from either param or conversation
+  let contactId: number | undefined = paramContactId;
+  if (!contactId && conversationId) {
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
+    contactId = conversation?.meta?.sender?.id;
+  }
 
-  const {
-    meta: {
-      sender: { email, id: contactId, name, thumbnail },
-    },
-  } = conversation || { meta: { sender: { name: '', thumbnail: '' } } };
-
+  // Try to get contact from main store first
   const contact = useAppSelector(state => (contactId ? selectContactById(state, contactId) : null));
+  
+  // If not found in main store, try to get from contact list (search results)
+  const contactList = useAppSelector(selectContactList);
+  const contactFromList = contactId ? contactList.find(c => c.id === contactId) : null;
+  
+  // Use contact from list as fallback if not in main store
+  const finalContact = contact || contactFromList;
 
-  const { name: contactName, thumbnail: contactThumbnail, phoneNumber } = contact || {};
+  const { name: contactName, thumbnail: contactThumbnail, phoneNumber, email } = finalContact || {};
+  const normalizedPhoneNumber = phoneNumber ? normalizeToE164(phoneNumber) : '';
 
   const {
     city,
@@ -143,13 +164,13 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
     socialProfiles,
     twitterScreenName,
     telegramUsername,
-  } = contact?.additionalAttributes || {};
+  } = finalContact?.additionalAttributes || {};
 
   const contactCustomAttributes = useAppSelector(getContactCustomAttributes);
 
   const usedContactCustomAttributes = processContactAttributes(
     contactCustomAttributes,
-    contact?.customAttributes || {},
+    finalContact?.customAttributes || {},
     (key, custom) => key in custom,
   );
 
@@ -160,13 +181,17 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
   };
 
   const hasContactCustomAttributes = usedContactCustomAttributes.length > 0;
+  const canStartConversation = Boolean(contactId && normalizedPhoneNumber);
 
   useEffect(() => {
     if (contactId) {
       dispatch(contactLabelActions.getContactLabels({ contactId }));
+      ContactConversationService.getContact(contactId)
+        .then(({ contact }) => dispatch(updateContactInStore(contact)))
+        .catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contactId]);
 
   const socialMediaDetails = allSocialMediaProfiles
     .filter(profile => socialMediaProfiles?.[profile.key as keyof typeof socialMediaProfiles])
@@ -211,6 +236,7 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
   const allDetails = [...userDetails, ...socialMediaDetails];
 
   const handleEditPress = useCallback(() => {
+    setActiveTab(0);
     setIsEditMode(true);
   }, []);
 
@@ -222,13 +248,18 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
     setIsEditMode(false);
   }, []);
 
+  const handleChatPress = useCallback(() => {
+    if (!normalizedPhoneNumber || !contactId) return;
+    createConversationSheetRef.current?.present(normalizedPhoneNumber, contactId);
+  }, [contactId, normalizedPhoneNumber]);
+
   // Create a contact object for the edit form
-  const contactForEdit: Contact = contact || {
+  const contactForEdit: Contact = finalContact || {
     id: contactId || 0,
-    name: name || contactName || '',
+    name: contactName || '',
     email: email || '',
     phoneNumber: phoneNumber || '',
-    thumbnail: thumbnail || contactThumbnail || '',
+    thumbnail: contactThumbnail || '',
     identifier: null,
     type: 'contact',
     createdAt: 0,
@@ -244,37 +275,33 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
   };
 
   // Edit mode view
-  if (isEditMode && contact) {
+  if (isEditMode && finalContact) {
     return (
       <View
         style={tailwind.style(
           'flex-1',
           isDark ? 'bg-gray-950' : 'bg-white',
-          Platform.OS === 'android' ? 'pt-12' : 'pt-6',
         )}>
-        {/* Edit Header */}
+        {/* Edit Header with safe area */}
         <View
-          style={tailwind.style(
-            'flex-row items-center justify-between px-4 py-3 border-b',
-            isDark ? 'border-gray-800' : 'border-gray-200',
-          )}>
-          <Pressable onPress={handleCancelEdit} hitSlop={16}>
-            <Animated.Text
-              style={tailwind.style(
-                'text-md font-inter-medium-24',
-                isDark ? 'text-blue-400' : 'text-blue-600',
-              )}>
-              {i18n.t('CONTACT_EDIT.CANCEL')}
-            </Animated.Text>
+          style={[
+            tailwind.style(
+              'flex-row items-center px-4 py-3 border-b',
+              isDark ? 'border-gray-800' : 'border-gray-200',
+            ),
+            { paddingTop: safeTop + 12 },
+          ]}>
+          <Pressable onPress={handleCancelEdit} hitSlop={16} style={tailwind.style('flex-1')}>
+            <Icon icon={<CloseIcon stroke={isDark ? '#FFFFFF' : undefined} />} size={24} />
           </Pressable>
           <Animated.Text
             style={tailwind.style(
-              'text-lg font-inter-semibold-20',
+              'text-lg font-inter-semibold-20 text-center',
               isDark ? 'text-gray-100' : 'text-gray-900',
             )}>
             {i18n.t('CONTACT_EDIT.TITLE')}
           </Animated.Text>
-          <View style={tailwind.style('w-16')} />
+          <View style={tailwind.style('flex-1')} />
         </View>
 
         <ContactEditForm
@@ -286,25 +313,47 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
     );
   }
 
-  return (
-    <View
-      style={tailwind.style(
-        'flex-1',
-        isDark ? 'bg-gray-950' : 'bg-white',
-        Platform.OS === 'android' ? 'pt-12' : 'pt-6',
-      )}>
-      <ContactDetailsScreenHeader
-        name={name || contactName || ''}
-        thumbnail={thumbnail || contactThumbnail || ''}
-        bio={description || ''}
-        onEditPress={contact ? handleEditPress : undefined}
-      />
+  if (!contactId || !finalContact) {
+    return (
+      <SafeAreaView edges={['top']} style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
+        <StatusBar
+          translucent
+          backgroundColor={tailwind.color(isDark ? 'bg-gray-950' : 'bg-white')}
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+        />
+        <ContactDetailsScreenHeader
+          name=""
+          thumbnail=""
+          bio=""
+        />
+        <View
+          style={tailwind.style(
+            'flex-1 items-center justify-center',
+            isDark ? 'bg-gray-950' : 'bg-white',
+          )}>
+          <Animated.Text style={tailwind.style(`text-md ${colors.textSecondary}`)}>
+            {i18n.t('CONTACT_DETAILS.CONTACT_NOT_FOUND')}
+          </Animated.Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const tabs = [
+    {
+      key: 'edit',
+      label: i18n.t('CONTACT_DETAILS.TAB_EDIT') || 'Editar',
+      component: (
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT}]`)}>
-        {email || phoneNumber ? (
+        {email || phoneNumber || canStartConversation ? (
           <Animated.View style={tailwind.style('mt-[23px] px-4')}>
-            <ContactBasicActions phoneNumber={phoneNumber || ''} email={email || ''} />
+            <ContactBasicActions
+              phoneNumber={phoneNumber || ''}
+              email={email || ''}
+              onChatPress={canStartConversation ? handleChatPress : undefined}
+            />
           </Animated.View>
         ) : null}
         <Animated.View style={tailwind.style('pt-10')}>
@@ -316,7 +365,36 @@ const ContactDetailsScreen = (props: ContactDetailsScreenProps) => {
           </Animated.View>
         )}
       </Animated.ScrollView>
-    </View>
+      ),
+    },
+    {
+      key: 'conversations',
+      label: i18n.t('CONTACT_DETAILS.TAB_CONVERSATIONS') || 'Conversas',
+      component: <ContactConversationsTab contactId={contactId} />,
+    },
+    {
+      key: 'notes',
+      label: i18n.t('CONTACT_DETAILS.TAB_NOTES') || 'Notas',
+      component: <ContactNotesTab contactId={contactId} />,
+    },
+  ];
+
+  return (
+    <SafeAreaView edges={['top']} style={tailwind.style(`flex-1 ${isDark ? 'bg-gray-950' : 'bg-white'}`)}>
+      <StatusBar
+        translucent
+        backgroundColor={tailwind.color(isDark ? 'bg-gray-950' : 'bg-white')}
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+      />
+      <ContactDetailsScreenHeader
+        name={contactName || ''}
+        thumbnail={contactThumbnail || ''}
+        bio={description || ''}
+        onEditPress={handleEditPress}
+      />
+      <ContactTabs tabs={tabs} initialTab={activeTab} />
+      <CreateConversationSheet ref={createConversationSheetRef} />
+    </SafeAreaView>
   );
 };
 

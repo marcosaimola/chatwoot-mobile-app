@@ -49,6 +49,7 @@ import {
   selectBottomSheetState,
   selectSearchTerm,
   selectApiSearchConversationIds,
+  selectIsSearchingAPI,
   setBottomSheetState,
 } from '@/store/conversation/conversationHeaderSlice';
 import { resetActionState } from '@/store/conversation/conversationActionSlice';
@@ -97,9 +98,13 @@ const ConversationList = () => {
   const userId = useAppSelector(selectUserId);
   const searchTerm = useAppSelector(selectSearchTerm) || '';
   const apiSearchConversationIds = useAppSelector(selectApiSearchConversationIds) || [];
+  const isSearchingAPI = useAppSelector(selectIsSearchingAPI) || false;
 
   // Check if search term is a phone number (starts with +)
   const isPhoneNumberSearch = searchTerm.trim().startsWith('+');
+  
+  // Check if we're in API search mode (search term >= 4 characters)
+  const isInApiSearchMode = searchTerm.trim().length >= 4;
 
   const handleCreateConversation = useCallback(() => {
     hapticSelection?.();
@@ -157,7 +162,8 @@ const ConversationList = () => {
   }, []);
 
   const ListFooterComponent = () => {
-    if (isAllConversationsFetched) return null;
+    // Don't show loading footer during API search or when all conversations are fetched
+    if (isAllConversationsFetched || isInApiSearchMode) return null;
     return (
       <Animated.View
         style={tailwind.style(
@@ -269,7 +275,7 @@ const ConversationList = () => {
           'flex-1 items-center justify-center',
           `pb-[${TAB_BAR_HEIGHT}px]`,
         )}>
-        <EmptyStateIcon />
+        <EmptyStateIcon stroke={isDark ? '#6B7280' : '#9CA3AF'} />
         <Animated.Text style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
           {i18n.t('CONVERSATION.EMPTY')}
         </Animated.Text>
@@ -347,7 +353,8 @@ const ConversationScreen = () => {
     }
   }, [currentBottomSheet]);
 
-  const { colors } = useThemeContext();
+  const { colors, isDark } = useThemeContext();
+  const handleIndicatorBg = isDark ? 'bg-whiteA-A6' : 'bg-blackA-A6';
 
   return (
     <SafeAreaView edges={['top']} style={tailwind.style(`flex-1 ${colors.bgPrimary}`)}>
@@ -362,8 +369,9 @@ const ConversationScreen = () => {
         <BottomSheetModal
           ref={filtersModalSheetRef}
           backdropComponent={BottomSheetBackdrop}
+          backgroundStyle={{ backgroundColor: tailwind.color(colors.bgPrimary) as string }}
           handleIndicatorStyle={tailwind.style(
-            'overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]',
+            `overflow-hidden ${handleIndicatorBg} w-8 h-1 rounded-[11px]`,
           )}
           handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
           style={tailwind.style('rounded-[26px] overflow-hidden')}

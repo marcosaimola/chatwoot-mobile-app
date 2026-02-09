@@ -75,7 +75,11 @@ class APIService {
           const store = getStore();
           store.dispatch({ type: 'auth/logout' });
         } else {
-          showToast({ message: I18n.t('ERRORS.COMMON_ERROR') });
+          const shouldSkipToast = (error.config as { skipErrorToast?: boolean } | undefined)
+            ?.skipErrorToast;
+          if (!shouldSkipToast) {
+            showToast({ message: I18n.t('ERRORS.COMMON_ERROR') });
+          }
         }
         return Promise.reject(error);
       },
@@ -91,6 +95,10 @@ class APIService {
 
   public async put<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
     return this.api.put<T>(url, data, config);
+  }
+
+  public async patch<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig) {
+    return this.api.patch<T>(url, data, config);
   }
 
   public async delete<T>(url: string, config?: AxiosRequestConfig) {

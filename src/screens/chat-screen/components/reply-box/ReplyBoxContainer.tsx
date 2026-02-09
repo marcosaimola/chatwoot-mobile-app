@@ -211,11 +211,13 @@ const BottomSheetContent = () => {
     }
   };
 
-  // TODO: Implement this
-  const setReplyToInPayload = (messagePayload: Record<string, unknown>) => {
-    //     ...(quoteMessage?.id && {
-    //       contentAttributes: { inReplyTo: quoteMessage.id },
-    //     }),
+  const setReplyToInPayload = (messagePayload: SendMessagePayload): SendMessagePayload => {
+    if (quoteMessage?.id) {
+      return {
+        ...messagePayload,
+        contentAttributes: { inReplyTo: quoteMessage.id },
+      };
+    }
     return messagePayload;
   };
 

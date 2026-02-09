@@ -31,8 +31,11 @@ export const ReplyMessageBubble = (props: ReplyMessageBubbleProps) => {
     [replyMessageItem?.attachments],
   );
 
+  const firstAttachment = replyMessageItem?.attachments?.[0];
+
   const renderAttachmentSection = () => {
-    switch (replyMessageItem.attachments[0].fileType) {
+    if (!firstAttachment) return null;
+    switch (firstAttachment.fileType) {
       case 'audio':
         return <Icon size={15} icon={<VoiceNote />} />;
       case 'video':
@@ -74,14 +77,14 @@ export const ReplyMessageBubble = (props: ReplyMessageBubbleProps) => {
             )}>
             Replying to {replyMessageItem?.sender?.name}
           </Animated.Text>
-          {hasAttachments ? (
+          {hasAttachments && firstAttachment ? (
             <Animated.View style={tailwind.style('py-[3px] flex flex-row items-center')}>
               {renderAttachmentSection()}
               <Animated.Text
                 style={tailwind.style(
                   'text-[14px] font-inter-normal-20 leading-[19.6px] tracking-[0.16px] text-gray-950 capitalize pl-1.5',
                 )}>
-                {replyMessageItem?.attachments[0].fileType}
+                {firstAttachment.fileType}
               </Animated.Text>
             </Animated.View>
           ) : null}

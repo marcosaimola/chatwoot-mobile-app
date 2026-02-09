@@ -31,12 +31,17 @@ import type {
   SearchConversationsAPIResponse,
   CreateConversationFromPhonePayload,
   CreateConversationFromPhoneResponse,
+  CreateConversationForContactPayload,
+  CreateConversationForContactResponse,
 } from './conversationTypes';
 import { AxiosError } from 'axios';
 import { MESSAGE_STATUS } from '@/constants';
 import { buildCreatePayload, createPendingMessage } from '@/utils/messageUtils';
 import { transformMessage } from '@/utils/camelCaseKeys';
 import { Platform } from 'react-native';
+import type { RootState } from '@/store';
+import { selectConversationById } from './conversationSelectors';
+import { selectUserId } from '@/store/auth/authSelectors';
 
 export const conversationActions = {
   fetchConversations: createAsyncThunk<ConversationListResponse, ConversationPayload>(
@@ -83,7 +88,7 @@ export const conversationActions = {
   ),
   sendMessage: createAsyncThunk<SendMessageAPIResponse, SendMessagePayload>(
     'conversations/sendMessage',
-    async (sendMessagePayload, { dispatch, rejectWithValue }) => {
+    async (sendMessagePayload, { dispatch, getState, rejectWithValue }) => {
       const { conversationId } = sendMessagePayload;
       const pendingMessage = createPendingMessage(sendMessagePayload);
 
@@ -120,6 +125,29 @@ export const conversationActions = {
             status: MESSAGE_STATUS.SENT,
           },
         });
+
+        // Auto-assign conversation to current user if not already assigned to them
+        const state = getState() as RootState;
+        const currentUserId = selectUserId(state);
+        const conversation = selectConversationById(state, conversationId);
+
+        if (currentUserId && conversation) {
+          const assigneeId = conversation.meta?.assignee?.id;
+
+          // If conversation is unassigned or assigned to someone else, assign to current user
+          if (!assigneeId || assigneeId !== currentUserId) {
+            try {
+              await ConversationService.assignConversation({
+                conversationId,
+                assigneeId: currentUserId,
+              });
+            } catch (assignError) {
+              // Silently fail assignment - message was sent successfully
+              console.warn('Auto-assignment failed:', assignError);
+            }
+          }
+        }
+
         return response;
       } catch (error) {
         const { response } = error as AxiosError<ApiErrorResponse>;
@@ -305,6 +333,39 @@ export const conversationActions = {
         );
 
         // Add the new conversation to the store
+        dispatch({
+          type: 'conversation/addConversation',
+          payload: result.conversation,
+        });
+
+        return {
+          conversationId: result.conversation.id,
+        };
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiErrorResponse>;
+        if (axiosError.response) {
+          return rejectWithValue(axiosError.response.data);
+        }
+        throw error;
+      }
+    },
+  ),
+  createConversationForContact: createAsyncThunk<
+    CreateConversationForContactResponse,
+    CreateConversationForContactPayload
+  >(
+    'conversations/createConversationForContact',
+    async (payload, { dispatch, rejectWithValue }) => {
+      try {
+        const { phoneNumber, inboxId, contactId } = payload;
+        const sourceId = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
+
+        const result = await ContactConversationService.createConversation({
+          inbox_id: inboxId,
+          source_id: sourceId,
+          contact_id: contactId,
+        });
+
         dispatch({
           type: 'conversation/addConversation',
           payload: result.conversation,

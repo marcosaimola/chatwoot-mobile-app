@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text } from 'react-native';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
-import { ImageBackground } from 'expo-image';
+import { Image, ImageBackground } from 'expo-image';
+import { Galeria } from '@nandorojo/galeria';
 import { tailwind } from '@/theme';
 import { Channel, Message, MessageStatus, UnixTimestamp } from '@/types';
 import { unixTimestampToReadableTime } from '@/utils';
@@ -9,6 +10,31 @@ import { Avatar } from '@/components-next/common';
 import { MenuOption, MessageMenu } from '../message-menu';
 import { MESSAGE_TYPES } from '@/constants';
 import { DeliveryStatus } from './DeliveryStatus';
+
+type ImageContainerProps = {
+  imageSrc: string;
+  width?: number;
+  height?: number;
+};
+
+export const ImageContainer = (props: ImageContainerProps) => {
+  const { imageSrc, height = 215, width = 300 } = props;
+
+  return (
+    <Galeria urls={[imageSrc]}>
+      <Galeria.Image>
+        <Image
+          source={{ uri: imageSrc }}
+          contentFit="cover"
+          style={[
+            tailwind.style('bg-gray-100 overflow-hidden rounded-xl'),
+            { width: width, height: height },
+          ]}
+        />
+      </Galeria.Image>
+    </Galeria>
+  );
+};
 
 type ImageCellProps = {
   imageSrc: string;
@@ -22,6 +48,8 @@ type ImageCellProps = {
   sourceId?: string | null;
   menuOptions: MenuOption[];
   errorMessage?: string;
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 export const ImageCell = (props: ImageCellProps) => {
@@ -36,6 +64,8 @@ export const ImageCell = (props: ImageCellProps) => {
     status,
     menuOptions,
     errorMessage,
+    onEmojiReply,
+    showEmojiRow,
   } = props;
 
   const isIncoming = messageType === MESSAGE_TYPES.INCOMING;
@@ -58,7 +88,7 @@ export const ImageCell = (props: ImageCellProps) => {
             <Avatar size={'md'} src={{ uri: sender?.thumbnail }} name={sender?.name} />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <Animated.View
             style={[
               tailwind.style(

@@ -25,6 +25,8 @@ type LocationCellProps = {
   errorMessage?: string;
   latitude: number | 0;
   longitude: number | 0;
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 export const LocationCell: React.FC<LocationCellProps> = props => {
@@ -41,6 +43,8 @@ export const LocationCell: React.FC<LocationCellProps> = props => {
     errorMessage,
     latitude,
     longitude,
+    onEmojiReply,
+    showEmojiRow,
   } = props;
   const isIncoming = messageType === MESSAGE_TYPES.INCOMING;
   const isOutgoing = messageType === MESSAGE_TYPES.OUTGOING;
@@ -65,7 +69,7 @@ export const LocationCell: React.FC<LocationCellProps> = props => {
             <Avatar size={'md'} src={{ uri: sender?.thumbnail }} name={sender?.name} />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <Animated.View
             style={[
               tailwind.style(

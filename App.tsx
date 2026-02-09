@@ -1,7 +1,6 @@
-import * as Sentry from '@sentry/react-native';
-
 import Constants from 'expo-constants';
 import App from './src/app';
+import crashlyticsService from './src/services/CrashlyticsService';
 
 // TODO: It is a temporary fix to fix the reanimated logger issue
 // Ref: https://github.com/gorhom/react-native-bottom-sheet/issues/1983
@@ -11,14 +10,16 @@ import './reanimatedConfig';
 
 const isStorybookEnabled = Constants.expoConfig?.extra?.eas?.storybookEnabled;
 
-// Temporarily disabled Sentry initialization to fix TestFlight crashes
-// if (!__DEV__) {
-//   Sentry.init({
-//     dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-//     tracesSampleRate: 1.0,
-//     attachScreenshot: true,
-//   });
-// }
+// Initialize Firebase Crashlytics for error tracking and crash reporting
+// Replaces Sentry which was causing TestFlight crashes
+if (!__DEV__) {
+  crashlyticsService.initialize().catch((error) => {
+    console.error('Failed to initialize Crashlytics:', error);
+  });
+} else {
+  // In development, initialize but with logging
+  crashlyticsService.initialize();
+}
 
 if (__DEV__) {
   // eslint-disable-next-line
@@ -30,11 +31,6 @@ export default (() => {
     // eslint-disable-next-line
     return require('./.storybook').default;
   }
-
-  // Temporarily disabled Sentry wrapping to fix TestFlight crashes
-  // if (!__DEV__) {
-  //   return Sentry.wrap(App);
-  // }
 
   console.log('Loading App');
   return App;

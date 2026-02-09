@@ -9,7 +9,7 @@ import { LinkIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import i18n from '@/i18n';
 import { useAppSelector, useAppDispatch } from '@/hooks';
-import { selectBaseUrl } from '@/store/settings/settingsSelectors';
+import { selectBaseUrl, selectIsSettingUrl } from '@/store/settings/settingsSelectors';
 import { resetSettings } from '@/store/settings/settingsSlice';
 import { settingsActions } from '@/store/settings/settingsActions';
 
@@ -19,6 +19,7 @@ type FormData = {
 
 const ConfigURLScreen = () => {
   const baseUrl = useAppSelector(selectBaseUrl);
+  const isSettingUrl = useAppSelector(selectIsSettingUrl);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
 
@@ -108,7 +109,15 @@ const ConfigURLScreen = () => {
             name="url"
           />
 
-          <Button text={i18n.t('CONFIGURE_URL.CONNECT')} handlePress={handleSubmit(onSubmit)} />
+          <Button
+            text={
+              isSettingUrl
+                ? i18n.t('CONFIGURE_URL.CONNECT_LOADING')
+                : i18n.t('CONFIGURE_URL.CONNECT')
+            }
+            handlePress={handleSubmit(onSubmit)}
+            disabled={isSettingUrl}
+          />
         </Animated.ScrollView>
       </View>
     </SafeAreaView>

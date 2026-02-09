@@ -16,6 +16,8 @@ export type TextMessageCellProps = {
   item: Message;
   channel?: Channel;
   menuOptions: MenuOption[];
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 export const TextMessageCell = (props: TextMessageCellProps) => {
@@ -32,7 +34,7 @@ export const TextMessageCell = (props: TextMessageCellProps) => {
     createdAt,
     contentAttributes,
   } = messageItem;
-  const { channel } = props;
+  const { channel, onEmojiReply, showEmojiRow } = props;
   const isIncoming = messageItem.messageType === MESSAGE_TYPES.INCOMING;
   const isOutgoing = messageItem.messageType === MESSAGE_TYPES.OUTGOING;
   const isActivity = messageItem.messageType === MESSAGE_TYPES.ACTIVITY;
@@ -69,7 +71,7 @@ export const TextMessageCell = (props: TextMessageCellProps) => {
             />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <React.Fragment>
             {isPrivate ? (
               <React.Fragment>

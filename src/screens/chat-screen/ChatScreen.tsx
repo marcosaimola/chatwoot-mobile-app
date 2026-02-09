@@ -7,8 +7,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ChatHeaderContainer } from './components';
 import { ConversationActions } from './conversation-actions';
 
-import { ReplyBoxContainer } from './components';
+import { ReplyBoxContainer, ForwardBarWrapper } from './components';
 import { MessagesListContainer } from './components';
+import { selectIsForwardMode, clearForwardState } from '@/store/conversation/forwardMessageSlice';
 import { ChatWindowProvider, useChatWindowContext, useRefsContext, useThemeContext } from '@/context';
 import { TabBarExcludedScreenParamList } from '@/navigation/tabs/AppTabs';
 import { tailwind } from '@/theme';
@@ -36,11 +37,13 @@ import { macroActions } from '@/store/macro/macroActions';
 import { LightBoxProvider } from '@alantoa/lightbox';
 
 export const ChatWindow = (props: ChatScreenProps) => {
+  const isForwardMode = useAppSelector(selectIsForwardMode);
+
   return (
     <Animated.View style={tailwind.style('flex-1')}>
       <MessagesListContainer />
-      <ReplyBoxContainer />
-      <MacrosList conversationId={props.route.params.conversationId} />
+      {isForwardMode ? <ForwardBarWrapper /> : <ReplyBoxContainer />}
+      {!isForwardMode && <MacrosList conversationId={props.route.params.conversationId} />}
     </Animated.View>
   );
 };
@@ -73,7 +76,9 @@ const ChatScreenWrapper = (props: ChatScreenProps) => {
   const { conversationId } = useChatWindowContext();
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
 
-  const { meta: { sender: { name = '', thumbnail = '' } = {} } = {} } = conversation || {};
+  const sender = conversation?.meta?.sender;
+  const name = sender?.name ?? '';
+  const thumbnail = sender?.thumbnail ?? '';
   const { inboxId } = conversation || {};
 
   useEffect(() => {
@@ -83,6 +88,14 @@ const ChatScreenWrapper = (props: ChatScreenProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inboxId]);
+
+  // Clear forward mode when leaving the screen
+  useEffect(() => {
+    return () => {
+      dispatch(clearForwardState());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <React.Fragment>

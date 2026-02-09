@@ -127,6 +127,8 @@ type FileCellProps = {
   sourceId?: string | null;
   menuOptions: MenuOption[];
   errorMessage?: string;
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 export const FileCell = (props: FileCellProps) => {
@@ -142,6 +144,8 @@ export const FileCell = (props: FileCellProps) => {
     channel,
     sourceId,
     errorMessage,
+    onEmojiReply,
+    showEmojiRow,
   } = props;
 
   const isIncoming = messageType === MESSAGE_TYPES.INCOMING;
@@ -164,7 +168,7 @@ export const FileCell = (props: FileCellProps) => {
             <Avatar size={'md'} src={{ uri: sender?.thumbnail }} name={sender?.name} />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <Animated.View
             style={[
               tailwind.style(

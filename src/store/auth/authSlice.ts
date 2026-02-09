@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { authActions } from './authActions';
 import { User } from '@/types/User';
 import { AuthHeaders } from './authTypes';
+import crashlyticsService from '@/services/CrashlyticsService';
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -32,6 +33,9 @@ export const authSlice = createSlice({
   reducers: {
     logout: state => {
       // in rootReducer, there is an action to CLEAR the complete Redux Store's state
+      // Clear Crashlytics user identification on logout
+      crashlyticsService.setUserId('');
+      crashlyticsService.log('User logged out');
     },
     resetAuth: state => {
       state.user = null;
@@ -115,6 +119,18 @@ export const authSlice = createSlice({
           state.uiFlags.isLoggingIn = false;
           state.error = null;
           state.mfaToken = null;
+
+          // Set Crashlytics user identification for crash reporting
+          const user = action.payload.user;
+          if (user) {
+            crashlyticsService.setUserId(user.id.toString());
+            crashlyticsService.setAttributes({
+              account_id: user.account_id?.toString() || 'unknown',
+              email: user.email || 'unknown',
+              name: user.name || 'unknown',
+            });
+            crashlyticsService.log(`User logged in: ${user.email}`);
+          }
         }
       })
       .addCase(authActions.getProfile.fulfilled, (state, action) => {
@@ -173,6 +189,12 @@ export const authSlice = createSlice({
       .addCase(authActions.loginWithSso.rejected, (state, action) => {
         state.uiFlags.isLoggingIn = false;
         state.error = action.payload?.errors[0] ?? null;
+      })
+      .addCase(authActions.updateProfile.fulfilled, (state, action) => {
+        state.user = {
+          ...state.user,
+          ...action.payload,
+        } as User;
       });
   },
 });

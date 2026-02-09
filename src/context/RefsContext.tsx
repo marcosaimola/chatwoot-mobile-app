@@ -22,6 +22,7 @@ interface RefsContextType {
   deliveryStatusSheetRef: React.RefObject<BottomSheetModal>;
   updateParticipantSheetRef: React.RefObject<BottomSheetModal>;
   whatsappTemplatesSheetRef: React.RefObject<BottomSheetModal>;
+  profileEditSheetRef: React.RefObject<BottomSheetModal>;
 }
 
 const RefsContext = React.createContext<RefsContextType | undefined>(undefined);
@@ -55,6 +56,7 @@ const RefsProvider: React.FC<Partial<RefsContextType & { children: React.ReactNo
   const deliveryStatusSheetRef = useRef<BottomSheetModal>(null);
   const updateParticipantSheetRef = useRef<BottomSheetModal>(null);
   const whatsappTemplatesSheetRef = useRef<BottomSheetModal>(null);
+  const profileEditSheetRef = useRef<BottomSheetModal>(null);
 
   const { children } = props;
 
@@ -76,6 +78,7 @@ const RefsProvider: React.FC<Partial<RefsContextType & { children: React.ReactNo
     deliveryStatusSheetRef,
     updateParticipantSheetRef,
     whatsappTemplatesSheetRef,
+    profileEditSheetRef,
   };
 
   return <RefsContext.Provider value={contextRefValues}>{children}</RefsContext.Provider>;

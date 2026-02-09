@@ -50,6 +50,8 @@ type AudioCellProps = {
   sourceId?: string | null;
   menuOptions: MenuOption[];
   errorMessage?: string;
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 type AudioPlayerProps = Pick<AudioCellProps, 'audioSrc'> & {
@@ -196,6 +198,8 @@ export const AudioCell: React.FC<AudioCellProps> = props => {
     sourceId,
     menuOptions,
     errorMessage,
+    onEmojiReply,
+    showEmojiRow,
   } = props;
   const isIncoming = messageType === MESSAGE_TYPES.INCOMING;
   const isOutgoing = messageType === MESSAGE_TYPES.OUTGOING;
@@ -217,7 +221,7 @@ export const AudioCell: React.FC<AudioCellProps> = props => {
             <Avatar size={'md'} src={{ uri: sender?.thumbnail }} name={sender?.name} />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <Animated.View
             style={[
               tailwind.style(

@@ -147,7 +147,7 @@ const InboxList = () => {
         'flex-1 items-center justify-center',
         `pb-[${TAB_BAR_HEIGHT}px]`,
       )}>
-      <EmptyStateIcon />
+      <EmptyStateIcon stroke={isDark ? '#6B7280' : '#9CA3AF'} />
       <Animated.Text style={tailwind.style(`pt-6 text-md tracking-[0.32px] ${colors.textSecondary}`)}>
         {i18n.t('NOTIFICATION.EMPTY')}
       </Animated.Text>

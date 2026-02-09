@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, ViewStyle } from 'react-native';
 import Animated, { AnimatedStyle } from 'react-native-reanimated';
 import { Icon } from '@/components-next/common';
-import { CheckedIcon, CloseIcon, FilterIcon, SearchIcon, UncheckedIcon } from '@/svg-icons';
+import { CheckedIcon, CloseIcon, FilterIcon, UncheckedIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useThemeContext } from '@/context';
 import i18n from '@/i18n';
@@ -57,21 +57,8 @@ const HeaderTitle = () => {
 
 const LeftSection = ({ currentState, isSelectedAll, onLeftIconPress }: LeftSectionProps) => {
   const { entering, exiting } = useHeaderAnimation();
-  const { isDark } = useThemeContext();
 
   if (currentState === 'Filter' || currentState === 'Search') return null;
-
-  if (currentState === 'none') {
-    return (
-      <Animated.View style={tailwind.style('flex-1 items-start')}>
-        <Pressable onPress={onLeftIconPress} hitSlop={16}>
-          <Animated.View exiting={exiting} entering={entering}>
-            <Icon size={24} icon={<SearchIcon stroke={isDark ? '#9CA3AF' : '#858585'} />} />
-          </Animated.View>
-        </Pressable>
-      </Animated.View>
-    );
-  }
 
   if (currentState === 'Select') {
     return (
@@ -94,7 +81,8 @@ const LeftSection = ({ currentState, isSelectedAll, onLeftIconPress }: LeftSecti
     );
   }
 
-  return null;
+  // Empty placeholder to maintain 3-column balanced layout
+  return <Animated.View style={tailwind.style('flex-1')} />;
 };
 
 const FilterSection = ({

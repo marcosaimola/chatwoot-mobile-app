@@ -123,11 +123,16 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
     spacing,
     triggerOverswipeOnFlick = false,
     noOfPointers = 1,
-    leftElementBgColor = 'bg-blue-800',
-    rightElementBgColor = 'bg-green-800',
+    leftElementBgColor: leftElementBgColorProp,
+    rightElementBgColor: rightElementBgColorProp,
   } = props;
 
   const { isDark } = useThemeContext();
+
+  const leftElementBgColor =
+    leftElementBgColorProp ?? (isDark ? 'bg-blueDark-600' : 'bg-blue-800');
+  const rightElementBgColor =
+    rightElementBgColorProp ?? (isDark ? 'bg-greenDark-600' : 'bg-green-800');
   const hapticWarning = useHaptic('success');
   const hapticSelection = useHaptic();
 
@@ -457,7 +462,12 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
           tailwind.style('flex justify-center items-start', leftElementBgColor),
           leftStyle,
         ]}>
-        <AnimatedNativeView style={[tailwind.style(`pl-[${spacing}px]`), leftTranslation]}>
+        <AnimatedNativeView
+          style={[
+            tailwind.style('items-center justify-center'),
+            { width: SNAP_POINT },
+            leftTranslation,
+          ]}>
           {leftElement}
         </AnimatedNativeView>
       </AnimatedPressable>
@@ -468,7 +478,12 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
           tailwind.style('flex justify-center items-end', rightElementBgColor),
           rightStyle,
         ]}>
-        <AnimatedNativeView style={[tailwind.style(`pr-[${spacing}px]`), rightTranslation]}>
+        <AnimatedNativeView
+          style={[
+            tailwind.style('items-center justify-center'),
+            { width: SNAP_POINT },
+            rightTranslation,
+          ]}>
           {rightElement}
         </AnimatedNativeView>
       </AnimatedPressable>

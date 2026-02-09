@@ -28,6 +28,8 @@ type ComposedCellProps = {
   messageData: Message;
   channel?: Channel;
   menuOptions: MenuOption[];
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 const isMessageCreatedAtLessThan24HoursOld = (messageTimestamp: number) => {
@@ -50,7 +52,7 @@ export const ComposedCell = (props: ComposedCellProps) => {
     createdAt,
     contentAttributes,
   } = props.messageData as Message;
-  const { channel, menuOptions } = props;
+  const { channel, menuOptions, onEmojiReply, showEmojiRow } = props;
   const { conversationId } = useChatWindowContext();
 
   const messages = useAppSelector(state => getMessagesByConversationId(state, { conversationId }));
@@ -107,7 +109,7 @@ export const ComposedCell = (props: ComposedCellProps) => {
           </Animated.View>
         ) : null}
 
-        <MessageMenu menuOptions={menuOptions}>
+        <MessageMenu menuOptions={menuOptions} onEmojiReply={onEmojiReply} showEmojiRow={showEmojiRow}>
           <Animated.View
             style={[
               tailwind.style(

@@ -2,6 +2,26 @@
 
 Este guia mostra como gerar um Android App Bundle (AAB) assinado para publicação na Google Play Store usando o `upload-keystore.jks`.
 
+## 🎯 Método Rápido: Usando Java do Android Studio
+
+Se você tem o Android Studio instalado e quer usar o Java que vem com ele:
+
+```bash
+./build-aab-with-android-studio-java.sh
+```
+
+Ou via npm:
+
+```bash
+npm run build:android:aab
+```
+
+Este script:
+- ✅ Detecta automaticamente o Java do Android Studio
+- ✅ Configura o JAVA_HOME corretamente
+- ✅ Executa o build usando o Gradle
+- ✅ Gera o AAB em `android/app/build/outputs/bundle/release/app-release.aab`
+
 ---
 
 ## 📋 Pré-requisitos
@@ -178,6 +198,20 @@ npm run generate:soft
 
 ### Passo 4: Gerar o AAB Localmente
 
+**Opção A - Usando Java do Android Studio (Recomendado):**
+
+```bash
+./build-aab-with-android-studio-java.sh
+```
+
+Este script:
+- ✅ Detecta automaticamente o Java do Android Studio
+- ✅ Configura o JAVA_HOME corretamente
+- ✅ Executa o build usando o Gradle
+- ✅ Gera o AAB em `android/app/build/outputs/bundle/release/app-release.aab`
+
+**Opção B - Usando EAS Build Local:**
+
 ```bash
 npm run build:android:local
 ```
@@ -186,6 +220,15 @@ Ou diretamente:
 
 ```bash
 dotenv -c -- eas build -p android --profile production --local
+```
+
+**Opção C - Usando Gradle diretamente:**
+
+Se você já configurou o JAVA_HOME para o Java do Android Studio:
+
+```bash
+cd android
+./gradlew bundleRelease
 ```
 
 ### Passo 5: Aguardar o Build

@@ -6,6 +6,7 @@ import { tailwind } from '@/theme';
 import { useHaptic } from '@/utils';
 import { Icon } from '@/components-next/common/icon';
 import { Account } from '@/types';
+import { useThemeContext } from '@/context';
 
 type AccountCellProps = {
   item: Account;
@@ -23,6 +24,7 @@ const AccountCell = ({
   isLastItem,
 }: AccountCellProps) => {
   const hapticSelection = useHaptic();
+  const { colors } = useThemeContext();
 
   const handlePress = () => {
     hapticSelection?.();
@@ -37,18 +39,18 @@ const AccountCell = ({
         <Animated.View
           style={tailwind.style(
             'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-            !isLastItem && 'border-b-[1px] border-blackA-A3',
+            !isLastItem && `border-b-[1px] ${colors.borderPrimary}`,
           )}>
           <View>
             <Text
               style={tailwind.style(
-                'text-base capitalize text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px]',
+                `text-base capitalize font-inter-420-20 leading-[21px] tracking-[0.16px] ${colors.textPrimary}`,
               )}>
               {item.name}
             </Text>
             <Text
               style={tailwind.style(
-                'text-sm text-gray-900 font-inter-420-20 leading-[18px] tracking-[0.16px] capitalize',
+                `text-sm font-inter-420-20 leading-[18px] tracking-[0.16px] capitalize ${colors.textSecondary}`,
               )}>
               {item.role}
             </Text>

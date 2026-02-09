@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Pressable, Text } from 'react-native';
+import { ActivityIndicator, TextInput } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -35,7 +35,8 @@ import {
 import { conversationActions } from '@/store/conversation/conversationActions';
 import { ConversationFilterBar } from '../conversation-filters';
 import { ConversationHeaderPresenter } from './ConversationHeaderPresenter';
-import { SearchBar } from '@/components-next';
+import { Icon } from '@/components-next/common';
+import { SearchIcon } from '@/svg-icons';
 
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import i18n from '@/i18n';
@@ -59,7 +60,7 @@ export const ConversationHeader = () => {
   const searchTerm = useAppSelector(selectSearchTerm) || '';
   const apiSearchConversationIds = useAppSelector(selectApiSearchConversationIds) || [];
   const isSearchingAPI = useAppSelector(selectIsSearchingAPI) || false;
-  const { isDark } = useThemeContext();
+  const { colors, isDark } = useThemeContext();
 
   const filters = useAppSelector(selectFilters);
   const dispatch = useAppDispatch();
@@ -142,23 +143,13 @@ export const ConversationHeader = () => {
     [dispatch],
   );
 
-  const handleCloseSearch = useCallback(() => {
-    dispatch(setSearchTerm(''));
-    dispatch(clearApiSearchResults());
-    dispatch(setCurrentState('none'));
-  }, [dispatch]);
-
   const handleLeftIconPress = () => {
-    if (currentState === 'Search') {
-      handleCloseSearch();
-    } else if (currentState === 'Select') {
+    if (currentState === 'Select') {
       if (isSelectedAll) {
         dispatch(clearSelection());
       } else {
         dispatch(selectAll(allConversations));
       }
-    } else {
-      dispatch(setCurrentState('Search'));
     }
   };
 
@@ -185,37 +176,35 @@ export const ConversationHeader = () => {
 
   return (
     <Animated.View style={[tailwind.style('border-b-[1px]'), headerBorderAnimation]}>
-      {currentState === 'Search' ? (
-        <Animated.View style={tailwind.style('flex-row items-center px-3 pb-3 pt-2')}>
-          <Animated.View style={tailwind.style('flex-1')}>
-            <SearchBar
-              value={searchTerm}
-              onChangeText={handleSearchChange}
-              placeholder={i18n.t('CONVERSATION.SEARCH.PLACEHOLDER')}
-              isLoading={isSearchingAPI}
-              autoFocus
-            />
-          </Animated.View>
-          <Pressable onPress={handleCloseSearch} hitSlop={8} style={tailwind.style('pl-3')}>
-            <Text
-              style={tailwind.style(
-                `text-md font-inter-medium-24 leading-[17px] tracking-[0.24px] text-blue-800`,
-              )}>
-              {i18n.t('CONVERSATION.SEARCH.CANCEL')}
-            </Text>
-          </Pressable>
-        </Animated.View>
-      ) : (
-        <ConversationHeaderPresenter
-          currentState={currentState}
-          isSelectedAll={isSelectedAll}
-          filtersAppliedCount={filtersAppliedCount}
-          onLeftIconPress={handleLeftIconPress}
-          onRightIconPress={handleRightIconPress}
-          onClearFilter={handleClearFilter}
-        />
-      )}
+      <ConversationHeaderPresenter
+        currentState={currentState}
+        isSelectedAll={isSelectedAll}
+        filtersAppliedCount={filtersAppliedCount}
+        onLeftIconPress={handleLeftIconPress}
+        onRightIconPress={handleRightIconPress}
+        onClearFilter={handleClearFilter}
+      />
       {currentState === 'Filter' ? <ConversationFilterBar /> : null}
+      <Animated.View style={tailwind.style('px-4 pb-3')}>
+        <Animated.View
+          style={tailwind.style(
+            `flex flex-row items-center px-3 py-2 rounded-lg ${colors.bgSecondary}`,
+          )}>
+          <Icon icon={<SearchIcon />} size={20} />
+          <TextInput
+            style={tailwind.style(
+              `flex-1 ml-2 text-md font-inter-420-20 ${colors.textPrimary}`,
+            )}
+            placeholder={i18n.t('CONVERSATION.SEARCH.PLACEHOLDER')}
+            placeholderTextColor={tailwind.color(colors.textSecondary)}
+            value={searchTerm}
+            onChangeText={handleSearchChange}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {isSearchingAPI ? <ActivityIndicator size="small" /> : null}
+        </Animated.View>
+      </Animated.View>
     </Animated.View>
   );
 };

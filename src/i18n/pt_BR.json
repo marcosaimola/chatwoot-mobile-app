@@ -18,6 +18,7 @@
     "URL_ERROR": "Insira uma URL válida",
     "URL_REQUIRED": "URL é obrigatório",
     "CONNECT": "Conectar",
+    "CONNECT_LOADING": "Conectando...",
     "CHANGE_LANGUAGE": "Alterar idioma",
     "ERROR": "Url de instalação inválida"
   },
@@ -40,7 +41,7 @@
     "CHANGE_LANGUAGE": "Alterar idioma",
     "TERMS": "Termos & Condições",
     "CHANGE_URL": "Alterar URL",
-    "DISCLAIMER_TEXT": "ZapiCRM é exclusivo para clientes comerciais registrados. Para criar uma conta, visite "
+    "DISCLAIMER_TEXT": "AppConecta é exclusivo para clientes comerciais registrados. Para criar uma conta, visite "
   },
   "FORGOT_PASSWORD": {
     "EMAIL": "Por favor, digite seu e-mail",
@@ -222,6 +223,7 @@
     "LONG_PRESS_ACTIONS": {
       "COPY": "Copiar",
       "REPLY": "Responder",
+      "FORWARD": "Encaminhar",
       "DELETE_MESSAGE": "Apagar mensagem"
     },
     "EMAIL_HEADER": {
@@ -364,8 +366,18 @@
     "EMAIL": "e-mail",
     "PHONE_NUMBER": "Número de Telefone",
     "CALL": "Chamada",
+    "CHAT": "Conversar",
     "CONTACT_ATTRIBUTES": "Atributos do contato",
-    "VALUE_UNAVAILABLE": "Indisponível"
+    "VALUE_UNAVAILABLE": "Indisponível",
+    "TAB_EDIT": "Dados",
+    "TAB_CONVERSATIONS": "Conversas",
+    "TAB_NOTES": "Notas",
+    "NO_CONVERSATIONS": "Nenhuma conversa encontrada",
+    "NO_NOTES": "Nenhuma nota encontrada",
+    "ADD_NOTE_PLACEHOLDER": "Adicionar uma nota...",
+    "ADD_NOTE": "Adicionar",
+    "NOTE_CREATED": "Nota criada com sucesso",
+    "NOTE_ERROR": "Erro ao criar nota"
   },
   "CONTACT_EDIT": {
     "TITLE": "Editar Contato",
@@ -409,7 +421,27 @@
     "ADD_PARTICIPANT": "Adicionar Participante"
   },
   "CONTACT_ATTRIBUTES": {
-    "TITLE": "Atributos do contato"
+    "TITLE": "Atributos do contato",
+    "SECTION_TITLE": "Atributos do Contato",
+    "CHOOSE_OPTION": "Escolha uma opção",
+    "DATE_PLACEHOLDER": "DD/MM/AAAA",
+    "DATE_INVALID": "Data inválida. Use o formato DD/MM/AAAA",
+    "URL_INVALID": "URL deve começar com http:// ou https://",
+    "DELETE_SUCCESS": "Atributo removido com sucesso",
+    "DELETE_ERROR": "Erro ao remover atributo"
+  },
+  "CONTACTS": {
+    "SORT": {
+      "SORT_BY": "Classificar por",
+      "ORDER": "Ordenação",
+      "NAME": "Nome",
+      "EMAIL": "Email",
+      "CITY": "Cidade",
+      "LAST_ACTIVITY": "Última atividade",
+      "CREATED_AT": "Criado em",
+      "ASCENDING": "Crescente",
+      "DESCENDING": "Decrescente"
+    }
   },
   "CONVERSATION_ACTION": {
     "TITLE": "Ações"
@@ -443,19 +475,19 @@
     "CHANGE_TEAMS": "Time alterado"
   },
   "ERRORS": {
-    "COMMON_ERROR": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde",
+    "COMMON_ERROR": "Não foi possível conectar ao servidor, por favor tente novamente mais tarde",
     "OfFLINE": "Você precisa se conectar ao Wi-Fi ou a uma rede celular para ficar online novamente",
     "CANNOT_FETCH": "Ocorreu um erro ao buscar as informações, por favor, tente novamente",
     "AUTH": "Nome de usuário / senha incorreta. Por favor, tente novamente",
-    "NO_ACCOUNTS_MESSAGE": "Você não tem acesso a nenhuma conta no chatwoot"
+    "NO_ACCOUNTS_MESSAGE": "Você não tem acesso a nenhuma conta no app"
   },
   "SUCCESS": {
     "AUTH": "Acesso bem sucedido"
   },
   "SERVER_UPGRADE": {
     "TITLE": "Atualização do servidor necessária",
-    "WARNING_FOR_AGENT": "Parece que você está usando um servidor Chatwoot não suportado para o seu aplicativo móvel. Por favor, entre em contato com seu administrador para atualizar o servidor Chatwoot.",
-    "WARNING_FOR_ADMIN": "Parece que você está usando um servidor Chatwoot não suportado para o seu aplicativo móvel. Fazer o upgrade para a versão do servidor %{minimumVersion} ou posterior é necessário."
+    "WARNING_FOR_AGENT": "Parece que você está usando um servidor não suportado para o seu aplicativo móvel. Por favor, entre em contato com seu administrador para atualizar o servidor.",
+    "WARNING_FOR_ADMIN": "Parece que você está usando um servidor não suportado para o seu aplicativo móvel. Fazer o upgrade para a versão do servidor %{minimumVersion} ou posterior é necessário."
   },
   "EXIT": {
     "TITLE": "Sair",
@@ -578,5 +610,51 @@
     "CANCEL": "Cancelar",
     "SUCCESS": "Conversa criada com sucesso",
     "ERROR": "Erro ao criar conversa"
+  },
+  "ATTACHMENT_MENU": {
+    "CAMERA": "Câmera",
+    "PHOTOS": "Fotos",
+    "ATTACH_FILE": "Arquivo",
+    "MACROS": "Macros",
+    "ASSIGN": "Atribuir"
+  },
+  "PROFILE_EDIT": {
+    "TITLE": "Editar Perfil",
+    "NAME": "Nome",
+    "NAME_PLACEHOLDER": "Digite seu nome",
+    "DISPLAY_NAME": "Nome de Exibição",
+    "DISPLAY_NAME_PLACEHOLDER": "Digite o nome de exibição",
+    "EMAIL": "E-mail",
+    "EMAIL_PLACEHOLDER": "Digite seu e-mail",
+    "CAMERA": "Câmera",
+    "PHOTOS": "Fotos",
+    "SAVE": "Salvar",
+    "SAVING": "Salvando...",
+    "SUCCESS": "Perfil atualizado com sucesso",
+    "ERROR": "Erro ao atualizar perfil",
+    "NAME_REQUIRED": "Nome é obrigatório",
+    "EMAIL_REQUIRED": "E-mail é obrigatório",
+    "PERMISSION_DENIED": "Permissão Negada",
+    "PHOTO_PERMISSION_MESSAGE": "A permissão para acessar a galeria de fotos foi negada. Por favor, habilite nas configurações do dispositivo.",
+    "CAMERA_PERMISSION_MESSAGE": "A permissão para acessar a câmera foi negada. Por favor, habilite nas configurações do dispositivo.",
+    "OPEN_SETTINGS": "Abrir Configurações"
+  },
+  "FORWARD": {
+    "SELECTED_COUNT": "{{count}} selecionada(s)",
+    "SEND_TO": "Enviar para",
+    "CANCEL": "Cancelar",
+    "SEARCH_CONTACTS": "Pesquisar contatos...",
+    "ADD_MESSAGE": "Adicione uma mensagem...",
+    "FORWARD_BUTTON": "Encaminhar",
+    "SELECT_INBOX": "Selecione a caixa de entrada",
+    "SUCCESS": "Mensagens encaminhadas com sucesso",
+    "ERROR": "Erro ao encaminhar mensagens",
+    "NO_CONTACTS_SELECTED": "Selecione ao menos um contato",
+    "NO_MESSAGES_SELECTED": "Selecione ao menos uma mensagem",
+    "FREQUENT_CONTACTS": "Contatos frequentes",
+    "RECENT_CONTACTS": "Recentes",
+    "ALL_CONTACTS": "Todos os contatos",
+    "RECENT_CONVERSATIONS": "Conversas recentes",
+    "FORWARDED_MESSAGE": "Mensagem encaminhada"
   }
 }

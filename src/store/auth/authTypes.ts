@@ -68,3 +68,14 @@ export interface SsoAuthResponse {
   user: User;
   headers: AuthHeaders;
 }
+
+export interface UpdateProfilePayload {
+  name: string;
+  email: string;
+  display_name: string;
+  avatar?: {
+    uri: string;
+    type: string;
+    name: string;
+  } | null;
+}

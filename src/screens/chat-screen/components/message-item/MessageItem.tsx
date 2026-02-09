@@ -23,6 +23,7 @@ type MessageItemPresentationProps = {
   item: Message | { date: string };
   channel?: Channel;
   getMenuOptions: (message: Message) => MenuOption[];
+  getEmojiReplyHandler?: (message: Message) => ((emoji: string) => void) | undefined;
 };
 
 const DateSection = ({ item }: DateSectionProps) => {
@@ -40,7 +41,12 @@ const DateSection = ({ item }: DateSectionProps) => {
   );
 };
 
-export const MessageItem = ({ item, channel, getMenuOptions }: MessageItemPresentationProps) => {
+export const MessageItem = ({
+  item,
+  channel,
+  getMenuOptions,
+  getEmojiReplyHandler,
+}: MessageItemPresentationProps) => {
   if ('date' in item) {
     return <DateSection item={item} />;
   }
@@ -53,8 +59,19 @@ export const MessageItem = ({ item, channel, getMenuOptions }: MessageItemPresen
 
   const attachments = item.attachments;
 
+  const onEmojiReply = getEmojiReplyHandler?.(item);
+  const showEmojiRow = !!onEmojiReply;
+
   if (isEmailMessage) {
-    return <EmailMessageCell item={item} channel={channel} menuOptions={getMenuOptions(item)} />;
+    return (
+      <EmailMessageCell
+        item={item}
+        channel={channel}
+        menuOptions={getMenuOptions(item)}
+        onEmojiReply={onEmojiReply}
+        showEmojiRow={showEmojiRow}
+      />
+    );
   }
 
   // Message has only one attachment, no content and not a reply message
@@ -69,6 +86,8 @@ export const MessageItem = ({ item, channel, getMenuOptions }: MessageItemPresen
       channel,
       sourceId: item.sourceId,
       menuOptions: getMenuOptions(item),
+      onEmojiReply,
+      showEmojiRow,
     };
 
     switch (attachments[0].fileType) {
@@ -94,11 +113,27 @@ export const MessageItem = ({ item, channel, getMenuOptions }: MessageItemPresen
   }
 
   if (attachments?.length >= 1 || isReplyMessage) {
-    return <ComposedCell messageData={item} channel={channel} menuOptions={getMenuOptions(item)} />;
+    return (
+      <ComposedCell
+        messageData={item}
+        channel={channel}
+        menuOptions={getMenuOptions(item)}
+        onEmojiReply={onEmojiReply}
+        showEmojiRow={showEmojiRow}
+      />
+    );
   }
 
   if (item.content) {
-    return <TextMessageCell item={item} channel={channel} menuOptions={getMenuOptions(item)} />;
+    return (
+      <TextMessageCell
+        item={item}
+        channel={channel}
+        menuOptions={getMenuOptions(item)}
+        onEmojiReply={onEmojiReply}
+        showEmojiRow={showEmojiRow}
+      />
+    );
   }
 
   return <View />;

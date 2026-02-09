@@ -13,6 +13,7 @@ import type {
   SetActiveAccountPayload,
   SsoAuthPayload,
   SsoAuthResponse,
+  UpdateProfilePayload,
 } from './authTypes';
 import { handleApiError } from './authUtils';
 import I18n from '@/i18n';
@@ -69,5 +70,10 @@ export const authActions = {
     'auth/loginWithSso',
     AuthService.loginWithSso,
     I18n.t('ERRORS.AUTH'),
+  ),
+
+  updateProfile: createAuthThunk<ProfileResponse, UpdateProfilePayload>(
+    'auth/updateProfile',
+    AuthService.updateProfile,
   ),
 };

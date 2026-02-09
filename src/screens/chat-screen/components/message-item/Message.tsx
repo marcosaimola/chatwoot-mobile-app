@@ -1,6 +1,6 @@
 import React from 'react';
 import { Channel, Message } from '@/types';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { selectConversationById } from '@/store/conversation/conversationSelectors';
 import { useChatWindowContext, useThemeContext } from '@/context';
@@ -32,10 +32,19 @@ import {
 } from '@/constants';
 import i18n from '@/i18n';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { CopyIcon, Trash } from '@/svg-icons';
+import { CopyIcon, Trash, ReplyIcon, ForwardIcon, CheckedIcon, UncheckedIcon } from '@/svg-icons';
 import { MenuOption, MessageMenu } from '../message-menu';
+import { setQuoteMessage } from '@/store/conversation/sendMessageSlice';
+import {
+  enterForwardMode,
+  toggleMessageSelection,
+  selectIsForwardMode,
+  selectIsMessageSelected,
+} from '@/store/conversation/forwardMessageSlice';
+import { SendMessagePayload } from '@/store/conversation/conversationTypes';
+import { selectUserId, selectUserThumbnail, selectUserName } from '@/store/auth/authSelectors';
 import { tailwind } from '@/theme';
-import { Dimensions, View } from 'react-native';
+import { Dimensions, View, Pressable } from 'react-native';
 import { Avatar } from '@/components-next';
 
 // import { ImageMetadata } from '@/types';
@@ -59,6 +68,8 @@ type MessageWrapperProps = {
   getMenuOptions: (message: Message) => MenuOption[];
   variant: string;
   channel?: Channel;
+  onEmojiReply?: (emoji: string) => void;
+  showEmojiRow?: boolean;
 };
 
 const getVariantTextMap = (isDark: boolean) => ({
@@ -103,6 +114,8 @@ const MessageWrapper = ({
   getMenuOptions,
   variant,
   channel,
+  onEmojiReply,
+  showEmojiRow,
 }: MessageWrapperProps) => {
   const { isDark } = useThemeContext();
   const variantBaseMap = getVariantBaseMap(isDark);
@@ -140,7 +153,12 @@ const MessageWrapper = ({
             <Avatar size={'md'} src={avatarInfo.src} name={avatarInfo.name || ''} />
           </Animated.View>
         ) : null}
-        <MessageMenu menuOptions={getMenuOptions(item)}>
+        <MessageMenu
+          menuOptions={getMenuOptions(item)}
+          onEmojiReply={onEmojiReply}
+          showEmojiRow={showEmojiRow}
+          message={item}
+          messageVariant={variant}>
           <Animated.View
             style={[
               tailwind.style(
@@ -200,6 +218,7 @@ const MessageWrapper = ({
 export const MessageComponent = (props: MessageComponentProps) => {
   const dispatch = useAppDispatch();
   const { conversationId } = useChatWindowContext();
+  const { isDark } = useThemeContext();
   const { item, currentUserId, isEmailInbox } = props;
   const {
     messageType,
@@ -215,6 +234,18 @@ export const MessageComponent = (props: MessageComponentProps) => {
   const hapticSelection = useHaptic();
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const channel = conversation?.channel || conversation?.meta?.channel;
+  const userId = useAppSelector(selectUserId);
+  const userThumbnail = useAppSelector(selectUserThumbnail);
+  const userName = useAppSelector(selectUserName);
+
+  // Forward mode state
+  const isForwardMode = useAppSelector(selectIsForwardMode);
+  const isSelected = useAppSelector(state => selectIsMessageSelected(state, item.id));
+
+  const handleToggleSelection = () => {
+    hapticSelection?.();
+    dispatch(toggleMessageSelection(item));
+  };
 
   const variant = () => {
     if (item.private) return MESSAGE_VARIANTS.PRIVATE;
@@ -258,8 +289,46 @@ export const MessageComponent = (props: MessageComponentProps) => {
     showToast({ message: i18n.t('CONVERSATION.DELETE_MESSAGE_SUCCESS') });
   };
 
+  const handleQuoteReplyAttachment = (message: Message) => {
+    hapticSelection?.();
+    dispatch(setQuoteMessage(message));
+  };
+
+  const handleForwardMessage = (message: Message) => {
+    hapticSelection?.();
+    dispatch(enterForwardMode(message));
+  };
+
+  const handleEmojiReply = async (emoji: string, messageId: number) => {
+    hapticSelection?.();
+    const payload = {
+      conversationId,
+      message: emoji,
+      private: false,
+      sender: {
+        id: userId ?? 0,
+        thumbnail: userThumbnail ?? '',
+        name: userName ?? '',
+      },
+      contentAttributes: { inReplyTo: messageId },
+    } as SendMessagePayload;
+    await dispatch(conversationActions.sendMessage(payload));
+  };
+
+  const getEmojiReplyHandler = (message: Message) => {
+    const { messageType, private: isPrivate } = message;
+    const isDeleted = message.contentAttributes?.deleted;
+
+    // Don't show emoji row for activity messages, deleted messages, or private messages
+    if (messageType === MESSAGE_TYPES.ACTIVITY || isDeleted || isPrivate) {
+      return undefined;
+    }
+
+    return (emoji: string) => handleEmojiReply(emoji, message.id);
+  };
+
   const getMenuOptions = (message: Message): MenuOption[] => {
-    const { messageType, content, attachments } = message;
+    const { messageType, content, attachments, private: isPrivate } = message;
     const hasText = !!content;
     const hasAttachments = !!(attachments && attachments.length > 0);
     const isDeleted = message.contentAttributes?.deleted;
@@ -269,11 +338,31 @@ export const MessageComponent = (props: MessageComponentProps) => {
       return [];
     }
 
+    // Reply option - available for non-private messages
+    if (!isPrivate) {
+      menuOptions.push({
+        title: i18n.t('CONVERSATION.LONG_PRESS_ACTIONS.REPLY'),
+        icon: <ReplyIcon />,
+        handleOnPressMenuOption: () => handleQuoteReplyAttachment(message),
+        destructive: false,
+      });
+    }
+
     if (hasText) {
       menuOptions.push({
         title: i18n.t('CONVERSATION.LONG_PRESS_ACTIONS.COPY'),
         icon: <CopyIcon />,
         handleOnPressMenuOption: () => handleCopyMessage(content),
+        destructive: false,
+      });
+    }
+
+    // Forward option - available for non-private messages with content
+    if (!isPrivate && (hasText || hasAttachments)) {
+      menuOptions.push({
+        title: i18n.t('CONVERSATION.LONG_PRESS_ACTIONS.FORWARD'),
+        icon: <ForwardIcon />,
+        handleOnPressMenuOption: () => handleForwardMessage(message),
         destructive: false,
       });
     }
@@ -401,7 +490,8 @@ export const MessageComponent = (props: MessageComponentProps) => {
       return <View />;
     }
 
-    return (
+    const emojiHandler = getEmojiReplyHandler(item);
+    const messageElement = (
       <MessageWrapper
         item={item}
         orientation={orientation()}
@@ -409,12 +499,49 @@ export const MessageComponent = (props: MessageComponentProps) => {
         shouldGroupWithNext={shouldGroupWithNext()}
         shouldShowAvatar={shouldShowAvatar()}
         avatarInfo={avatarInfo()}
-        getMenuOptions={getMenuOptions}
+        getMenuOptions={isForwardMode ? () => [] : getMenuOptions}
         variant={variant()}
-        channel={channel}>
+        channel={channel}
+        onEmojiReply={isForwardMode ? undefined : emojiHandler}
+        showEmojiRow={isForwardMode ? false : !!emojiHandler}>
         {messageContent}
       </MessageWrapper>
     );
+
+    // In forward mode, wrap with checkbox
+    if (isForwardMode) {
+      const isDeleted = item.contentAttributes?.deleted;
+      const canSelect = messageType !== MESSAGE_TYPES.ACTIVITY && !isDeleted && !item.private;
+
+      return (
+        <Pressable
+          onPress={canSelect ? handleToggleSelection : undefined}
+          style={tailwind.style('flex-row items-center')}>
+          {/* Checkbox */}
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(150)}
+            style={tailwind.style('w-12 items-center justify-center')}>
+            {canSelect && (
+              <View style={tailwind.style('w-6 h-6')}>
+                {isSelected ? (
+                  <CheckedIcon />
+                ) : (
+                  <UncheckedIcon stroke={isDark ? '#6B7280' : '#9CA3AF'} />
+                )}
+              </View>
+            )}
+          </Animated.View>
+
+          {/* Message */}
+          <View style={tailwind.style('flex-1')}>
+            {messageElement}
+          </View>
+        </Pressable>
+      );
+    }
+
+    return messageElement;
   };
 
   return renderMessageContent();

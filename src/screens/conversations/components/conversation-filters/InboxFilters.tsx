@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { TickIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useHaptic } from '@/utils';
@@ -21,6 +21,7 @@ type InboxCellProps = {
 
 const InboxCell = (props: InboxCellProps) => {
   const { filtersModalSheetRef } = useRefsContext();
+  const { colors } = useThemeContext();
   const dispatch = useAppDispatch();
   const { value, isLastItem } = props;
 
@@ -40,7 +41,7 @@ const InboxCell = (props: InboxCellProps) => {
       <Animated.View
         style={tailwind.style(
           'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          !isLastItem ? 'border-b-[1px] border-blackA-A3' : '',
+          !isLastItem ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.View style={tailwind.style('flex-row items-center')}>
           <Icon
@@ -51,7 +52,7 @@ const InboxCell = (props: InboxCellProps) => {
 
           <Animated.Text
             style={tailwind.style(
-              'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ml-2',
+              `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ml-2 ${colors.textPrimary}`,
             )}>
             {value.name}
           </Animated.Text>

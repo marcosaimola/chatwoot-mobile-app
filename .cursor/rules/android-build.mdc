@@ -1,0 +1,89 @@
+---
+description: Regras para build Android AAB/APK
+globs: android/**/*.gradle
+alwaysApply: false
+---
+
+# Build Android - Regras Obrigatórias
+
+## SEMPRE Incrementar Versão Antes do Build
+
+Antes de gerar qualquer AAB ou APK para a Play Store:
+
+1. **Atualizar** `app.config.ts`: `version`, `android.versionCode`
+2. **Sincronizar** `android/app/build.gradle` (defaultConfig) com os mesmos valores — o script de build usa o Gradle, não só o app.config
+
+```gradle
+// android/app/build.gradle > defaultConfig (manter igual ao app.config.ts)
+versionCode 24
+versionName "4.6.8"
+```
+
+## Configurações Obrigatórias para 16KB Page Size
+
+**IMPORTANTE:** A Google Play Store exige que todas as bibliotecas nativas (.so) tenham alinhamento de 16KB (0x4000). Bibliotecas com alinhamento 4KB (0x1000) causam rejeição.
+
+### 1. Usar APENAS arquitetura arm64-v8a (64-bit)
+
+A arquitetura `armeabi-v7a` (32-bit) tem problemas de alinhamento e foi removida.
+
+**`android/gradle.properties`:**
+```properties
+reactNativeArchitectures=arm64-v8a
+expo.gif.enabled=false  # IMPORTANTE: GIF animado usa biblioteca com 4KB
+```
+
+**`android/app/build.gradle` (defaultConfig):**
+```gradle
+ndk {
+    abiFilters 'arm64-v8a'
+}
+```
+
+### 2. Excluir bibliotecas problemáticas
+
+Duas bibliotecas do ecossistema React Native têm alinhamento 4KB e DEVEM ser excluídas:
+
+| Biblioteca | Origem | Impacto |
+|------------|--------|---------|
+| `libanimation-decoder-gif.so` | `fresco:animated-gif` | GIF animado não funciona |
+| `libavif_android.so` | `expo-image` (Glide AVIF) | Imagens AVIF não exibem |
+
+**`android/app/build.gradle` (packagingOptions):**
+```gradle
+packagingOptions {
+    jniLibs {
+        useLegacyPackaging false
+    }
+    // Excluir bibliotecas 32-bit
+    exclude 'lib/armeabi/**'
+    exclude 'lib/armeabi-v7a/**'
+    exclude 'lib/x86/**'
+    // Excluir bibliotecas com alinhamento 4KB (incompatíveis com 16KB)
+    exclude '**/libanimation-decoder-gif.so'
+    exclude '**/libavif_android.so'
+}
+```
+
+### 3. Verificar alinhamento após build
+
+```bash
+READELF="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf"
+unzip -o android/app/build/outputs/bundle/release/app-release.aab -d /tmp/aab_check 'base/lib/arm64-v8a/*.so'
+for f in /tmp/aab_check/base/lib/arm64-v8a/*.so; do
+  align=$($READELF -l "$f" | grep LOAD | head -1 | awk '{print $NF}')
+  echo "$(basename $f): $align"  # Deve ser 0x4000
+done
+```
+
+> **Nota:** Dispositivos 32-bit muito antigos (pré-2015) não funcionarão, mas representam <1% do mercado.
+
+## Assinatura de Release
+
+Usar keystore correto com SHA1: `CD:78:1B:F0:BF:B1:25:99:3D:1F:44:29:50:EB:5F:66:8E:E6:15:10`
+
+## Comando de Build
+
+```bash
+./build-aab-with-android-studio-java.sh
+```

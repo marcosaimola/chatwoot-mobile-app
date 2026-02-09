@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import messaging from '@react-native-firebase/messaging';
 
 import { authActions } from '@/store/auth/authActions';
-import * as Sentry from '@sentry/react-native';
+// import * as Sentry from '@sentry/react-native'; // Sentry disabled
 
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import {
@@ -19,11 +20,12 @@ import { selectWebSocketUrl } from '@/store/settings/settingsSelectors';
 import { getUserPermissions } from '@/utils/permissionUtils';
 import { CONVERSATION_PERMISSIONS } from 'constants/permissions';
 
-import { AuthStack, ConversationStack, SettingsStack, InboxStack } from '../stack';
+import { AuthStack, ConversationStack, SettingsStack, InboxStack, ContactsStack } from '../stack';
 import ChatScreen from '@/screens/chat-screen/ChatScreen';
 import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen';
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
 import AiAgentsScreen from '@/screens/ai-agents/AiAgentsScreen';
+import ForwardContactsScreen from '@/screens/chat-screen/components/forward-contacts/ForwardContactsScreen';
 
 import { selectInstallationUrl, selectIsCustomFeaturesEnabled } from '@/store/settings/settingsSelectors';
 import { BottomTabBar } from './BottomTabBar';
@@ -45,6 +47,7 @@ const Tab = createBottomTabNavigator();
 export type TabParamList = {
   Conversations: undefined;
   Inbox: undefined;
+  Contacts: undefined;
   Settings: undefined;
   AiAgents: undefined;
   Login: undefined;
@@ -57,7 +60,7 @@ export type TabParamList = {
 export type TabBarExcludedScreenParamList = {
   Tab: undefined;
   ChatScreen: { conversationId: number; primaryActorId?: number; primaryActorType?: string };
-  ContactDetails: { conversationId: number };
+  ContactDetails: { conversationId?: number; contactId?: number };
   ConversationActions: undefined;
   Dashboard: { url: string };
   Login: undefined;
@@ -65,6 +68,7 @@ export type TabBarExcludedScreenParamList = {
   ImageScreen: undefined;
   ConversationDetails: undefined;
   ConversationAction: undefined;
+  ForwardContacts: undefined;
 };
 const Stack = createNativeStackNavigator<TabBarExcludedScreenParamList>();
 
@@ -95,8 +99,23 @@ const Tabs = () => {
     dispatch(dashboardAppActions.index());
     dispatch(customAttributeActions.index());
     initAnalytics();
-    initSentry();
+    // initSentry(); // Sentry disabled
     initPushNotifications();
+
+    // Foreground message handler - receives messages when app is in foreground
+    const unsubscribeForeground = messaging().onMessage(async () => {
+      // Foreground message received - handled by ActionCable
+    });
+
+    // Token refresh listener
+    const unsubscribeTokenRefresh = messaging().onTokenRefresh(() => {
+      dispatch(settingsActions.saveDeviceDetails());
+    });
+
+    return () => {
+      unsubscribeForeground();
+      unsubscribeTokenRefresh();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -111,17 +130,18 @@ const Tabs = () => {
     clearAllDeliveredNotifications();
   }, []);
 
-  const initSentry = useCallback(async () => {
-    Sentry.setUser({
-      id: user?.id,
-      email: user?.email,
-      account_id: user?.account_id,
-      name: user?.name,
-      role: user?.role,
-      installation_url: installationUrl,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Sentry disabled - function commented out
+  // const initSentry = useCallback(async () => {
+  //   Sentry.setUser({
+  //     id: user?.id,
+  //     email: user?.email,
+  //     account_id: user?.account_id,
+  //     name: user?.name,
+  //     role: user?.role,
+  //     installation_url: installationUrl,
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const initActionCable = useCallback(async () => {
     if (pubSubToken && webSocketUrl && accountId && userId) {
@@ -156,9 +176,9 @@ const Tabs = () => {
   }, []);
 
   return (
-    <Tab.Navigator tabBar={CustomTabBar} initialRouteName="Inbox">
+    <Tab.Navigator tabBar={CustomTabBar} initialRouteName="Contacts">
       {hasConversationPermission && (
-        <Tab.Screen name="Inbox" component={InboxStack} options={{ headerShown: false }} />
+        <Tab.Screen name="Contacts" component={ContactsStack} options={{ headerShown: false }} />
       )}
       {hasConversationPermission && (
         <Tab.Screen
@@ -192,10 +212,7 @@ export const AppTabs = () => {
           component={ChatScreen}
         />
         <Stack.Screen
-          options={{
-            presentation: 'formSheet',
-            animation: 'slide_from_bottom',
-          }}
+          options={{ animation: 'slide_from_right' }}
           name="ContactDetails"
           component={ContactDetailsScreen}
         />
@@ -206,6 +223,14 @@ export const AppTabs = () => {
           }}
           name="Dashboard"
           component={DashboardScreen}
+        />
+        <Stack.Screen
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+          name="ForwardContacts"
+          component={ForwardContactsScreen}
         />
       </Stack.Navigator>
     );

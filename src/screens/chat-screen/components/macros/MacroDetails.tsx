@@ -10,6 +10,7 @@ import { tailwind } from '@/theme';
 import { Agent, Macro } from '@/types';
 import { useHaptic, useScaleAnimation } from '@/utils';
 import { useAppSelector } from '@/hooks';
+import { useThemeContext } from '@/context';
 import { selectAllLabels } from '@/store/label/labelSelectors';
 import { selectAllTeams } from '@/store/team/teamSelectors';
 import { selectAssignableAgentsByInboxId } from '@/store/assignable-agent/assignableAgentSelectors';
@@ -33,6 +34,7 @@ const MacroDetails = ({ macro, onBack, onClose }: MacroDetailsProps) => {
   const labels = useAppSelector(selectAllLabels);
   const teams = useAppSelector(selectAllTeams);
   const { executeMacro, executingMacroId, conversationId } = useMacroContext();
+  const { isDark, colors } = useThemeContext();
 
   // Check if this specific macro is executing
   const isThisMacroExecuting = executingMacroId === macro.id;
@@ -77,19 +79,24 @@ const MacroDetails = ({ macro, onBack, onClose }: MacroDetailsProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Theme-aware colors
+  const buttonBgColor = isDark ? 'bg-gray-800' : 'bg-gray-100';
+  const lineColor = isDark ? 'bg-gray-700' : 'bg-gray-200';
+  const dotColor = isDark ? 'bg-gray-600 border-gray-600' : 'bg-gray-300 border-gray-300';
+
   return (
     <Animated.View entering={FadeIn.duration(300).springify()} style={tailwind.style('flex-1')}>
       <View style={tailwind.style('flex-row items-center p-4')}>
         <Pressable onPress={onBack} style={tailwind.style('flex-1 flex-row items-center')}>
-          <Icon icon={<ChevronLeft />} size={18} style={tailwind.style('mr-1')} />
-          <Animated.Text style={tailwind.style('flex-1 text-base')} numberOfLines={1}>
+          <Icon icon={<ChevronLeft stroke={isDark ? '#9CA3AF' : undefined} />} size={18} style={tailwind.style('mr-1')} />
+          <Animated.Text style={tailwind.style(`flex-1 text-base ${colors.textPrimary}`)} numberOfLines={1}>
             {macro.name}
           </Animated.Text>
         </Pressable>
         <Animated.View style={animatedStyle}>
           <Pressable
             style={tailwind.style(
-              'px-3 py-[7px] rounded-lg bg-gray-100 flex flex-row items-center justify-center min-w-[60px] min-h-[32px]',
+              `px-3 py-[7px] rounded-lg ${buttonBgColor} flex flex-row items-center justify-center min-w-[60px] min-h-[32px]`,
             )}
             onPress={onPress}
             {...handlers}>
@@ -98,7 +105,7 @@ const MacroDetails = ({ macro, onBack, onClose }: MacroDetailsProps) => {
             ) : (
               <Animated.Text
                 style={tailwind.style(
-                  'text-sm font-inter-580-24 leading-[16px] tracking-[0.24px] capitalize text-gray-900',
+                  `text-sm font-inter-580-24 leading-[16px] tracking-[0.24px] capitalize ${colors.textPrimary}`,
                 )}>
                 {i18n.t('MACRO.ACTIONS.RUN')}
               </Animated.Text>
@@ -115,17 +122,17 @@ const MacroDetails = ({ macro, onBack, onClose }: MacroDetailsProps) => {
               {macro.actions && index !== macro.actions.length - 1 && (
                 <View
                   style={tailwind.style(
-                    'absolute top-[14px] bottom-0 left-[5px] w-[1px] bg-gray-200',
+                    `absolute top-[14px] bottom-0 left-[5px] w-[1px] ${lineColor}`,
                   )}
                 />
               )}
               <View
                 style={tailwind.style(
-                  'absolute left-0 top-[2px] w-3 h-3 rounded-full bg-gray-300 border-2 border-gray-300',
+                  `absolute left-0 top-[2px] w-3 h-3 rounded-full border-2 ${dotColor}`,
                 )}
               />
-              <Animated.Text style={tailwind.style('mb-1')}>{action.actionName}</Animated.Text>
-              <Animated.Text style={tailwind.style('text-sm text-gray-900')}>
+              <Animated.Text style={tailwind.style(`mb-1 ${colors.textPrimary}`)}>{action.actionName}</Animated.Text>
+              <Animated.Text style={tailwind.style(`text-sm ${colors.textSecondary}`)}>
                 {action.actionValue}
               </Animated.Text>
             </View>

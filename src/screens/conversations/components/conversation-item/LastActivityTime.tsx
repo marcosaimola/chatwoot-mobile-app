@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 import { tailwind } from '@/theme';
 import { useThemeContext } from '@/context';
 import { NativeView } from '@/components-next/native-components';
-import { formatTimeToShortForm, formatRelativeTime } from '@/utils/dateTimeUtils';
+import { formatWhatsAppStyleTime } from '@/utils/dateTimeUtils';
 
 // Constants from Vue component
 const MINUTE_IN_MS = 60000;
@@ -18,19 +18,19 @@ type LastActivityTimeProps = {
 export const LastActivityTime = ({ timestamp }: LastActivityTimeProps) => {
   const { colors } = useThemeContext();
   const [lastActivityTime, setLastActivityTime] = useState(
-    formatTimeToShortForm(formatRelativeTime(timestamp)),
+    formatWhatsAppStyleTime(timestamp),
   );
 
   useEffect(() => {
     const getRefreshTime = () => {
       const timeDiff = Date.now() - timestamp * 1000;
-      if (timeDiff > DAY_IN_MS) return DAY_IN_MS;
-      if (timeDiff > HOUR_IN_MS) return HOUR_IN_MS;
-      return MINUTE_IN_MS;
+      // Refresh every minute if today, otherwise refresh daily
+      if (timeDiff < DAY_IN_MS) return MINUTE_IN_MS;
+      return DAY_IN_MS;
     };
 
     const updateTime = () => {
-      setLastActivityTime(formatTimeToShortForm(formatRelativeTime(timestamp)));
+      setLastActivityTime(formatWhatsAppStyleTime(timestamp));
     };
 
     const timer = setTimeout(function refresh() {

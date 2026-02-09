@@ -1,4 +1,5 @@
 import { apiService } from './APIService';
+import type { AxiosRequestConfig } from 'axios';
 import { Contact } from '@/types/Contact';
 import { Conversation } from '@/types/Conversation';
 import { transformConversation, transformContact } from '@/utils/camelCaseKeys';
@@ -9,7 +10,14 @@ import { transformConversation, transformContact } from '@/utils/camelCaseKeys';
 export interface CreateContactPayload {
   name: string;
   phone_number: string;
+  email?: string | null;
   identifier?: string;
+  additional_attributes?: {
+    description?: string;
+    company_name?: string;
+    country?: string;
+    city?: string;
+  };
 }
 
 /**
@@ -64,6 +72,7 @@ export interface UpdateContactPayload {
     city?: string;
     social_profiles?: Record<string, string>;
   };
+  custom_attributes?: Record<string, unknown>;
 }
 
 /**
@@ -109,16 +118,23 @@ export class ContactConversationService {
   /**
    * Create a new contact with phone number
    */
-  static async createContact(payload: CreateContactPayload): Promise<CreateContactResponse> {
-    const response = await apiService.post<CreateContactAPIResponse>('contacts', payload);
+  static async createContact(
+    payload: CreateContactPayload,
+    config?: AxiosRequestConfig & { skipErrorToast?: boolean },
+  ): Promise<CreateContactResponse> {
+    const response = await apiService.post<CreateContactAPIResponse>('contacts', payload, config);
 
     // Handle both direct response and wrapped response formats
-    // Chatwoot API can return: { payload: { contact: {...} } } or just {...contact data}
+    // Chatwoot API can return: { payload: { contact: {...} } }, { payload: {...contact} }, or {...contact}
     let contactData = response.data;
-    
-    // Check if response is wrapped in payload.contact
     if (response.data.payload?.contact) {
       contactData = response.data.payload.contact;
+    } else if (
+      response.data.payload &&
+      typeof response.data.payload === 'object' &&
+      'id' in response.data.payload
+    ) {
+      contactData = response.data.payload;
     }
 
     const contact = transformContact(contactData);
@@ -150,19 +166,79 @@ export class ContactConversationService {
     contactId: number,
     payload: UpdateContactPayload,
   ): Promise<CreateContactResponse> {
-    const response = await apiService.put<CreateContactAPIResponse>(
+    const response = await apiService.patch<CreateContactAPIResponse>(
       `contacts/${contactId}?include_contact_inboxes=false`,
       payload,
     );
 
     // Handle both direct response and wrapped response formats
+    // API can return { payload: { contact: {...} } }, { payload: {...contact} }, or {...contact}
     let contactData = response.data;
     if (response.data.payload?.contact) {
       contactData = response.data.payload.contact;
+    } else if (
+      response.data.payload &&
+      typeof response.data.payload === 'object' &&
+      'id' in response.data.payload
+    ) {
+      contactData = response.data.payload;
     }
 
     const contact = transformContact(contactData);
 
+    return { contact };
+  }
+
+  /**
+   * Fetch a single contact by id (GET). Use when opening contact details to get full data including custom_attributes.
+   */
+  static async getContact(contactId: number): Promise<CreateContactResponse> {
+    const response = await apiService.get<CreateContactAPIResponse>(
+      `contacts/${contactId}?include_contact_inboxes=false`,
+    );
+
+    let contactData = response.data;
+    if (response.data.payload?.contact) {
+      contactData = response.data.payload.contact;
+    } else if (
+      response.data.payload &&
+      typeof response.data.payload === 'object' &&
+      'id' in response.data.payload
+    ) {
+      contactData = response.data.payload;
+    }
+
+    const contact = transformContact(contactData);
+    return { contact };
+  }
+
+  /**
+   * Delete custom attribute values from a contact
+   * POST api/v1/accounts/{account_id}/contacts/{contact_id}/destroy_custom_attributes
+   * @param contactId - The contact ID
+   * @param attributeKeys - Array of attribute keys to delete (snake_case)
+   */
+  static async destroyCustomAttributes(
+    contactId: number,
+    attributeKeys: string[],
+  ): Promise<CreateContactResponse> {
+    const response = await apiService.post<CreateContactAPIResponse, { custom_attributes: string[] }>(
+      `contacts/${contactId}/destroy_custom_attributes`,
+      { custom_attributes: attributeKeys },
+    );
+
+    let contactData = response.data;
+    if (response.data.payload?.contact) {
+      contactData = response.data.payload.contact;
+    } else if (
+      response.data.payload &&
+      typeof response.data.payload === 'object' &&
+      'id' in response.data.payload
+    ) {
+      contactData = response.data.payload;
+    }
+
+    const contact = transformContact(contactData);
     return { contact };
   }
 

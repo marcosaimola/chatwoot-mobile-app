@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Alert, Platform, Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { PlayBackType } from '../audio-recorder/NativeAudioManager';
 import Animated, { FadeIn, FadeOut, useSharedValue } from 'react-native-reanimated';
 import Svg, { Path, Rect } from 'react-native-svg';
-import * as Sentry from '@sentry/react-native';
+// import * as Sentry from '@sentry/react-native'; // Sentry disabled
 
 import {
   selectCurrentPlayingAudioSrc,
@@ -20,6 +20,19 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/hooks';
 // eslint-disable-next-line import/no-unresolved
 import { convertOggToWav } from '@/utils/audioConverter';
+
+/**
+ * Checks if a URL points to an OGG/OGA file (Opus/Vorbis audio)
+ */
+const isOggFile = (url: string): boolean => {
+  const lowercaseUrl = url.toLowerCase();
+  return (
+    lowercaseUrl.endsWith('.ogg') ||
+    lowercaseUrl.endsWith('.oga') ||
+    lowercaseUrl.includes('.ogg?') ||
+    lowercaseUrl.includes('.oga?')
+  );
+};
 
 // eslint-disable-next-line react/display-name
 const PlayIcon = React.memo(({ fill, fillOpacity }: IconProps) => {
@@ -42,15 +55,18 @@ const PauseIcon = React.memo(({ fill, fillOpacity }: IconProps) => {
 type AudioBubbleProps = {
   audioSrc: string;
   variant: string;
+  senderName?: string;
+  senderAvatar?: string;
+  conversationName?: string;
 };
 
-type AudioPlayerProps = Pick<AudioBubbleProps, 'audioSrc'> & {
+type AudioPlayerProps = Pick<AudioBubbleProps, 'audioSrc' | 'senderName' | 'senderAvatar' | 'conversationName'> & {
   variant: string;
 };
 
 // eslint-disable-next-line react/display-name
 export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
-  const { audioSrc, variant } = props;
+  const { audioSrc, variant, senderName, senderAvatar, conversationName } = props;
 
   const [isSoundLoading, setIsSoundLoading] = useState(false);
   const [isAudioPlaying, setAudioPlaying] = useState(false);
@@ -81,23 +97,28 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
 
   useEffect(() => {
     const prepareAudio = async () => {
-      if (Platform.OS === 'ios' && audioSrc.toLowerCase().endsWith('.ogg')) {
+      // Check if the audio source is an OGG file that needs conversion
+      if (isOggFile(audioSrc)) {
         setIsSoundLoading(true);
         try {
           const convertedSrc = await convertOggToWav(audioSrc);
           
           if (convertedSrc instanceof Error) {
+            // Conversion failed, try to play original (may fail on iOS)
+            // Sentry.captureMessage(`OGG conversion failed: ${convertedSrc.message}`, 'warning');
             setConvertedAudioSrc(audioSrc);
           } else {
+            // Conversion successful, use the converted file
             setConvertedAudioSrc(convertedSrc);
           }
         } catch (error) {
-          Sentry.captureException(error);
+          // Sentry.captureException(error);
           setConvertedAudioSrc(audioSrc);
         } finally {
           setIsSoundLoading(false);
         }
       } else {
+        // Non-OGG files can be played directly
         setConvertedAudioSrc(audioSrc);
       }
     };
@@ -105,13 +126,8 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
   }, [audioSrc]);
 
   const togglePlayback = useCallback(() => {
-    // Check if the audio source is an error (OGG not supported)
-    if (convertedAudioSrc instanceof Error) {
-      Alert.alert(
-        'Formato não suportado',
-        'Este formato de áudio (OGG) não é suportado no iOS. Por favor, use MP3 ou AAC.',
-        [{ text: 'OK' }]
-      );
+    // Check if still loading/converting
+    if (isSoundLoading) {
       return;
     }
     
@@ -125,14 +141,16 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
     } else {
       setIsSoundLoading(true);
       startPlayer(convertedAudioSrc, audioPlayBackStatus, {
-        title: 'Mensagem de Áudio',
-        artist: 'WhatsApp Audio',
-        album: 'ZapiCRM',
+        title: senderName || 'Mensagem de Áudio',
+        artist: conversationName || 'AppConecta',
+        album: 'AppConecta',
+        artworkUrl: senderAvatar,
       }).then(() => {
         setIsSoundLoading(false);
         setAudioPlaying(true);
         dispatch(setCurrentPlayingAudioSrc(convertedAudioSrc));
       }).catch((error) => {
+        // Sentry.captureException(error);
         setIsSoundLoading(false);
         setAudioPlaying(false);
         Alert.alert(
@@ -142,7 +160,7 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
         );
       });
     }
-  }, [convertedAudioSrc, currentPlayingAudioSrc, isAudioPlaying, dispatch, audioPlayBackStatus]);
+  }, [convertedAudioSrc, currentPlayingAudioSrc, isAudioPlaying, isSoundLoading, dispatch, audioPlayBackStatus]);
 
   const manualSeekTo = useCallback(async (manualSeekPosition: number) => {
     seekTo(manualSeekPosition).then(() => {
@@ -160,11 +178,12 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
   );
 
   useEffect(() => {
-    if (currentPlayingAudioSrc !== audioSrc) {
+    // Reset position when a different audio starts playing
+    if (currentPlayingAudioSrc !== convertedAudioSrc) {
       currentPosition.value = 0;
       totalDuration.value = 0;
     }
-  }, [currentPlayingAudioSrc, audioSrc, currentPosition, totalDuration]);
+  }, [currentPlayingAudioSrc, convertedAudioSrc, currentPosition, totalDuration]);
 
   useEffect(() => {
     return () => {
@@ -231,11 +250,17 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
 
 // eslint-disable-next-line react/display-name
 export const AudioBubble = React.memo<AudioBubbleProps>(props => {
-  const { audioSrc, variant } = props;
+  const { audioSrc, variant, senderName, senderAvatar, conversationName } = props;
 
   return (
     <Animated.View style={tailwind.style('w-full flex flex-row items-center')}>
-      <AudioBubblePlayer audioSrc={audioSrc} variant={variant} />
+      <AudioBubblePlayer 
+        audioSrc={audioSrc} 
+        variant={variant}
+        senderName={senderName}
+        senderAvatar={senderAvatar}
+        conversationName={conversationName}
+      />
     </Animated.View>
   );
 });

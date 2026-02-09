@@ -65,10 +65,7 @@ const StatusComponent = React.memo(() => {
 export const ConversationItemContainer = memo((props: ConversationItemContainerProps) => {
   const { conversationItem, index, openedRowIndex } = props;
   const {
-    meta: {
-      sender: { name: senderName, thumbnail: senderThumbnail, id: contactId },
-      assignee,
-    },
+    meta,
     id,
     priority,
     unreadCount,
@@ -83,6 +80,12 @@ export const ConversationItemContainer = memo((props: ConversationItemContainerP
     status,
     additionalAttributes,
   } = conversationItem;
+
+  const sender = meta?.sender;
+  const senderName = sender?.name ?? '';
+  const senderThumbnail = sender?.thumbnail ?? '';
+  const contactId = sender?.id ?? 0;
+  const assignee = meta?.assignee;
 
   // Hooks
   const navigation = useNavigation();

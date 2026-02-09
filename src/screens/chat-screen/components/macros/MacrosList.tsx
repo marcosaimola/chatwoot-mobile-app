@@ -5,7 +5,7 @@ import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 import { BottomSheetBackdrop } from '@/components-next';
 import i18n from '@/i18n';
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { tailwind } from '@/theme';
 import { Macro } from '@/types';
 import { useAppSelector } from '@/hooks';
@@ -18,6 +18,7 @@ import { MacroProvider } from './MacroContext';
 export const MacrosList = ({ conversationId }: { conversationId: number }) => {
   const macros = useAppSelector(selectAllMacros);
   const [selectedMacro, setSelectedMacro] = useState<Macro | null>(null);
+  const { isDark, colors } = useThemeContext();
 
   const handleMacroPress = (macro: Macro) => {
     setSelectedMacro(macro);
@@ -39,7 +40,8 @@ export const MacrosList = ({ conversationId }: { conversationId: number }) => {
       <BottomSheetModal
         ref={macrosListSheetRef}
         backdropComponent={BottomSheetBackdrop}
-        handleIndicatorStyle={tailwind.style('overflow-hidden bg-blackA-A6 w-8 h-1 rounded-[11px]')}
+        backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
+        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-t-[26px] overflow-hidden')}
         enablePanDownToClose
@@ -54,7 +56,7 @@ export const MacrosList = ({ conversationId }: { conversationId: number }) => {
                 <View style={tailwind.style('px-4 pt-1 pb-4 items-center')}>
                   <Animated.Text
                     style={tailwind.style(
-                      'text-gray-700 font-inter-580-24 leading-[17px] tracking-[0.32px]',
+                      `font-inter-580-24 leading-[17px] tracking-[0.32px] ${colors.textPrimary}`,
                     )}>
                     {i18n.t('MACRO.SELECT_MACRO')}
                   </Animated.Text>

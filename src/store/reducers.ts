@@ -10,6 +10,8 @@ import conversationSlice from '@/store/conversation/conversationSlice';
 import inboxSlice from '@/store/inbox/inboxSlice';
 import labelReducer from '@/store/label/labelSlice';
 import contactSlice from '@/store/contact/contactSlice';
+import contactListSlice from '@/store/contact/contactListSlice';
+import contactNotesSlice from '@/store/contact/contactNotesSlice';
 import assignableAgentSlice from '@/store/assignable-agent/assignableAgentSlice';
 import conversationTypingSlice from '@/store/conversation/conversationTypingSlice';
 import notificationSlice from '@/store/notification/notificationSlice';
@@ -19,10 +21,13 @@ import audioPlayerSlice from '@/store/conversation/audioPlayerSlice';
 import teamSlice from '@/store/team/teamSlice';
 import contactLabelSlice from '@/store/contact/contactLabelSlice';
 import contactConversationSlice from '@/store/contact/contactConversationSlice';
+import contactImportSlice from '@/store/contact/contactImportSlice';
+import recentContactsSlice from '@/store/contact/recentContactsSlice';
 import dashboardAppSlice from '@/store/dashboard-app/dashboardAppSlice';
 import customAttributeSlice from '@/store/custom-attribute/customAttributeSlice';
 import conversationParticipantSlice from '@/store/conversation-participant/conversationParticipantSlice';
 import localRecordedAudioCacheSlice from '@/store/conversation/localRecordedAudioCacheSlice';
+import forwardMessageSlice from '@/store/conversation/forwardMessageSlice';
 
 import cannedResponseSlice from '@/store/canned-response/cannedResponseSlice';
 import macroSlice from '@/store/macro/macroSlice';
@@ -36,6 +41,8 @@ export const appReducer = combineReducers({
   conversations: conversationSlice,
   conversationAction: conversationActionSlice,
   contacts: contactSlice,
+  contactList: contactListSlice,
+  contactNotes: contactNotesSlice,
   labels: labelReducer,
   inboxes: inboxSlice,
   assignableAgents: assignableAgentSlice,
@@ -48,9 +55,12 @@ export const appReducer = combineReducers({
   macros: macroSlice,
   contactLabels: contactLabelSlice,
   contactConversations: contactConversationSlice,
+  contactImport: contactImportSlice,
+  recentContacts: recentContactsSlice,
   dashboardApps: dashboardAppSlice,
   customAttributes: customAttributeSlice,
   conversationParticipants: conversationParticipantSlice,
   cannedResponses: cannedResponseSlice,
   localRecordedAudioCache: localRecordedAudioCacheSlice,
+  forwardMessage: forwardMessageSlice,
 });

@@ -18,6 +18,7 @@
     "URL_ERROR": "Enter a valid URL",
     "URL_REQUIRED": "URL is required",
     "CONNECT": "Connect",
+    "CONNECT_LOADING": "Connecting...",
     "CHANGE_LANGUAGE": "Change language",
     "ERROR": "Invalid installation url"
   },
@@ -44,7 +45,7 @@
     "CHANGE_LANGUAGE": "Change language",
     "TERMS": "Terms & Conditions",
     "CHANGE_URL": "Change URL",
-    "DISCLAIMER_TEXT": "ZapiCRM is for registered business clients only. To create an account, please visit "
+    "DISCLAIMER_TEXT": "AppConecta is for registered business clients only. To create an account, please visit "
   },
   "FORGOT_PASSWORD": {
     "EMAIL": "Please enter your email",
@@ -244,6 +245,7 @@
     "LONG_PRESS_ACTIONS": {
       "COPY": "Copy",
       "REPLY": "Reply",
+      "FORWARD": "Forward",
       "DELETE_MESSAGE": "Delete message"
     },
     "EMAIL_HEADER": {
@@ -387,8 +389,18 @@
     "EMAIL": "Email",
     "PHONE_NUMBER": "Phone Number",
     "CALL": "Call",
+    "CHAT": "Chat",
     "CONTACT_ATTRIBUTES": "Contact Attributes",
-    "VALUE_UNAVAILABLE": "Unavailable"
+    "VALUE_UNAVAILABLE": "Unavailable",
+    "TAB_EDIT": "Edit",
+    "TAB_CONVERSATIONS": "Conversations",
+    "TAB_NOTES": "Notes",
+    "NO_CONVERSATIONS": "No conversations found",
+    "NO_NOTES": "No notes found",
+    "ADD_NOTE_PLACEHOLDER": "Add a note...",
+    "ADD_NOTE": "Add",
+    "NOTE_CREATED": "Note created successfully",
+    "NOTE_ERROR": "Error creating note"
   },
   "CONTACT_EDIT": {
     "TITLE": "Edit Contact",
@@ -432,7 +444,27 @@
     "ADD_PARTICIPANT": "Add Participant"
   },
   "CONTACT_ATTRIBUTES": {
-    "TITLE": "Contact Attributes"
+    "TITLE": "Contact Attributes",
+    "SECTION_TITLE": "Contact Attributes",
+    "CHOOSE_OPTION": "Choose an option",
+    "DATE_PLACEHOLDER": "DD/MM/YYYY",
+    "DATE_INVALID": "Invalid date. Use DD/MM/YYYY format",
+    "URL_INVALID": "URL must start with http:// or https://",
+    "DELETE_SUCCESS": "Attribute removed successfully",
+    "DELETE_ERROR": "Error removing attribute"
+  },
+  "CONTACTS": {
+    "SORT": {
+      "SORT_BY": "Sort by",
+      "ORDER": "Order",
+      "NAME": "Name",
+      "EMAIL": "Email",
+      "CITY": "City",
+      "LAST_ACTIVITY": "Last activity",
+      "CREATED_AT": "Created at",
+      "ASCENDING": "Ascending",
+      "DESCENDING": "Descending"
+    }
   },
   "CONVERSATION_ACTION": {
     "TITLE": "Actions"
@@ -466,19 +498,19 @@
     "CHANGE_TEAMS": "Conversation team changed"
   },
   "ERRORS": {
-    "COMMON_ERROR": "Could not connect to Chatwoot Server, Please try again later",
+    "COMMON_ERROR": "Could not connect to Server, Please try again later",
     "OfFLINE": "You must connect to Wi-fi or a cellular network to get online again",
     "CANNOT_FETCH": "There was an error fetching the information, please try again",
     "AUTH": "Username / Password Incorrect. Please try again",
-    "NO_ACCOUNTS_MESSAGE": "You don't have access to any chatwoot accounts"
+    "NO_ACCOUNTS_MESSAGE": "You don't have access to any app accounts"
   },
   "SUCCESS": {
     "AUTH": "Login Successful"
   },
   "SERVER_UPGRADE": {
     "TITLE": "Server upgrade required",
-    "WARNING_FOR_AGENT": "It seems like you are using unsupported Chatwoot server for your mobile app. Please contact your admin to upgrade your Chatwoot server.",
-    "WARNING_FOR_ADMIN": "It seems like you are using unsupported Chatwoot server for your mobile app. Upgrading to server version %{minimumVersion} or later is required."
+    "WARNING_FOR_AGENT": "It seems like you are using unsupported app server for your mobile app. Please contact your admin to upgrade your app server.",
+    "WARNING_FOR_ADMIN": "It seems like you are using unsupported app server for your mobile app. Upgrading to server version %{minimumVersion} or later is required."
   },
   "EXIT": {
     "TITLE": "Exit",
@@ -601,5 +633,51 @@
     "CANCEL": "Cancel",
     "SUCCESS": "Conversation created successfully",
     "ERROR": "Error creating conversation"
+  },
+  "ATTACHMENT_MENU": {
+    "CAMERA": "Camera",
+    "PHOTOS": "Photos",
+    "ATTACH_FILE": "File",
+    "MACROS": "Macros",
+    "ASSIGN": "Assign"
+  },
+  "PROFILE_EDIT": {
+    "TITLE": "Edit Profile",
+    "NAME": "Name",
+    "NAME_PLACEHOLDER": "Enter your name",
+    "DISPLAY_NAME": "Display Name",
+    "DISPLAY_NAME_PLACEHOLDER": "Enter display name",
+    "EMAIL": "Email",
+    "EMAIL_PLACEHOLDER": "Enter your email",
+    "CAMERA": "Camera",
+    "PHOTOS": "Photos",
+    "SAVE": "Save",
+    "SAVING": "Saving...",
+    "SUCCESS": "Profile updated successfully",
+    "ERROR": "Error updating profile",
+    "NAME_REQUIRED": "Name is required",
+    "EMAIL_REQUIRED": "Email is required",
+    "PERMISSION_DENIED": "Permission Denied",
+    "PHOTO_PERMISSION_MESSAGE": "The permission to access the photo library has been denied. Please enable it in your device settings.",
+    "CAMERA_PERMISSION_MESSAGE": "The permission to access the camera has been denied. Please enable it in your device settings.",
+    "OPEN_SETTINGS": "Open Settings"
+  },
+  "FORWARD": {
+    "SELECTED_COUNT": "{{count}} selected",
+    "SEND_TO": "Send to",
+    "CANCEL": "Cancel",
+    "SEARCH_CONTACTS": "Search contacts...",
+    "ADD_MESSAGE": "Add a message...",
+    "FORWARD_BUTTON": "Forward",
+    "SELECT_INBOX": "Select inbox",
+    "SUCCESS": "Messages forwarded successfully",
+    "ERROR": "Error forwarding messages",
+    "NO_CONTACTS_SELECTED": "Select at least one contact",
+    "NO_MESSAGES_SELECTED": "Select at least one message",
+    "FREQUENT_CONTACTS": "Frequent contacts",
+    "RECENT_CONTACTS": "Recent",
+    "ALL_CONTACTS": "All contacts",
+    "RECENT_CONVERSATIONS": "Recent conversations",
+    "FORWARDED_MESSAGE": "Forwarded message"
   }
 }

@@ -25,6 +25,8 @@ const persistConfig = {
   key: 'Root',
   version: CURRENT_VERSION,
   storage: AsyncStorage,
+  // Don't persist these slices (they should be reset on app restart)
+  blacklist: ['forwardMessage', 'contactList'],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   migrate: async (state: any) => {
     // If the stored version is older or doesn't exist, return initial state

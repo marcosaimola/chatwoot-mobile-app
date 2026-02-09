@@ -1,33 +1,70 @@
 import React from 'react';
-import Svg, { ClipPath, Defs, G, Path, Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
-export const ConversationIconOutline = () => {
+interface IconProps {
+  color?: string;
+}
+
+export const ConversationIconOutline = ({ color = '#171717' }: IconProps) => {
   return (
-    <Svg width="49" height="40" viewBox="0 0 49 40" fill="none">
-      <G clipPath="url(#clip0_1_1630)">
-        <Path
-          d="M35 25H23.9991C17.935 25 13 20.0646 13 13.999C13 7.93537 17.935 3 23.9992 3C30.065 3 35 7.93537 35 13.999V25Z"
-          stroke="#171717"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </G>
-      <Defs>
-        <ClipPath id="clip0_1_1630">
-          <Rect width="24" height="24" fill="white" transform="translate(12 2)" />
-        </ClipPath>
-      </Defs>
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 16V8"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M8 14V10"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M16 14V10"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M17 3.33782C15.5291 2.48697 13.8214 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22C17.5228 22 22 17.5228 22 12C22 10.1786 21.513 8.47087 20.6622 7"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </Svg>
   );
 };
 
-export const ConversationIconFilled = () => {
+export const ConversationIconFilled = ({ color = '#171717' }: IconProps) => {
+  // Para ícones filled, usar branco para linhas internas quando o fill é escuro (light mode)
+  // e usar uma cor mais escura quando o fill é claro (dark mode com azul)
+  const isLightFill = color === '#171717';
+  const lineColor = isLightFill ? '#FFFFFF' : '#FFFFFF';
+  
   return (
-    <Svg width="49" height="40" viewBox="0 0 49 40" fill="none">
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <Path
-        d="M35 25H23.9991C17.935 25 13 20.0646 13 13.999C13 7.93537 17.935 3 23.9992 3C30.065 3 35 7.93537 35 13.999V25Z"
-        fill="#171717"
+        d="M17 3.33782C15.5291 2.48697 13.8214 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22C17.5228 22 22 17.5228 22 12C22 10.1786 21.513 8.47087 20.6622 7"
+        fill={color}
+      />
+      <Path
+        d="M12 16V8"
+        stroke={lineColor}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M8 14V10"
+        stroke={lineColor}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M16 14V10"
+        stroke={lineColor}
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </Svg>
   );

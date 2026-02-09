@@ -316,3 +316,14 @@ export interface CreateConversationFromPhonePayload {
 export interface CreateConversationFromPhoneResponse {
   conversationId: number;
 }
+
+// Types for creating conversation from existing contact
+export interface CreateConversationForContactPayload {
+  contactId: number;
+  inboxId: number;
+  phoneNumber: string;
+}
+
+export interface CreateConversationForContactResponse {
+  conversationId: number;
+}

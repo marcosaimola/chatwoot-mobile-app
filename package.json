@@ -1,6 +1,6 @@
 {
   "name": "@chatwoot/mobile-app",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "scripts": {
     "start": "expo start --dev-client",
     "start:production": "expo start --no-dev --minify",
@@ -15,9 +15,11 @@
     "run:android": "npx expo run:android -d",
     "run:doctor": "npx expo-doctor",
     "check:config": "npx expo-config check",
+    "build:simple": "./build-android-simple.sh",
     "build:android:apk": "dotenv -c -- eas build -p android --profile preview",
     "build:android:apk:local": "dotenv -c -- eas build -p android --profile preview --local",
     "build:android:local": "dotenv -c -- eas build -p android --profile production --local",
+    "build:android:aab": "./build-aab-with-android-studio-java.sh",
     "build:android": "eas build -p android --profile production",
     "build:ios:local": "dotenv -c -- eas build -p ios --profile production --local",
     "build:ios": "eas build -p ios --profile production",
@@ -32,7 +34,8 @@
     "start:storybook": "cross-env EXPO_STORYBOOK_ENABLED='true' expo start",
     "storybook:ios": "cross-env EXPO_STORYBOOK_ENABLED='true' pnpm run:ios",
     "storybook:android": "cross-env EXPO_STORYBOOK_ENABLED='true' expo android",
-    "adb:connect": "adb reverse tcp:9090 tcp:9090"
+    "adb:connect": "adb reverse tcp:9090 tcp:9090",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@alantoa/lightbox": "^0.3.1",
@@ -48,13 +51,13 @@
     "@react-native-community/blur": "^4.4.1",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-native-firebase/app": "^21.7.1",
+    "@react-native-firebase/crashlytics": "^21.14.0",
     "@react-native-firebase/messaging": "^21.7.1",
     "@react-native-menu/menu": "^1.2.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
     "@reduxjs/toolkit": "^2.5.1",
-    "@sentry/react-native": "^6.10.0",
     "@shopify/flash-list": "^1.7.3",
     "@types/lodash": "^4.17.9",
     "axios": "^1.6.4",
@@ -69,6 +72,7 @@
     "expo-av": "~15.0.2",
     "expo-build-properties": "~0.13.3",
     "expo-constants": "^17.0.8",
+    "expo-contacts": "~14.0.5",
     "expo-file-system": "~18.0.12",
     "expo-font": "~13.0.4",
     "expo-haptics": "~14.0.1",
@@ -77,6 +81,7 @@
     "expo-status-bar": "~2.0.1",
     "expo-system-ui": "~4.0.9",
     "expo-web-browser": "~14.0.2",
+    "ffmpeg-kit-react-native": "^6.0.2",
     "i18n-js": "^3.8.0",
     "lodash": "^4.17.21",
     "react": "18.3.1",
@@ -84,6 +89,7 @@
     "react-native": "^0.77.0",
     "react-native-audio-recorder-player": "^3.6.11",
     "react-native-autoheight-webview": "^1.6.5",
+    "react-native-contacts": "^8.0.9",
     "react-native-device-info": "^11.1.0",
     "react-native-document-picker": "^9.3.1",
     "react-native-edge-to-edge": "^1.7.0",
@@ -132,10 +138,12 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "jest": "^29.6.3",
+    "patch-package": "^8.0.0",
     "prettier": "^3.3.3",
     "react-dom": "18.3.1",
     "reactotron-react-native": "^5.1.12",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "undici": "^5.29.0"
   },
   "private": true,
   "expo": {
@@ -150,6 +158,7 @@
         "exclude": [
           "@kesha-antonov/react-native-action-cable",
           "react-native-audio-recorder-player",
+          "ffmpeg-kit-react-native",
           "react-native-document-picker",
           "react-native-file-viewer",
           "react-native-file-viewer",

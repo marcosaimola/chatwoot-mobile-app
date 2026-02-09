@@ -12,6 +12,7 @@ import { InboxItem } from './InboxItem';
 import { formatRelativeTime } from '@/utils/dateTimeUtils';
 import { formatTimeToShortForm } from '@/utils/dateTimeUtils';
 import { tailwind } from '@/theme';
+import { useThemeContext } from '@/context';
 import { Icon, Swipeable } from '@/components-next';
 import { selectInboxById } from '@/store/inbox/inboxSelectors';
 import i18n from '@/i18n';
@@ -55,6 +56,7 @@ const DeleteComponent = React.memo(() => {
 export const InboxItemContainerComponent = (props: InboxItemContainerProps) => {
   const { index, item, openedRowIndex } = props;
   const dispatch = useAppDispatch();
+  const { isDark } = useThemeContext();
 
   const navigation = useNavigation();
   const meta = item.primaryActor?.meta;
@@ -137,7 +139,7 @@ export const InboxItemContainerComponent = (props: InboxItemContainerProps) => {
       handleOnRightOverswiped={onSwipeRightAction}
       handlePress={onPressAction}
       triggerOverswipeOnFlick
-      rightElementBgColor="bg-ruby-800"
+      rightElementBgColor={isDark ? 'bg-rubyDark-600' : 'bg-ruby-800'}
       {...{ index, openedRowIndex }}>
       <InboxItem
         isRead={isRead}

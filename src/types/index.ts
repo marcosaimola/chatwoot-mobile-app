@@ -7,6 +7,7 @@ export * from './AgentBot';
 export * from './common';
 export * from './Contact';
 export * from './Conversation';
+export * from './Inbox';
 export * from './Message';
 export * from './Team';
 export * from './Account';

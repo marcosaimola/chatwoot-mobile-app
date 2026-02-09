@@ -441,9 +441,46 @@ The app has been updated for Android 15 (SDK 35) compatibility:
 
 See [ANDROID_15_UPDATES.md](ANDROID_15_UPDATES.md) for detailed implementation notes.
 
+## Error Tracking & Monitoring
+
+**Firebase Crashlytics** is used for error tracking and crash reporting:
+
+- **Service**: `src/services/CrashlyticsService.ts` - Singleton service for all Crashlytics interactions
+- **Initialization**: Automatic initialization in `App.tsx`
+- **Testing**: Debug actions available in Settings screen (long press on version number)
+- **Documentation**: See [CRASHLYTICS.md](CRASHLYTICS.md) for detailed usage guide
+
+**Features:**
+- Fatal crash reporting
+- Non-fatal error tracking
+- User identification and custom attributes
+- Breadcrumb logging
+- Integration with Firebase console
+
+**Usage Example:**
+```typescript
+import crashlyticsService from '@/services/CrashlyticsService';
+
+// Set user after login
+crashlyticsService.setUserId(user.id.toString());
+
+// Record non-fatal errors
+try {
+  await riskyOperation();
+} catch (error) {
+  crashlyticsService.recordError(error, 'Context description');
+}
+
+// Add custom attributes
+crashlyticsService.setAttributes({
+  account_id: accountId,
+  feature: 'conversations',
+});
+```
+
 ## Known Issues & Temporary Fixes
 
-- **Sentry**: Currently disabled to fix TestFlight crashes (commented out in [App.tsx](App.tsx) and [app.config.ts](app.config.ts))
+- **Sentry**: Replaced by Firebase Crashlytics. Old Sentry code has been removed.
 - **FFmpeg**: Temporarily disabled due to download issues (commented in [app.config.ts](app.config.ts))
 - **Reanimated Logger**: Temporary fix in [reanimatedConfig.js](reanimatedConfig.js) for bottom sheet warnings
 

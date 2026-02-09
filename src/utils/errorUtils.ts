@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/react-native';
+// import * as Sentry from '@sentry/react-native'; // Sentry disabled
 import { Alert } from 'react-native';
 
 import i18n from '../i18n';
@@ -9,7 +9,8 @@ interface ErrorHandler {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandler: ErrorHandler = (e, isFatal) => {
-  Sentry.captureException(e);
+  // Sentry.captureException(e); // Sentry disabled
+  console.error('Error handler:', e);
   if (isFatal) {
     Alert.alert(
       i18n.t('COMMON.ERROR_TITLE'),

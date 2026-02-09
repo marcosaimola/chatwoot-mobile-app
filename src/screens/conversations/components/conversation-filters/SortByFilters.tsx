@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useRefsContext } from '@/context';
+import { useRefsContext, useThemeContext } from '@/context';
 import { TickIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { SortTypes } from '@/types';
@@ -22,6 +22,7 @@ const sortByList = Object.keys(SortOptions) as SortTypes[];
 
 const SortByCell = (props: SortByCellProps) => {
   const { filtersModalSheetRef } = useRefsContext();
+  const { colors } = useThemeContext();
   const { value, index } = props;
   const filters = useAppSelector(selectFilters);
   const dispatch = useAppDispatch();
@@ -41,11 +42,11 @@ const SortByCell = (props: SortByCellProps) => {
       <Animated.View
         style={tailwind.style(
           'flex-1 ml-3 flex-row justify-between py-[11px] pr-3',
-          index !== sortByList.length - 1 ? 'border-b-[1px] border-blackA-A3' : '',
+          index !== sortByList.length - 1 ? `border-b-[1px] ${colors.borderPrimary}` : '',
         )}>
         <Animated.Text
           style={tailwind.style(
-            'text-base text-gray-950 font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize',
+            `text-base font-inter-420-20 leading-[21px] tracking-[0.16px] capitalize ${colors.textPrimary}`,
           )}>
           {i18n.t(`CONVERSATION.FILTERS.SORT_BY.OPTIONS.${value.toUpperCase()}`)}
         </Animated.Text>

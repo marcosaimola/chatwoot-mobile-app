@@ -38,6 +38,7 @@ import {
   SettingsList,
 } from '@/components-next';
 import { UserAvatar } from './components/UserAvatar';
+import { ProfileEditSheet } from './components/ProfileEditSheet';
 
 import { LANGUAGES, TAB_BAR_HEIGHT } from '@/constants';
 import { useRefsContext, useThemeContext } from '@/context';
@@ -70,6 +71,7 @@ import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
 import { getUserPermissions } from '@/utils/permissionUtils';
 import { CONVERSATION_PERMISSIONS } from '@/constants/permissions';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { clearAllCaches } from '@/utils/cacheManager';
 
 const appName = Application.applicationName;
 const appVersion = Application.nativeApplicationVersion;
@@ -133,6 +135,8 @@ const SettingsScreen = () => {
   const activeAccountName = accounts.length
     ? accounts.find((account: Account) => account.id === activeAccountId)?.name || ''
     : '';
+  const activeAccountNameDisplay =
+    activeAccountName.length > 16 ? `${activeAccountName.slice(0, 16)}…` : activeAccountName;
 
   const enableAccountSwitch = accounts.length > 1;
 
@@ -145,6 +149,7 @@ const SettingsScreen = () => {
     notificationPreferencesSheetRef,
     switchAccountSheetRef,
     debugActionsSheetRef,
+    profileEditSheetRef,
   } = useRefsContext();
 
   const hapticSelection = useHaptic();
@@ -224,6 +229,8 @@ const SettingsScreen = () => {
   const onClickLogout = useCallback(async () => {
     await AsyncStorage.removeItem('cwCookie');
     await dispatch(settingsActions.removeDevice({ pushToken }));
+    // Clear all caches including audio conversion cache
+    await clearAllCaches();
     dispatch(logout());
   }, [dispatch, pushToken]);
 
@@ -266,7 +273,7 @@ const SettingsScreen = () => {
       hasChevron: enableAccountSwitch,
       title: i18n.t('SETTINGS.SWITCH_ACCOUNT'),
       icon: <SwitchIcon />,
-      subtitle: activeAccountName,
+      subtitle: activeAccountNameDisplay,
       subtitleType: 'light',
       onPressListItem: () => {
         if (enableAccountSwitch) {
@@ -299,13 +306,15 @@ const SettingsScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tailwind.style(`pb-[${TAB_BAR_HEIGHT - 1}px]`)}>
         <Animated.View style={tailwind.style('flex justify-center items-center pt-4 gap-4')}>
-          <Animated.View>
-            <UserAvatar src={avatarUrl} name={name} status={availabilityStatus} />
-            <Animated.View
-              style={tailwind.style(
-                `absolute border-[2px] ${isDark ? 'border-gray-950' : 'border-white'} rounded-full -bottom-[2px] right-[10px]`,
-              )}></Animated.View>
-          </Animated.View>
+          <Pressable onPress={() => profileEditSheetRef.current?.present()}>
+            <Animated.View>
+              <UserAvatar src={avatarUrl} name={name} status={availabilityStatus} />
+              <Animated.View
+                style={tailwind.style(
+                  `absolute border-[2px] ${isDark ? 'border-gray-950' : 'border-white'} rounded-full -bottom-[2px] right-[10px]`,
+                )}></Animated.View>
+            </Animated.View>
+          </Pressable>
           <Animated.View style={tailwind.style('flex flex-col items-center gap-1')}>
             <Animated.Text style={tailwind.style(`text-[22px] font-inter-580-24 ${colors.textPrimary}`)}>
               {name}
@@ -416,21 +425,21 @@ const SettingsScreen = () => {
         backdropComponent={BottomSheetBackdrop}
         backgroundStyle={tailwind.style(isDark ? 'bg-grayDark-50' : 'bg-white')}
         handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-grayDark-600' : 'bg-blackA-A6'}`)}
-        // TODO: Fix this later
-        // bottomInset={bottom === 0 ? 12 : bottom}
         enablePanDownToClose
         animationConfigs={animationConfigs}
         handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
         style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['50%']}>
-        <BottomSheetWrapper>
+        snapPoints={['50%', '90%']}>
+        <BottomSheetScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tailwind.style('pb-8')}>
           <BottomSheetHeader headerText={i18n.t('SETTINGS.SWITCH_ACCOUNT')} />
           <SwitchAccount
             currentAccountId={activeAccountId}
             changeAccount={changeAccount}
             accounts={accounts}
           />
-        </BottomSheetWrapper>
+        </BottomSheetScrollView>
       </BottomSheetModal>
       <BottomSheetModal
         ref={debugActionsSheetRef}
@@ -447,6 +456,7 @@ const SettingsScreen = () => {
           <DebugActions />
         </BottomSheetWrapper>
       </BottomSheetModal>
+      <ProfileEditSheet />
       {!!process.env.EXPO_PUBLIC_CHATWOOT_WEBSITE_TOKEN &&
         !!process.env.EXPO_PUBLIC_CHATWOOT_BASE_URL &&
         !!showWidget && (
