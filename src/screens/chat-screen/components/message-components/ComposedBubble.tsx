@@ -160,7 +160,7 @@ export const ComposedBubble = (props: ComposedBubbleProps) => {
                     variant={props.variant}
                     senderName={senderName}
                     senderAvatar={senderAvatar}
-                    conversationName="AppConecta"
+                    conversationName="ZapiCrm"
                   />
                 </Animated.View>
               );

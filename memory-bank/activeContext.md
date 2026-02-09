@@ -1,4 +1,4 @@
-# Active Context - AppConecta Mobile App
+# Active Context - ZapiCrm Mobile App
 
 ## Current Work Focus
 **Status**: ✅ **DONE** - iOS Now Playing Lock Screen Implementation
@@ -141,8 +141,8 @@ await NowPlayingCenter.setupRemoteCommandCenter();
 // 5. Definir Now Playing info
 await NowPlayingCenter.setNowPlayingInfo({
   title: senderName,
-  artist: 'AppConecta',
-  album: 'AppConecta',
+  artist: 'ZapiCrm',
+  album: 'ZapiCrm',
   duration: durationSec,
   position: 0,
   playbackRate: 1.0,
@@ -215,8 +215,8 @@ await sound.playAsync();
 ### Now Playing (iOS Lock Screen)
 - `native-modules/ios-native/NowPlayingManager.h`: Backup do header (versionado no git)
 - `native-modules/ios-native/NowPlayingManager.m`: Backup da implementação (versionado no git)
-- `ios/AppConecta/NowPlayingManager.h`: Header do módulo nativo (gerado)
-- `ios/AppConecta/NowPlayingManager.m`: Implementação do módulo nativo (gerado)
+- `ios/ZapiCrm/NowPlayingManager.h`: Header do módulo nativo (gerado)
+- `ios/ZapiCrm/NowPlayingManager.m`: Implementação do módulo nativo (gerado)
 - `src/services/NowPlayingCenter.ts`: Interface TypeScript
 - `src/screens/chat-screen/components/audio-recorder/NativeAudioManager.ts`: Integração
 - `scripts/install-native-modules.sh`: Script para restaurar módulos após regeneração
@@ -228,7 +228,7 @@ await sound.playAsync();
 ### Configuration
 - `app.config.ts`: FFmpeg plugin + UIBackgroundModes audio
 - `package.json`: ffmpeg-kit-react-native dependency
-- `ios/AppConecta.xcodeproj/project.pbxproj`: NowPlayingManager files
+- `ios/ZapiCrm.xcodeproj/project.pbxproj`: NowPlayingManager files
 
 ## Android Build Commands
 
@@ -253,10 +253,10 @@ cd android && ./gradlew clean bundleRelease --no-daemon
 ```bash
 cd ios
 rm -rf build/ Pods/
-rm -rf ~/Library/Developer/Xcode/DerivedData/AppConecta-*
+rm -rf ~/Library/Developer/Xcode/DerivedData/ZapiCrm-*
 export LANG=en_US.UTF-8
 pod install
-open AppConecta.xcworkspace
+open ZapiCrm.xcworkspace
 # Xcode: Cmd+Shift+K (clean), Cmd+B (build), Cmd+R (run)
 ```
 
@@ -274,7 +274,7 @@ open AppConecta.xcworkspace
 - Verificar se audio category é `AVAudioSessionCategoryPlayback` (não Ambient)
 - Testar com áudio mais longo (30+ segundos)
 - Verificar Control Center enquanto áudio toca
-- **IMPORTANTE**: Verificar se os arquivos `NowPlayingManager.h/.m` existem em `ios/AppConecta/`
+- **IMPORTANTE**: Verificar se os arquivos `NowPlayingManager.h/.m` existem em `ios/ZapiCrm/`
 
 ### Módulos Nativos Perdidos após `npm run generate`
 
@@ -287,13 +287,13 @@ A pasta `ios/` é regenerada do zero e módulos nativos customizados são perdid
 ./scripts/install-native-modules.sh
 
 # Opção 2: Manual
-cp native-modules/ios-native/NowPlayingManager.h ios/AppConecta/
-cp native-modules/ios-native/NowPlayingManager.m ios/AppConecta/
+cp native-modules/ios-native/NowPlayingManager.h ios/ZapiCrm/
+cp native-modules/ios-native/NowPlayingManager.m ios/ZapiCrm/
 ```
 
 Depois, adicionar ao Xcode:
-1. Abra `ios/AppConecta.xcworkspace`
-2. Arraste os arquivos para o grupo `AppConecta`
+1. Abra `ios/ZapiCrm.xcworkspace`
+2. Arraste os arquivos para o grupo `ZapiCrm`
 3. Clean Build (Cmd+Shift+K) e Build (Cmd+B)
 
 ### pod install encoding error

@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚀 Build Android - AppConecta"
+echo "🚀 Build Android - ZapiCrm"
 echo "================================"
 echo ""
 

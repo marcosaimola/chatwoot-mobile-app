@@ -27,9 +27,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   );
 
   return {
-    name: 'AppConecta',
+    name: 'ZapiCrm',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'chatwoot-mobile',
-    version: '4.6.14',
+    version: '5.4',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -47,15 +47,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       buildNumber: '6',
       infoPlist: {
         NSCameraUsageDescription:
-          'AppConecta uses the camera to allow users to take and send photos or videos in customer conversations or when chatting with the support team.',
+          'ZapiCrm uses the camera to allow users to take and send photos or videos in customer conversations or when chatting with the support team.',
         NSPhotoLibraryUsageDescription:
-          'AppConecta needs access to your photo library to let you choose and send images in customer conversations.',
+          'ZapiCrm needs access to your photo library to let you choose and send images in customer conversations.',
         NSMicrophoneUsageDescription:
-          'AppConecta uses the microphone so users can record and send voice messages in customer conversations or when contacting our support team.',
+          'ZapiCrm uses the microphone so users can record and send voice messages in customer conversations or when contacting our support team.',
         NSAppleMusicUsageDescription:
           'This app does not use Apple Music, but a system API may require this permission.',
         NSContactsUsageDescription:
-          'AppConecta precisa acessar seus contatos para importá-los',
+          'ZapiCrm precisa acessar seus contatos para importá-los',
         UIBackgroundModes: ['fetch', 'remote-notification', 'audio'],
         ITSAppUsesNonExemptEncryption: false,
       },

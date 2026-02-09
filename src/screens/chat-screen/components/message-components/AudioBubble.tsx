@@ -142,8 +142,8 @@ export const AudioBubblePlayer = React.memo((props: AudioPlayerProps) => {
       setIsSoundLoading(true);
       startPlayer(convertedAudioSrc, audioPlayBackStatus, {
         title: senderName || 'Mensagem de Áudio',
-        artist: conversationName || 'AppConecta',
-        album: 'AppConecta',
+        artist: conversationName || 'ZapiCrm',
+        album: 'ZapiCrm',
         artworkUrl: senderAvatar,
       }).then(() => {
         setIsSoundLoading(false);

@@ -1,6 +1,6 @@
 //
 //  NowPlayingManager.h
-//  AppConecta
+//  ZapiCrm
 //
 //  Native module for iOS Now Playing Center (Lock Screen Controls)
 //

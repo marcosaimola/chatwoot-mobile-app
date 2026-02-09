@@ -24,13 +24,13 @@ Módulo nativo para controle do Now Playing Center (tela de bloqueio) no iOS.
 1. **Copiar arquivos para o projeto iOS:**
 
 ```bash
-cp native-modules/ios-native/NowPlayingManager.h ios/AppConecta/
-cp native-modules/ios-native/NowPlayingManager.m ios/AppConecta/
+cp native-modules/ios-native/NowPlayingManager.h ios/ZapiCrm/
+cp native-modules/ios-native/NowPlayingManager.m ios/ZapiCrm/
 ```
 
 2. **Adicionar ao projeto Xcode:**
 
-Abra o Xcode e arraste os arquivos `NowPlayingManager.h` e `NowPlayingManager.m` para o grupo `AppConecta` no navegador de projeto.
+Abra o Xcode e arraste os arquivos `NowPlayingManager.h` e `NowPlayingManager.m` para o grupo `ZapiCrm` no navegador de projeto.
 
 Ou use o script automatizado:
 
@@ -43,7 +43,7 @@ Ou use o script automatizado:
 ```bash
 cd ios
 pod install
-open AppConecta.xcworkspace
+open ZapiCrm.xcworkspace
 ```
 
 No Xcode: Product > Clean Build Folder (Cmd+Shift+K), depois Product > Build (Cmd+B)

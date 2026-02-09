@@ -1,4 +1,4 @@
-# Guia de Build - AppConecta
+# Guia de Build - ZapiCrm
 
 ## 🚀 Opção 1: Build via Android Studio (Recomendado)
 

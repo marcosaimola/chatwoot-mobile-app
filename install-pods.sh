@@ -48,5 +48,5 @@ cd ..
 
 echo ""
 echo "✅ Pronto! Abra o workspace no Xcode:"
-echo "   open ios/AppConecta.xcworkspace"
+echo "   open ios/ZapiCrm.xcworkspace"
 echo ""

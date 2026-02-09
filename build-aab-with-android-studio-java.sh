@@ -21,7 +21,7 @@ set -e
 
 echo ""
 echo "============================================="
-echo "  BUILD ANDROID AAB - AppConecta"
+echo "  BUILD ANDROID AAB - ZapiCrm"
 echo "============================================="
 echo ""
 

@@ -1,4 +1,4 @@
-# Progress - AppConecta Mobile App
+# Progress - ZapiCrm Mobile App
 
 ## What Works ✅
 
@@ -57,7 +57,7 @@
 ### Version: 4.6.0
 - **Bundle ID iOS**: br.com.zapicrm
 - **Package Android**: br.com.zapicrm
-- **App Name**: AppConecta
+- **App Name**: ZapiCrm
 - **Platform**: iOS e Android
 - **React Native**: 0.77.0 (atualizado para suporte 16KB)
 

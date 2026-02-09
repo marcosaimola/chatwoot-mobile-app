@@ -1,4 +1,4 @@
-# Guia de Build Android - AppConecta
+# Guia de Build Android - ZapiCrm
 
 ## IMPORTANTE: LEIA PRIMEIRO
 

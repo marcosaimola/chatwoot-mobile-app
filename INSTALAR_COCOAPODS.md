@@ -39,7 +39,7 @@ pod install
 ### 5. Abrir o projeto no Xcode
 
 ```bash
-open /Users/nextphones/Documents/Projetos/appconnect/ios/AppConecta.xcworkspace
+open /Users/nextphones/Documents/Projetos/appconnect/ios/ZapiCrm.xcworkspace
 ```
 
 ---
@@ -58,5 +58,5 @@ Depois:
 cd /Users/nextphones/Documents/Projetos/appconnect/ios
 export LANG=en_US.UTF-8
 pod install
-open AppConecta.xcworkspace
+open ZapiCrm.xcworkspace
 ```

@@ -40,7 +40,7 @@ export const selectChatwootVersion = createSelector(selectSettings, settings => 
 export const selectPushToken = createSelector(selectSettings, settings => settings.pushToken);
 
 /**
- * Selector to check if the current installation is Zenvor or AppConecta
+ * Selector to check if the current installation is Zenvor or ZapiCrm
  * Used to conditionally show features like AI Agents and Funnel/Kanban
  */
 const ALLOWED_CUSTOM_FEATURES_URLS = ['app.zenvor.com.br','atendimento.zapicrm.com.br'];

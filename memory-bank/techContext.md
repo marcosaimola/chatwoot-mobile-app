@@ -269,8 +269,8 @@ Para exibir informações do áudio na tela de bloqueio e Control Center, usamos
 ### Módulo Nativo (NowPlayingManager)
 
 **Arquivos:**
-- `ios/AppConecta/NowPlayingManager.h`
-- `ios/AppConecta/NowPlayingManager.m`
+- `ios/ZapiCrm/NowPlayingManager.h`
+- `ios/ZapiCrm/NowPlayingManager.m`
 
 **Métodos exportados:**
 - `setupRemoteCommandCenter`: Configura comandos play/pause/seek
@@ -298,8 +298,8 @@ if (![session.category isEqualToString:AVAudioSessionCategoryPlayback]) {
 ```typescript
 interface NowPlayingInfo {
   title?: string;      // Nome do remetente
-  artist?: string;     // "AppConecta"
-  album?: string;      // "AppConecta"
+  artist?: string;     // "ZapiCrm"
+  album?: string;      // "ZapiCrm"
   duration?: number;   // Duração em segundos
   position?: number;   // Posição atual em segundos
   playbackRate?: number; // 0 = pausado, 1 = tocando

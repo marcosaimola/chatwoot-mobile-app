@@ -58,7 +58,7 @@ export const startPlayer = async (
   currentCallback = callback;
   currentAudioInfo = {
     title: audioInfo?.title || 'Mensagem de Áudio',
-    artist: audioInfo?.artist || 'AppConecta',
+    artist: audioInfo?.artist || 'ZapiCrm',
     album: audioInfo?.album || 'Conversa',
     artworkUrl: audioInfo?.artworkUrl,
   };
@@ -132,7 +132,7 @@ export const startPlayer = async (
       // Set complete Now Playing info with duration + artwork BEFORE playing (only once)
       await NowPlayingCenter.setNowPlayingInfo({
         title: currentAudioInfo?.title || 'Mensagem de Áudio',
-        artist: currentAudioInfo?.artist || 'AppConecta',
+        artist: currentAudioInfo?.artist || 'ZapiCrm',
         album: currentAudioInfo?.album || 'Conversa',
         duration: durationSec,
         position: 0,
