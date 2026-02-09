@@ -69,6 +69,48 @@ export PATH="$JAVA_HOME/bin:$PATH"
 JAVA_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | head -n 1)
 echo "   📦 Versão: $JAVA_VERSION"
 
+# --- STEP 1.5: Detectar Android SDK ---
+echo ""
+echo "🔍 [1.5/7] Procurando Android SDK..."
+
+POSSIBLE_SDK_PATHS=(
+  "$HOME/Library/Android/sdk"
+  "/Users/$USER/Library/Android/sdk"
+  "/opt/android-sdk"
+  "$ANDROID_HOME"
+  "$ANDROID_SDK_ROOT"
+)
+
+SDK_FOUND=false
+for sdk_path in "${POSSIBLE_SDK_PATHS[@]}"; do
+  if [ -n "$sdk_path" ] && [ -d "$sdk_path" ] && [ -d "$sdk_path/platforms" ]; then
+    export ANDROID_HOME="$sdk_path"
+    export ANDROID_SDK_ROOT="$sdk_path"
+    SDK_FOUND=true
+    echo "   ✅ Android SDK: $ANDROID_HOME"
+    break
+  fi
+done
+
+if [ "$SDK_FOUND" = false ]; then
+  echo "   ❌ Android SDK não encontrado!"
+  echo "      Instale via Android Studio ou defina ANDROID_HOME"
+  exit 1
+fi
+
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$PATH"
+
+# Garantir que local.properties existe com o caminho do SDK
+LOCAL_PROPS="$(dirname "$0")/android/local.properties"
+if [ ! -f "$LOCAL_PROPS" ] || ! grep -q "sdk.dir" "$LOCAL_PROPS" 2>/dev/null; then
+  echo "   📝 Criando android/local.properties com sdk.dir"
+  echo "sdk.dir=$ANDROID_HOME" > "$LOCAL_PROPS"
+elif ! grep -q "$ANDROID_HOME" "$LOCAL_PROPS" 2>/dev/null; then
+  # Atualizar sdk.dir se o caminho mudou
+  sed -i '' "s|^sdk.dir=.*|sdk.dir=$ANDROID_HOME|" "$LOCAL_PROPS"
+  echo "   📝 Atualizado android/local.properties com sdk.dir"
+fi
+
 # --- STEP 2: Detectar Node.js ---
 echo ""
 echo "🔍 [2/7] Procurando Node.js..."

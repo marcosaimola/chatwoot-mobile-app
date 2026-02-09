@@ -29,7 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     name: 'ZapiCrm',
     slug: process.env.EXPO_PUBLIC_APP_SLUG || 'chatwoot-mobile',
-    version: '5.4',
+    version: '5.5',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -69,7 +69,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       adaptiveIcon: { foregroundImage: './assets/adaptive-icon.png', backgroundColor: '#ffffff' },
       package: process.env.EXPO_PUBLIC_ANDROID_PACKAGE || 'br.com.zapicrm',
-      versionCode: 32,
+      versionCode: 33,
       permissions: [
         'android.permission.CAMERA',
         'android.permission.RECORD_AUDIO',
