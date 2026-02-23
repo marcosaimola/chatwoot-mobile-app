@@ -576,7 +576,17 @@
       "SAVE": "Save",
       "CREATE": "Create",
       "UPDATE": "Update",
-      "SAVING": "Saving..."
+      "SAVING": "Saving...",
+      "PRODUCTS": "Products",
+      "ADD_PRODUCT": "Add product",
+      "PRODUCT": "Product",
+      "PRODUCT_PLACEHOLDER": "Select a product",
+      "QUANTITY": "Quantity",
+      "QUANTITY_PLACEHOLDER": "1",
+      "UNIT_VALUE": "Unit value",
+      "UNIT_VALUE_PLACEHOLDER": "0.00",
+      "TOTAL": "Total",
+      "REMOVE_PRODUCT": "Remove"
     },
     "DISPLAY": {
       "EDIT": "Edit",

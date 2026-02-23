@@ -26,6 +26,7 @@ import ContactDetailsScreen from '@/screens/contact-details/ContactDetailsScreen
 import DashboardScreen from '@/screens/dashboard/DashboardScreen';
 import AiAgentsScreen from '@/screens/ai-agents/AiAgentsScreen';
 import ForwardContactsScreen from '@/screens/chat-screen/components/forward-contacts/ForwardContactsScreen';
+import KanbanItemFormScreen from '@/screens/chat-screen/conversation-actions/components/KanbanItemFormScreen';
 
 import { selectInstallationUrl, selectIsCustomFeaturesEnabled } from '@/store/settings/settingsSelectors';
 import { BottomTabBar } from './BottomTabBar';
@@ -69,6 +70,12 @@ export type TabBarExcludedScreenParamList = {
   ConversationDetails: undefined;
   ConversationAction: undefined;
   ForwardContacts: undefined;
+  KanbanItemFormScreen: {
+    conversationId: number;
+    item?: any;
+    funnels: any[];
+    contactName?: string;
+  };
 };
 const Stack = createNativeStackNavigator<TabBarExcludedScreenParamList>();
 
@@ -231,6 +238,14 @@ export const AppTabs = () => {
           }}
           name="ForwardContacts"
           component={ForwardContactsScreen}
+        />
+        <Stack.Screen
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_bottom',
+          }}
+          name="KanbanItemFormScreen"
+          component={KanbanItemFormScreen}
         />
       </Stack.Navigator>
     );

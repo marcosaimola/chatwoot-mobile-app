@@ -24,6 +24,32 @@ export interface KanbanItem {
   title: string;
   cod_ref_item: string | null;
   account_id: string;
+  funnel_item_products?: FunnelItemProduct[];
+}
+
+export interface Product {
+  id: string;
+  account_id: number;
+  name: string;
+  description: string;
+  fixed_price: string;
+  allow_price_override: boolean;
+  active: boolean;
+  image_url: string;
+  created_at: string;
+}
+
+export interface FunnelItemProduct {
+  funnel_item_id?: string;
+  product_id: string;
+  quantity: number;
+  unit_value: number;
+}
+
+export interface ProductRow {
+  productId: string;
+  quantity: number;
+  unitValue: number;
 }
 
 export interface KanbanStage {

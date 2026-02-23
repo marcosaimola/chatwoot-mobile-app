@@ -1,41 +1,45 @@
-import React, { useEffect, useState, memo } from 'react';
-import { Pressable, ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState, memo, useCallback } from 'react';
+import { Pressable, ActivityIndicator, Platform, StyleSheet, Alert } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { tailwind } from '@/theme';
 import { useThemeContext } from '@/context';
 import { webhookService } from '@/services/WebhookService';
 import { showToast } from '@/utils/toastUtils';
-import { BottomSheetBackdrop } from '@/components-next';
-import { KanbanItem, KanbanFunnel } from './types/KanbanTypes';
-import { KanbanItemForm } from './KanbanItemForm';
+import { KanbanItem, KanbanFunnel } from '../types/KanbanTypes';
 import { KanbanItemDisplay } from './KanbanItemDisplay';
 import { useAppSelector } from '@/hooks';
 import { selectConversationById } from '@/store/conversation/conversationSelectors';
 import i18n from '@/i18n';
-import { Alert } from 'react-native';
+import { TabBarExcludedScreenParamList } from '@/navigation/tabs/AppTabs';
 
 interface KanbanItemCardProps {
   conversationId: number;
 }
 
+type NavigationProp = NativeStackNavigationProp<TabBarExcludedScreenParamList>;
+
 const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId }) => {
   const [kanbanItem, setKanbanItem] = useState<KanbanItem | null>(null);
   const [availableFunnels, setAvailableFunnels] = useState<KanbanFunnel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [formModalRef] = useState(() => React.createRef<BottomSheetModal>());
   const { colors, isDark } = useThemeContext();
+  const navigation = useNavigation<NavigationProp>();
 
   const conversation = useAppSelector(state => selectConversationById(state, conversationId));
   const contactName = conversation?.meta?.sender?.name || '';
 
-  useEffect(() => {
-    if (conversationId && conversationId > 0) {
-      loadKanbanData();
-    }
-  }, [conversationId]);
+  // Reload data when screen comes back into focus (after form submit)
+  useFocusEffect(
+    useCallback(() => {
+      if (conversationId && conversationId > 0) {
+        loadKanbanData();
+      }
+    }, [conversationId]),
+  );
 
   const loadKanbanData = async () => {
     try {
@@ -47,7 +51,6 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
         setKanbanItem(itemData[0]);
       } else {
         setKanbanItem(null);
-        // Load available funnels if no item exists
         loadAvailableFunnels();
       }
     } catch (error) {
@@ -60,7 +63,6 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
   const loadAvailableFunnels = async (): Promise<KanbanFunnel[]> => {
     try {
       const funnelsResponse = await webhookService.get('kanban/mobile-list');
-      console.log('Funis disponíveis:', funnelsResponse.data);
       const funnels = funnelsResponse.data || [];
       setAvailableFunnels(funnels);
       return funnels;
@@ -71,25 +73,31 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
   };
 
   const handleAddItem = async () => {
-    // Load available funnels before opening add form
     const funnels = await loadAvailableFunnels();
     if (funnels.length === 0) {
       showToast({ message: i18n.t('KANBAN.MESSAGES.NO_FUNNELS_ADD') });
       return;
     }
-    setShowForm(true);
-    formModalRef.current?.present();
+    navigation.navigate('KanbanItemFormScreen', {
+      conversationId,
+      item: null,
+      funnels,
+      contactName,
+    });
   };
 
   const handleEditItem = async () => {
-    // Load available funnels before opening edit form
     const funnels = await loadAvailableFunnels();
     if (funnels.length === 0) {
       showToast({ message: i18n.t('KANBAN.MESSAGES.NO_FUNNELS_EDIT') });
       return;
     }
-    setShowForm(true);
-    formModalRef.current?.present();
+    navigation.navigate('KanbanItemFormScreen', {
+      conversationId,
+      item: kanbanItem,
+      funnels,
+      contactName,
+    });
   };
 
   const handleDeleteItem = async () => {
@@ -108,70 +116,23 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('🗑️ Iniciando exclusão do item:', kanbanItem.id);
               const response = await webhookService.delete(`kanban/delete-mobile?id=${kanbanItem.id}`);
-              console.log('📋 Resposta da exclusão:', response.data);
               
-              // Verificar se a resposta tem success: true
               if (response.data && response.data.success === true) {
-                console.log('✅ Item deletado com sucesso');
                 showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_DELETED') });
                 setKanbanItem(null);
                 loadAvailableFunnels();
               } else {
-                console.log('⚠️ Resposta não indica sucesso:', response.data);
                 showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_DELETE_ERROR') });
               }
             } catch (error) {
-              console.error('❌ Erro ao deletar item:', error);
+              console.error('Erro ao deletar item:', error);
               showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_DELETE_ERROR') });
             }
           },
         },
       ]
     );
-  };
-
-  const handleFormSubmit = async (formData: any) => {
-    console.log('🔄 handleFormSubmit chamado com dados:', formData);
-    
-    // Se não há dados, apenas fecha o modal e atualiza a lista
-    if (!formData || Object.keys(formData).length === 0) {
-      console.log('⚠️ Sem dados, apenas fechando modal');
-      setShowForm(false);
-      formModalRef.current?.dismiss();
-      loadKanbanData();
-      return;
-    }
-    
-    try {
-      if (kanbanItem) {
-        // Edit existing item
-        console.log('✏️ Editando item existente no handleFormSubmit');
-        await webhookService.post('kanban/mobile-salvar', {
-          ...formData,
-          id: kanbanItem.id,
-        });
-        showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_UPDATED') });
-      } else {
-        // Create new item
-        console.log('➕ Criando novo item no handleFormSubmit');
-        await webhookService.post('kanban/mobile-salvar', formData);
-        showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_CREATED') });
-      }
-      
-      setShowForm(false);
-      formModalRef.current?.dismiss();
-      loadKanbanData();
-    } catch (error) {
-      console.error('Erro ao salvar item:', error);
-      showToast({ message: i18n.t('KANBAN.MESSAGES.ITEM_SAVE_ERROR') });
-    }
-  };
-
-  const handleFormCancel = () => {
-    setShowForm(false);
-    formModalRef.current?.dismiss();
   };
 
   if (loading) {
@@ -222,28 +183,6 @@ const KanbanItemCardComponent: React.FC<KanbanItemCardProps> = ({ conversationId
           </Animated.View>
         )}
       </Animated.View>
-
-      <BottomSheetModal
-        ref={formModalRef}
-        backdropComponent={BottomSheetBackdrop}
-        backgroundStyle={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}
-        handleIndicatorStyle={tailwind.style(`overflow-hidden w-8 h-1 rounded-[11px] ${isDark ? 'bg-gray-600' : 'bg-blackA-A6'}`)}
-        handleStyle={tailwind.style('p-0 h-4 pt-[5px]')}
-        style={tailwind.style('rounded-[26px] overflow-hidden')}
-        snapPoints={['90%']}
-        enablePanDownToClose
-        onDismiss={() => setShowForm(false)}>
-        <BottomSheetScrollView style={tailwind.style(isDark ? 'bg-gray-950' : 'bg-white')}>
-          <KanbanItemForm
-            conversationId={conversationId}
-            item={kanbanItem}
-            funnels={availableFunnels}
-            contactName={contactName}
-            onSubmit={handleFormSubmit}
-            onCancel={handleFormCancel}
-          />
-        </BottomSheetScrollView>
-      </BottomSheetModal>
     </Animated.View>
   );
 };
